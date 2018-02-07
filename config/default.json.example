@@ -19,7 +19,7 @@
     }
   },
   "moderation":{
-    "perms": ["LBRY MODS","LBRY TEAM"],
-    "logchannel": "371620338263523328"
+    "role": "ALLOWED ROLE ID",
+    "logchannel": "LOG CHANNEL ID"
   }
 }

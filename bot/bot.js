@@ -4,9 +4,10 @@
 const Discord = require('discord.js');
 // Load config!
 let config = require('config');
+const moderation = config.get('moderation');
 config = config.get('bot');
 
-var aliases;
+let aliases;
 try {
   aliases = require('./alias.json');
 } catch (e) {
@@ -19,14 +20,16 @@ try {
     }
   };
 }
-var commands = {};
+const commands = {};
 
-var bot = new Discord.Client();
+const bot = new Discord.Client();
+let guild;
 
 bot.on('ready', function() {
   console.log('Logged in! Serving in ' + bot.guilds.array().length + ' servers');
   require('./plugins.js').init();
   console.log('type ' + config.prefix + 'help in Discord for a commands list.');
+  guild = bot.guilds.get(config.serverId);
 });
 
 bot.on('disconnected', function() {
@@ -58,8 +61,10 @@ function checkMessageForCommand(msg, isEdit) {
     }
     if (cmd) {
       // permission check
-      const guild = bot.guilds.get(config.serverId);
-      console.log(guild.members.get(msg.author.id).roles);
+      if( !guild.members.get( msg.author.id ).roles.get( moderation.role )){
+        console.log("member " + msg.author.id + " not allowed to use the bot");
+        return;
+      }
 
       try {
         cmd.process(bot, msg, suffix, isEdit);
