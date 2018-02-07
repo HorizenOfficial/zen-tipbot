@@ -1,0 +1,25 @@
+{
+  "bot": {
+    "token":"DISCORD TOKEN",
+    "serverId": "SERVER ID",
+    "prefix": "!",
+    "debug": true
+  },
+  "zen": {
+    "host": "localhost",
+    "port": 8666,
+    "user": "example",
+    "pass": "example",
+    "timeout": 30000
+  },
+  "mongodb": {
+    "url":"mongodb://localhost:27017/tipbot",
+    "options": {
+      "useMongoClient": true
+    }
+  },
+  "moderation":{
+    "perms": ["LBRY MODS","LBRY TEAM"],
+    "logchannel": "371620338263523328"
+  }
+}
