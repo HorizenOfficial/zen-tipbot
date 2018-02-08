@@ -58,11 +58,13 @@ function checkMessageForCommand(msg, isEdit) {
             }
         }
         let alias = aliases[cmdTxt];
+        let cmd;
         if (alias) {
-            let cmd = alias;
+            cmd = alias;
         } else {
-            let cmd = commands[cmdTxt];
+            cmd = commands[cmdTxt];
         }
+
         if (cmd) {
             // permission check
             if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
