@@ -30,20 +30,20 @@ exports.tip = {
     usage: "<subcommand>",
 
     description: "Here is the commands you can use:\n"
-    + "**!help** : display this message.\n"
-    + "**!deposit** : get an address to top up your balance (maximum 1 ZEN).\n"
-    + "**!balance** : get your balance.\n"
-    + "**!withdraw <amount> <address>** : withdraw <amount> ZENs from your"
+    + "**!tip help** : display this message.\n"
+    + "**!tip deposit** : get an address to top up your balance.\n"
+    + "**!tip balance** : get your balance.\n"
+    + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your"
     + " balance to your <address>.\n"
     + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs (maximum"
     + " 1 ZEN) and leave an optional [message].\n"
-    + "**!each <amount> <n> [message]** : drop a packet in a channel, the"
+    + "**!tip each <amount> <n> [message]** : drop a packet in a channel, the"
     + " <amount> is divided *equally* between the <n> first people to open"
     + " the packet. Leave an optionnal [message] with the packet.\n"
-    + "**!luck <amount> <n> [message]** : drop a packet in a channel, the"
+    + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, the"
     + " <amount> is divided *randomly* between the <n> first people to open"
     + " the packet. Leave an optionnal [message] with the packet.\n"
-    + "**!open** : open the latest packet dropped into the channel.\n",
+    + "**!tip open** : open the latest packet dropped into the channel.\n",
 
     process: async function (bot, msg, suffix) {
         getUser(msg.author.id, function (err, doc) {
@@ -77,7 +77,6 @@ exports.tip = {
                 default:
                     doTip(msg, tipper, words);
             }
-
         });
     }
 };
@@ -138,7 +137,7 @@ function getUser(id, cb) {
 }
 
 /**
- * Calculate and return user's balance. DO NOT CONFUSE WITH doBalance!
+ * Calculate and return user"s balance. DO NOT CONFUSE WITH doBalance!
  * @param tipper
  * @param cb
  */
@@ -156,7 +155,7 @@ function getBalance(tipper, cb) {
 }
 
 /**
- * Reply to !tip balance and display user's balance. DO NOT CONFUSE WITH getBalance!
+ * Reply to !tip balance and display user"s balance. DO NOT CONFUSE WITH getBalance!
  * @param message
  * @param tipper
  */
@@ -212,14 +211,11 @@ function doDeposit(message, tipper) {
  * @param words
  */
 function doWithdraw(message, tipper, words) {
-    if (message.channel.type !== "dm") {
+    if (message.channel.type !== "dm")
         return message.reply("Please DM me for this command.");
-    }
 
-    // wrong command syntax
-    if (words.length < 4 || !words) {
-        return doHelp(message);
-    }
+    //  wrong command syntax
+    if (words.length < 4 || !words) return doHelp(message);
 
     getBalance(tipper, function (err, balance) {
         if (err) return message.reply("Error getting balance");
@@ -334,7 +330,7 @@ function sendZen(tipper, receiver, amount) {
 }
 
 /**
- * Validate syntax and check if user's balance is enough to manipulate the requested amount and also stop manipulation
+ * Validate syntax and check if user"s balance is enough to manipulate the requested amount and also stop manipulation
  * if amount is 0.
  * @param amount
  * @param balance
@@ -346,7 +342,8 @@ function getValidatedAmount(amount, balance) {
     }
 
     if (amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
-        amount = parseFloat(amount);
+        //  8 decimals maximum
+        amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
 
         if (amount > 0 && amount <= balance) {
             return amount;
