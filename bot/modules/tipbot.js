@@ -137,7 +137,7 @@ function getUser(id, cb) {
 }
 
 /**
- * Calculate and return user"s balance. DO NOT CONFUSE WITH doBalance!
+ * Calculate and return user's balance. DO NOT CONFUSE WITH doBalance!
  * @param tipper
  * @param cb
  */
@@ -155,7 +155,7 @@ function getBalance(tipper, cb) {
 }
 
 /**
- * Reply to !tip balance and display user"s balance. DO NOT CONFUSE WITH getBalance!
+ * Reply to !tip balance and display user's balance. DO NOT CONFUSE WITH getBalance!
  * @param message
  * @param tipper
  */
@@ -330,7 +330,7 @@ function sendZen(tipper, receiver, amount) {
 }
 
 /**
- * Validate syntax and check if user"s balance is enough to manipulate the requested amount and also stop manipulation
+ * Validate syntax and check if user's balance is enough to manipulate the requested amount and also stop manipulation
  * if amount is 0.
  * @param amount
  * @param balance
@@ -345,7 +345,7 @@ function getValidatedAmount(amount, balance) {
         //  8 decimals maximum
         amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
 
-        if (amount > 0 && amount <= balance) {
+        if ((amount > 0) && (amount <= balance)) {
             return amount;
         }
     }
