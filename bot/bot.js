@@ -12,7 +12,7 @@ let aliases;
 try {
     aliases = require("./alias.json");
 } catch (e) {
-    //No aliases defined
+    // No aliases defined
     aliases = {
         test: {
             process: function (bot, msg) {
@@ -42,7 +42,7 @@ bot.on("disconnected", function () {
  */
 function checkMessageForCommand(msg, isEdit) {
     // check if message is a command
-    if (msg.author.id !== bot.user.id && msg.content.startsWith(config.prefix)) {
+    if ((msg.author.id !== bot.user.id) && msg.content.startsWith(config.prefix)) {
         console.log("treating " + msg.content + " from " + msg.author + " as command");
         let cmdTxt = msg.content.split(" ")[0].substring(config.prefix.length);
         // add one for the ! and one for the space
@@ -83,13 +83,13 @@ function checkMessageForCommand(msg, isEdit) {
             }
         }
     } else {
-        // message isn"t a command or is from us drop our own messages to prevent feedback loops
+        // message is not a command or is from us drop our own messages to prevent feedback loops
         if (msg.author === bot.user) {
             return;
         }
 
-        if (msg.author !== bot.user && msg.isMentioned(bot.user)) {
-            //using a mention here can lead to looping
+        if ((msg.author !== bot.user) && msg.isMentioned(bot.user)) {
+            // using a mention here can lead to looping
             msg.channel.send("yes?");
         } else {
             // TODO: ???
