@@ -351,7 +351,10 @@ function getValidatedAmount(amount, balance) {
             return amount;
         }
     }
-
+    // Invalid ammount
+    if (amount > 9000) {
+        return "Over9K"
+    }
     return null;
 }
 
