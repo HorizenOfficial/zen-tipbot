@@ -271,7 +271,7 @@ function doTip(message, tipper, words) {
         if (amount === null)
             return message.reply("I dont know how to tip that many credits");
         if (amount === "Over9K")
-            return message.replay("What? 9000!);
+            return message.replay("What? 9000!");
 
         if (message.mentions.members.first().id) {
             //  get receiver"s id
