@@ -30,20 +30,20 @@ exports.tip = {
   usage: "<subcommand>",
 
   description: "Here is the commands you can use:\n"
-  + "**!help** : display this message.\n"
-  + "**!deposit** : get an address to top up your balance (maximum 1 ZEN).\n"
-  + "**!balance** : get your balance.\n"
-  + "**!withdraw <amount> <address>** : withdraw <amount> ZENs from your"
+  + "**!tip help** : display this message.\n"
+  + "**!tip deposit** : get an address to top up your balance.\n"
+  + "**!tip balance** : get your balance.\n"
+  + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your"
     + " balance to your <address>.\n"
   + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs (maximum"
     + " 1 ZEN) and leave an optional [message].\n"
-  + "**!each <amount> <n> [message]** : drop a packet in a channel, the"
+  + "**!tip each <amount> <n> [message]** : drop a packet in a channel, the"
     + " <amount> is divided *equally* between the <n> first people to open"
     + " the packet. Leave an optionnal [message] with the packet.\n"
-  + "**!luck <amount> <n> [message]** : drop a packet in a channel, the"
+  + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, the"
     + " <amount> is divided *randomly* between the <n> first people to open"
     + " the packet. Leave an optionnal [message] with the packet.\n"
-  + "**!open** : open the latest packet dropped into the channel.\n",
+  + "**!tip open** : open the latest packet dropped into the channel.\n",
 
   process: async function( bot, msg, suffix ){
     getUser( msg.author.id, function( err, doc ){
@@ -142,7 +142,10 @@ function getBalance( tipper, cb ){
   zen.cmd( 'getreceivedbyaddress', tipper.address, function( err, amount ){
     if( err ) return cb( err, null );
 
-    const balance = amount + tipper.received - tipper.spent;
+    let balance = amount + tipper.received - tipper.spent;
+    //  8 decimals maximum
+    balance = Math.trunc(( balance * 10e7 )) / 10e7;
+
     return cb( null, balance );
   });
 }
@@ -318,7 +321,8 @@ function getValidatedAmount( amount, balance ){
   }
 
   if( amount.match( /^[0-9]+(\.[0-9]+)?$/ )){
-    amount = parseFloat( amount );
+    //  8 decimals maximum
+    amount = Math.trunc(( parseFloat( amount ) * 10e7 )) / 10e7;
 
     if( amount > 0 && amount <= balance ){
       return amount;
