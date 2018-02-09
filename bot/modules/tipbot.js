@@ -218,6 +218,36 @@ function doDeposit(message, tipper) {
 }
 
 /**
+ * Validate syntax and check if user's balance is enough to manipulate the requested amount and also stop manipulation
+ * if amount is 0.
+ * @param amount
+ * @param balance
+ */
+function getValidatedAmount(amount, balance) {
+    amount = amount.trim();
+    if (amount.toLowerCase().endsWith("zen")) {
+        amount = amount.substring(0, amount.length - 3);
+    } else if (amount.toLowerCase().endsWith("zens")) {
+        amount = amount.substring(0, amount.length - 4);
+    }
+
+    if (amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
+        // 8 decimals maximum
+        amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
+
+        if ((amount > 0) && (amount <= balance)) {
+            return amount;
+        }
+    }
+
+    // Invalid amount
+    if (amount > 9000) {
+        return "Over9K"
+    }
+    return null;
+}
+
+/**
  * @param message
  * @param tipper
  * @param words
@@ -241,7 +271,7 @@ function doWithdraw(message, tipper, words) {
         if (amount === null) {
             return message.reply("I dont know how to withdraw that many credits");
         } else if (amount === "Over9K") {
-            return message.reply("What? 9000!");
+            return message.reply("What? Over 9000!");
         }
         const address = words[3];
 
@@ -250,7 +280,7 @@ function doWithdraw(message, tipper, words) {
                 if (err) {
                     message.reply(err.message);
                 } else {
-                    // update tipper"s spent amount
+                    // update tippers spent amount
                     User.update(
                         {discordID: tipper.discordID},
                         {"$inc": {spent: amount}},
@@ -262,11 +292,7 @@ function doWithdraw(message, tipper, words) {
                             }
                         }
                     );
-                    message.reply(
-                        "You withdrew **" + amount +
-                        " ZEN** to **" + address +
-                        "** (" + txLink(txId) + ")"
-                    );
+                    message.reply("You withdrew **" + amount + " ZEN** to **" + address + "** (" + txLink(txId) + ")");
                 }
             }
         );
@@ -293,11 +319,11 @@ function doTip(message, tipper, words) {
         if (amount === null) {
             return message.reply("I dont know how to tip that many credits");
         } else if (amount === "Over9K") {
-            return message.reply("What? 9000!");
+            return message.reply("What? Over 9000!");
         }
 
         if (message.mentions.members.first().id) {
-            //  get receiver"s id
+            //  get receiver's id
             const user = message.mentions.members.first();
             //  prevent user from tipping him/her self
             if (tipper.discordID === user.id) {
@@ -310,12 +336,8 @@ function doTip(message, tipper, words) {
                 }
 
                 sendZen(tipper, receiver, amount);
-                message.author.sendMessage(
-                    "<@" + receiver.discordID + "> received your tip !"
-                );
-                user.sendMessage(
-                    "<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !"
-                );
+                message.author.sendMessage("<@" + receiver.discordID + "> received your tip !");
+                user.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
             });
 
         } else {
@@ -330,7 +352,7 @@ function doTip(message, tipper, words) {
  * @param amount
  */
 function sendZen(tipper, receiver, amount) {
-    // update tipper"s spent amount
+    // update tipper's spent amount
     User.update(
         {discordID: tipper.discordID},
         {"$inc": {spent: amount}},
@@ -343,7 +365,7 @@ function sendZen(tipper, receiver, amount) {
         }
     );
 
-    // and receiver"s received amount
+    // and receiver's received amount
     User.update(
         {discordID: receiver.discordID},
         {"$inc": {received: amount}},
@@ -355,34 +377,6 @@ function sendZen(tipper, receiver, amount) {
             }
         }
     );
-}
-
-/**
- * Validate syntax and check if user's balance is enough to manipulate the requested amount and also stop manipulation
- * if amount is 0.
- * @param amount
- * @param balance
- */
-function getValidatedAmount(amount, balance) {
-    amount = amount.trim();
-    if (amount.toLowerCase().endsWith("zen")) {
-        amount = amount.substring(0, amount.length - 3);
-    }
-
-    if (amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
-        //  8 decimals maximum
-        amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
-
-        if ((amount > 0) && (amount <= balance)) {
-            return amount;
-        }
-    }
-
-    // Invalid amount
-    if (amount > 9000) {
-        return "Over9K"
-    }
-    return null;
 }
 
 /**

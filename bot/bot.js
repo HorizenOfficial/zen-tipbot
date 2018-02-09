@@ -53,7 +53,7 @@ function checkMessageForCommand(msg, isEdit) {
                 suffix = msg.content.substring(bot.user.mention().length + cmdTxt.length + config.prefix.length + 1);
             } catch (e) {
                 // no command
-                msg.channel.send("Yes?");
+                msg.channel.send("Yes, how can I help you?");
                 return;
             }
         }
