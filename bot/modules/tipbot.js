@@ -116,19 +116,24 @@ function getUser(id, cb) {
 
     // look for user in DB
     User.findOne({"discordID": id}, function (err, doc) {
-        if (err) return cb(err, null);
+        if (err) {
+            return cb(err, null);
+        }
 
         if (doc) {
             // Existing User
             cb(null, doc);
-
         } else {
             // New User
             zen.getNewAddress(function (err, address) {
-                if (err) return cb(err, null);
+                if (err){
+                    return cb(err, null);
+                }
                 user.address = address;
                 user.save(function (err) {
-                    if (err) cb(err, null);
+                    if (err) {
+                        cb(err, null);
+                    }
                     cb(null, user);
                 });
             });
@@ -143,11 +148,15 @@ function getUser(id, cb) {
  */
 function getBalance(tipper, cb) {
     // tipper has no address, never made a deposit
-    if (!tipper.address) return cb(null, tipper.received - tipper.spent);
+    if (!tipper.address) {
+        return cb(null, tipper.received - tipper.spent);
+    }
 
     // balance = total deposit amount + total received - total spent
     zen.cmd("getreceivedbyaddress", tipper.address, function (err, amount) {
-        if (err) return cb(err, null);
+        if (err) {
+            return cb(err, null);
+        }
 
         const balance = amount + tipper.received - tipper.spent;
         return cb(null, balance);
@@ -165,10 +174,11 @@ function doBalance(message, tipper) {
     }
 
     getBalance(tipper, function (err, balance) {
-        if (err) return message.reply("Error getting balance");
+        if (err) {
+            return message.reply("Error getting balance");
+        }
 
-        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n"
-            + "You have **" + balance + "** ZEN");
+        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "You have **" + balance + "** ZEN");
     });
 }
 
@@ -187,7 +197,9 @@ function doDeposit(message, tipper) {
     } else {
         // tipper has no deposit address yet, generate a new one
         zen.getNewAddress(function (err, address) {
-            if (err) return message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "Error getting deposit address");
+            if (err) {
+                return message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "Error getting deposit address");
+            }
 
             User.update(
                 {discordID: tipper.discordID},
@@ -211,18 +223,26 @@ function doDeposit(message, tipper) {
  * @param words
  */
 function doWithdraw(message, tipper, words) {
-    if (message.channel.type !== "dm")
+    if (message.channel.type !== "dm") {
         return message.reply("Please DM me for this command.");
+    }
 
     //  wrong command syntax
-    if (words.length < 4 || !words) return doHelp(message);
+    if (words.length < 4 || !words) {
+        return doHelp(message);
+    }
 
     getBalance(tipper, function (err, balance) {
-        if (err) return message.reply("Error getting balance");
+        if (err) {
+            return message.reply("Error getting balance");
+        }
 
         const amount = getValidatedAmount(words[2], balance);
-        if (amount === null)
+        if (amount === null) {
             return message.reply("I dont know how to withdraw that many credits");
+        } else if (amount === "Over9K") {
+            return message.reply("What? 9000!");
+        }
         const address = words[3];
 
         zen.cmd("sendtoaddress", address, amount, "", "", true,
@@ -265,23 +285,29 @@ function doTip(message, tipper, words) {
     }
 
     getBalance(tipper, function (err, balance) {
-        if (err) return message.reply("Error getting balance");
+        if (err) {
+            return message.reply("Error getting balance");
+        }
 
         const amount = getValidatedAmount(words[2], balance);
-        if (amount === null)
+        if (amount === null) {
             return message.reply("I dont know how to tip that many credits");
-        if (amount === "Over9K")
+        } else if (amount === "Over9K") {
             return message.reply("What? 9000!");
+        }
 
         if (message.mentions.members.first().id) {
             //  get receiver"s id
             const user = message.mentions.members.first();
             //  prevent user from tipping him/her self
-            if (tipper.discordID === user.id)
+            if (tipper.discordID === user.id) {
                 return message.reply("No, you cannot tip yourself...");
+            }
 
             getUser(user.id, function (err, receiver) {
-                if (err) return message.reply(err.message);
+                if (err) {
+                    return message.reply(err.message);
+                }
 
                 sendZen(tipper, receiver, amount);
                 message.author.sendMessage(
@@ -351,7 +377,8 @@ function getValidatedAmount(amount, balance) {
             return amount;
         }
     }
-    // Invalid ammount
+
+    // Invalid amount
     if (amount > 9000) {
         return "Over9K"
     }
