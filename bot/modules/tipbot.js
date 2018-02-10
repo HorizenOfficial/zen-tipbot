@@ -235,19 +235,20 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
     request.get(API_URL, function (err, resp, body) {
         if (err) {
             console.log(err);
+            return null
         } else if (resp && resp.statusCode === 200) {
             let resp = JSON.parse(body);
-            console.log("resp" + resp);
             let zenPrice = parseFloat(resp[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
-            console.log("zenPrice" + zenPrice);
-            let zen = (parseFloat(amount) / zenPrice).toFixed(8);
-            console.log("getFiatToZenEquivalent zen =", zen);
-            return zen.toString()
+            console.log("zenPrice = " + zenPrice);
+            let zen = (parseFloat(amount) / zenPrice).toFixed(8).toString();
+            console.log("getFiatToZenEquivalent zen = ", zen);
+            return zen
         } else {
             // TODO: handle other states
+            console.log("Return status code = " + resp.statusCode);
+            return null
         }
     });
-    return null
 }
 
 /**
@@ -271,6 +272,7 @@ function getValidatedAmount(amount, balance) {
         console.log("amount zen =", amount);
 
         if (amount === null) {
+            console.log("Can NOT get exchange rate!");
             return null
         }
     }
