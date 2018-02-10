@@ -13,7 +13,7 @@
     "node-config": "^0.0.2",
     "numeral": "^2.0.6",
     "request": "^2.83.0",
-    "node-fetch": "^2.0.0"
+    "sync-request": "^5.0.0"
   },
   "scripts": {
     "prettier": "prettier * --write",
