@@ -4,6 +4,7 @@ const config = require("config");
 const bitcoin = require("bitcoin");
 const zen = new bitcoin.Client(config.get("zen"));
 const mongoose = require("mongoose");
+const axios = require("axios");
 
 mongoose.Promise = global.Promise;
 const mongodb = config.get("mongodb");
@@ -80,6 +81,10 @@ exports.tip = {
         });
     }
 };
+
+const allowedFiatCurrencySymbols = ["USD", "EUR", "RUB", "JPY", "GBP", "AUD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK",
+    "DKK", "HKD", "IDR", "ILS", "INR", "KRW", "MXN", "MYR", "NOK", "NZD", "PHP", "PKR", "PLN", "SEK", "SGD", "THB",
+    "TRY", "TWD", "ZAR"];
 
 /**
  * @param message
@@ -219,6 +224,27 @@ function doDeposit(message, tipper) {
 }
 
 /**
+ * Calculate equivalent of ZEN in given currency.
+ * @param amount - float - given in specific currency
+ * @param fiatCurrencySymbol - string - fiat currency ticker
+ */
+function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
+    let zen = 0;
+    const BASE_API_URL = "https://api.coinmarketcap.com/v1/ticker";
+    let API_URL = BASE_API_URL + "/zencash/?convert=" + fiatCurrencySymbol;
+
+    axios.get(API_URL).then(response => {
+        let resp = response.data;
+        let zenPrice = parseFloat(resp[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
+        zen = (amount / zenPrice).toFixed(8);
+    }).catch(error => {
+        console.log(error);
+    });
+
+    return zen
+}
+
+/**
  * Validate syntax and check if user's balance is enough to manipulate the requested amount and also stop manipulation
  * if amount is 0.
  * @param amount
@@ -230,6 +256,12 @@ function getValidatedAmount(amount, balance) {
         amount = amount.substring(0, amount.length - 3);
     } else if (amount.toLowerCase().endsWith("zens")) {
         amount = amount.substring(0, amount.length - 4);
+    }
+
+    if (allowedFiatCurrencySymbols.toLowerCase().indexOf(amount.toLowerCase().slice(-3)) > -1) {
+        console.log("Amount is: " + amount.substring(0, amount.length - 3));
+        console.log("Fiat symbol is: " + amount.toLowerCase().slice(-3));
+        amount = getFiatToZenEquivalent(amount.substring(0, amount.length - 3), amount.toLowerCase().slice(-3));
     }
 
     if (amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
@@ -343,7 +375,7 @@ function doTip(message, tipper, words) {
                 }
 
                 sendZen(tipper, receiver, amount);
-                message.author.sendMessage("<@" + receiver.discordID + "> received your tip !");
+                message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
                 user.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
             });
 
