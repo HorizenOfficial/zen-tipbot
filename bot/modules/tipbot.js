@@ -258,7 +258,7 @@ function getValidatedAmount(amount, balance) {
         amount = amount.substring(0, amount.length - 4);
     }
 
-    if (allowedFiatCurrencySymbols.toLowerCase().indexOf(amount.toLowerCase().slice(-3)) > -1) {
+    if (allowedFiatCurrencySymbols.indexOf(amount.toUpperCase().slice(-3)) > -1) {
         console.log("Amount is: " + amount.substring(0, amount.length - 3));
         console.log("Fiat symbol is: " + amount.toLowerCase().slice(-3));
         amount = getFiatToZenEquivalent(amount.substring(0, amount.length - 3), amount.toLowerCase().slice(-3));
