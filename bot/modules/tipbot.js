@@ -241,7 +241,8 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
         console.log(error);
     });
 
-    return zen
+    console.log("getFiatToZenEquivalent zen =", zen);
+    return zen.toString()
 }
 
 /**
@@ -262,6 +263,7 @@ function getValidatedAmount(amount, balance) {
         console.log("Amount is: " + amount.substring(0, amount.length - 3));
         console.log("Fiat symbol is: " + amount.toLowerCase().slice(-3));
         amount = getFiatToZenEquivalent(amount.substring(0, amount.length - 3), amount.toLowerCase().slice(-3));
+        console.log("amount zen =", amount);
     }
 
     if (amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
