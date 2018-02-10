@@ -1,3 +1,4 @@
 config/default.json
 .idea/
 node_modules/
+package-lock.json
