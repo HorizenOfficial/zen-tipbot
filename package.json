@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "axios": "^0.17.1",
     "babel-cli": "^6.26.0",
     "babel-preset-node8": "^1.2.0",
     "bitcoin": "^3.0.1",

@@ -4,7 +4,7 @@ const config = require("config");
 const bitcoin = require("bitcoin");
 const zen = new bitcoin.Client(config.get("zen"));
 const mongoose = require("mongoose");
-const axios = require("axios");
+const request = require("request");
 
 mongoose.Promise = global.Promise;
 const mongodb = config.get("mongodb");
@@ -232,18 +232,21 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
     const BASE_API_URL = "https://api.coinmarketcap.com/v1/ticker";
     let API_URL = BASE_API_URL + "/zencash/?convert=" + fiatCurrencySymbol;
 
-    axios.get(API_URL).then(response => {
-        let resp = response.data;
-        let zenPrice = parseFloat(resp[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
-        console.log("response.data" + resp);
-        console.log("zenPrice" + zenPrice);
-        let zen = (parseFloat(amount) / zenPrice).toFixed(8);
-        console.log("getFiatToZenEquivalent zen =", zen);
-        return zen.toString()
-    }).catch(error => {
-        console.log(error);
+    request.get(API_URL, function (err, resp, body) {
+        if (err) {
+            console.log(err);
+        } else if (resp && resp.statusCode === 200) {
+            let resp = JSON.parse(body);
+            console.log("resp" + resp);
+            let zenPrice = parseFloat(resp[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
+            console.log("zenPrice" + zenPrice);
+            let zen = (parseFloat(amount) / zenPrice).toFixed(8);
+            console.log("getFiatToZenEquivalent zen =", zen);
+            return zen.toString()
+        } else {
+            // TODO: handle other states
+        }
     });
-
     return null
 }
 
@@ -266,6 +269,10 @@ function getValidatedAmount(amount, balance) {
         console.log("Fiat symbol is: " + amount.toLowerCase().slice(-3));
         amount = getFiatToZenEquivalent(amount.substring(0, amount.length - 3), amount.toLowerCase().slice(-3));
         console.log("amount zen =", amount);
+
+        if (amount === null) {
+            return null
+        }
     }
 
     if (amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
@@ -287,7 +294,7 @@ function getValidatedAmount(amount, balance) {
     if (amount > 9000) {
         return "Over9K"
     }
-    return null;
+    return null
 }
 
 /**
