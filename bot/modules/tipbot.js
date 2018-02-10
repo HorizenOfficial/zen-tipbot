@@ -229,20 +229,22 @@ function doDeposit(message, tipper) {
  * @param fiatCurrencySymbol - string - fiat currency ticker
  */
 function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
-    let zen = 0;
     const BASE_API_URL = "https://api.coinmarketcap.com/v1/ticker";
     let API_URL = BASE_API_URL + "/zencash/?convert=" + fiatCurrencySymbol;
 
     axios.get(API_URL).then(response => {
         let resp = response.data;
         let zenPrice = parseFloat(resp[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
-        zen = (amount / zenPrice).toFixed(8);
+        console.log("response.data" + resp);
+        console.log("zenPrice" + zenPrice);
+        let zen = (parseFloat(amount) / zenPrice).toFixed(8);
+        console.log("getFiatToZenEquivalent zen =", zen);
+        return zen.toString()
     }).catch(error => {
         console.log(error);
     });
 
-    console.log("getFiatToZenEquivalent zen =", zen);
-    return zen.toString()
+    return null
 }
 
 /**
