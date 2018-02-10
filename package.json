@@ -12,7 +12,8 @@
     "mongoose": "^4.13.11",
     "node-config": "^0.0.2",
     "numeral": "^2.0.6",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "node-fetch": "^2.0.0"
   },
   "scripts": {
     "prettier": "prettier * --write",

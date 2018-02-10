@@ -4,7 +4,7 @@ const config = require("config");
 const bitcoin = require("bitcoin");
 const zen = new bitcoin.Client(config.get("zen"));
 const mongoose = require("mongoose");
-const request = require("request");
+const fetch = require("node-fetch");
 
 mongoose.Promise = global.Promise;
 const mongodb = config.get("mongodb");
