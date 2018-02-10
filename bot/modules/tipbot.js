@@ -97,7 +97,8 @@ function doHelp(message) {
         + "**!tip balance** : get your balance.\n"
         + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your"
         + " balance to your <address>.\n"
-        + "**!tip <@user> <amount>** : tip <@user> <amount> ZENs"
+        + "**!tip <@user> <amount>** : tip <@user> <amount> ZENs\n"
+        + "**!tip <@user> random** : tip <@user> random ZENs where random is <0.0, 0.1)"
     );
 }
 
@@ -238,6 +239,12 @@ function getValidatedAmount(amount, balance) {
         if ((amount > 0) && (amount <= balance)) {
             return amount;
         }
+    } else if (amount.toLowerCase() === "random") {
+        // random <0.0, 0.1) ZENs
+        amount = Math.random() / 10;
+        // 8 decimals maximum
+        amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
+        return amount
     }
 
     // Invalid amount
