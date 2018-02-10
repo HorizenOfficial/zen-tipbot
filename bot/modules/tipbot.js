@@ -232,23 +232,20 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
     const BASE_API_URL = "https://api.coinmarketcap.com/v1/ticker";
     let API_URL = BASE_API_URL + "/zencash/?convert=" + fiatCurrencySymbol;
 
-    request.get(API_URL, function (err, resp, body) {
-        if (err) {
-            console.log(err);
-            return null
-        } else if (resp && resp.statusCode === 200) {
-            let resp = JSON.parse(body);
-            let zenPrice = parseFloat(resp[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
-            console.log("zenPrice = " + zenPrice);
-            let zen = (parseFloat(amount) / zenPrice).toFixed(8).toString();
-            console.log("getFiatToZenEquivalent zen = ", zen);
-            return zen
-        } else {
-            // TODO: handle other states
-            console.log("Return status code = " + resp.statusCode);
-            return null
-        }
-    });
+    const request = async () => {
+        const response = await fetch(API_URL);
+        const json = await response.json();
+        console.log("json = " + json);
+        let zenPrice = parseFloat(json[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
+        console.log("zenPrice = " + zenPrice);
+        let zen = (parseFloat(amount) / zenPrice).toFixed(8).toString();
+        console.log("getFiatToZenEquivalent zen = ", zen);
+        return zen
+    };
+
+    request();
+
+    return null
 }
 
 /**
