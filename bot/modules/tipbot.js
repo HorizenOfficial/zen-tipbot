@@ -243,9 +243,7 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
         return zen
     };
 
-    request();
-
-    return null
+    return request();
 }
 
 /**
