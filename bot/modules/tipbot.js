@@ -236,14 +236,14 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
         const response = await fetch(API_URL);
         const json = await response.json();
         console.log("json = " + json);
-        let zenPrice = await parseFloat(json[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
+        let zenPrice = parseFloat(json[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
         console.log("zenPrice = " + zenPrice);
-        let zen = await (parseFloat(amount) / zenPrice).toFixed(8).toString();
+        let zen = (parseFloat(amount) / zenPrice).toFixed(8).toString();
         console.log("getFiatToZenEquivalent zen = ", zen);
         return zen
     };
 
-    return request();
+    request();
 }
 
 /**
