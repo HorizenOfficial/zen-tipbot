@@ -483,15 +483,17 @@ function createTipLuck(message, tipper, words) {
         }
 
         console.log("createTipLuck luckTips", luckTips);
-        let sum = luckTips.reduce(function(total, num){ return total + num }, 0);
+        let sum = luckTips.reduce(function (total, num) {
+            return parseFloat(total) + parseFloat(num)
+        });
         console.log("createTipLuck sum", sum);
         luckTips[luckTips.length - 1] = (parseFloat(amount) - parseFloat(sum)).toFixed(8);
         console.log("createTipLuck luckTips", luckTips);
 
         let tipOneChannel = {
-            channel_id   : message.channel.id,
-            tipper       : tipper,
-            luck         : true,
+            channel_id: message.channel.id,
+            tipper: tipper,
+            luck: true,
             amount_total : amount,
             quotioent    : quotioent,
             n            : n,
