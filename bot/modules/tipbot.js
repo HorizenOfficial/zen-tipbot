@@ -85,7 +85,7 @@ exports.tip = {
                     break;
 
                 case "open":
-                    doOpenTip(msg, tipper, words);
+                    doOpenTip(msg, tipper, words, bot);
                     break;
 
                 default:
@@ -371,7 +371,7 @@ function retreiveChannelTipObjIdx(set, channel_id) {
  * @param receiver
  * @param words
  */
-function doOpenTip(message, receiver, words) {
+function doOpenTip(message, receiver, words, bot) {
     // wrong command syntax
     if (words.length < 2 || !words) {
         return doHelp(message);
@@ -439,7 +439,7 @@ function doOpenTip(message, receiver, words) {
 
             sendZen(tipper, receiver, amount);
 
-            let tipper_user = client.users.get(tipper.discordID);
+            let tipper_user = bot.users.get(tipper.discordID);
             tipper_user.sendMessage("<@" + message.author.id + "> received your tip (" + amount.toString() + " ZEN)!");
 
             // OK
