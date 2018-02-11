@@ -387,7 +387,7 @@ function doOpenTip(message, receiver_user, words) {
     if (tipAllChannels[idx].luck) {
         console.log("tipAllChannels[idx].n_used ", tipAllChannels[idx].n_used);
         console.log("tipAllChannels[idx].luck_tips ", tipAllChannels[idx].luck_tips);
-        amount = tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used];
+        amount = parseFloat(tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used]);
     } else {
         console.log("open / tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
         console.log("open / tipAllChannels[idx].quotient ", tipAllChannels[idx].quotioent);
@@ -418,8 +418,8 @@ function doOpenTip(message, receiver_user, words) {
         }
 
         sendZen(tipAllChannels[idx].tipper, receiver, amount);
-        message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
-        receiver_user.sendMessage("<@" + tipAllChannels[idx].tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
+        message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount.toString() + " ZEN)!");
+        receiver_user.sendMessage("<@" + tipAllChannels[idx].tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
         tipAllChannels[idx].n_used += 1;
         tipAllChannels[idx].used_user_id.append(receiver.discordID);
@@ -473,14 +473,12 @@ function createTipLuck(message, tipper, words) {
         let n = parseFloat(words[3]).toFixed(8);
         let quotioent = (amount / n).toFixed(8);
         let luckTips = [];
-
-        for(let i = 0; i < (n - 1); i++){
-            luckTips.push((Math.random() * quotioent).toFixed(8))
-        }
-
         let summed = 0;
+        let iter_val;
         for(let i = 0; i < (n - 1); i++){
-            summed += luckTips[i];
+            iter_val = (Math.random() * quotioent).toFixed(8);
+            luckTips.push((Math.random() * quotioent).toFixed(8))
+            summed += iter_val;
         }
 
         luckTips.push((amount - summed.toFixed(8)));
