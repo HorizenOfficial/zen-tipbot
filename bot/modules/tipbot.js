@@ -476,7 +476,7 @@ function createTipLuck(message, tipper, words) {
         let luckTips = [];
 
         for(let i = 0; i < (n - 1); i++){
-            luckTips.append((Math.random() * quotient).toFixed(8))
+            luckTips.push((Math.random() * quotient).toFixed(8))
         }
 
         let sum = 0;
@@ -484,7 +484,7 @@ function createTipLuck(message, tipper, words) {
             sum += luckTips[i];
         }
 
-        luckTips.append(amount - sum);
+        luckTips.push(amount - sum);
 
         let tipOneChannel = {
             channel_id   : message.channel.id,
@@ -500,10 +500,10 @@ function createTipLuck(message, tipper, words) {
 
 
         if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
-            tipAllChannels.append(tipOneChannel);
+            tipAllChannels.push(tipOneChannel);
         }
 
-        message.reply("New tip 'Luck' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+        message.reply("New tip 'LUCK' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
     });
 }
 
@@ -550,10 +550,10 @@ function createTipEach(message, tipper, words) {
 
 
         if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
-            tipAllChannels.append(tipOneChannel);
+            tipAllChannels.push(tipOneChannel);
         }
 
-        message.reply("New tip 'Each' has been created (" + quotient.toString() + " ZEN / open)! Claim it with command '!tip open'!");
+        message.reply("New tip 'EACH' has been created (" + quotient.toString() + " ZEN / open)! Claim it with command '!tip open'!");
     });
 }
 
