@@ -367,17 +367,13 @@ function retreiveChannelTipObjIdx(set, channel_id) {
 
 /**
  * @param message
- * @param receiver
+ * @param receiver_user
  * @param words
  */
 function doOpenTip(message, receiver_user, words) {
     // wrong command syntax
     if (words.length < 2 || !words) {
         return doHelp(message);
-    }
-
-    if (err) {
-        return message.reply("Error getting balance");
     }
 
     let idx = retreiveChannelTipObjIdx(tipAllChannels, message.channel.id);
@@ -400,7 +396,7 @@ function doOpenTip(message, receiver_user, words) {
 
     console.log("open / amount: ", amount);
 
-    if ((amount <= 0) || (amount > balance)) {
+    if (amount <= 0) {
         return message.reply("I dont know how to tip that many credits");
     }
 
@@ -423,7 +419,7 @@ function doOpenTip(message, receiver_user, words) {
 
         sendZen(tipAllChannels[idx].tipper, receiver, amount);
         message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
-        user.sendMessage("<@" + tipAllChannels[idx].tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
+        receiver_user.sendMessage("<@" + tipAllChannels[idx].tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
 
         tipAllChannels[idx].n_used += 1;
         tipAllChannels[idx].used_user_id.append(receiver.discordID);
