@@ -22,7 +22,6 @@ try {
     };
 }
 
-
 bot.on("ready", function () {
     console.log("Logged in! Serving in " + bot.guilds.array().length + " servers");
     require("./plugins.js").init();
