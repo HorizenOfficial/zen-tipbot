@@ -386,12 +386,19 @@ function doOpenTip(message, tipper, words) {
             message.reply("Sorry, here is NOT any tip for 'open'!");
         }
 
+        console.log("open / idx: ", idx);
+
         let amount;
-        if (tipAllChannels[idx].random) {
+        if (tipAllChannels[idx].luck) {
+            console.log("tipAllChannels[idx].n_used ", tipAllChannels[idx].n_used);
             amount = tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used];
         } else {
-            amount = (tipAllChannels[idx].amount_total / tipAllChannels[idx].quotient).toFixed(8);
+            console.log("open / tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
+            console.log("open / tipAllChannels[idx].quotient ", tipAllChannels[idx].quotioent);
+            amount = (tipAllChannels[idx].amount_total / tipAllChannels[idx].quotioent).toFixed(8);
         }
+
+        console.log("open / amount: ", amount);
 
         if ((amount <= 0) || (amount > balance)) {
             return message.reply("I dont know how to tip that many credits");
@@ -427,7 +434,6 @@ function doOpenTip(message, tipper, words) {
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
                 tipAllChannels.splice(idx, 1);
             }
-
         });
     });
 }
@@ -472,11 +478,11 @@ function createTipLuck(message, tipper, words) {
 
         amount = parseFloat(amount).toFixed(8);
         let n = parseFloat(words[3]).toFixed(8);
-        let quotient = Math.floor(amount / n);
+        let quotioent = Math.floor(amount / n);
         let luckTips = [];
 
         for(let i = 0; i < (n - 1); i++){
-            luckTips.push((Math.random() * quotient).toFixed(8))
+            luckTips.push((Math.random() * quotioent).toFixed(8))
         }
 
         let sum = 0;
@@ -489,9 +495,9 @@ function createTipLuck(message, tipper, words) {
         let tipOneChannel = {
             channel_id   : message.channel.id,
             tipper       : tipper,
-            random       : true,
+            luck         : true,
             amount_total : amount,
-            quotient     : quotient,
+            quotioent    : quotioent,
             n            : n,
             n_used       : 0,
             luck_tips    : luckTips,
@@ -540,9 +546,9 @@ function createTipEach(message, tipper, words) {
         let tipOneChannel = {
             channel_id   : message.channel.id,
             tipper       : tipper,
-            random       : false,
+            luck         : false,
             amount_total : amount,
-            quotient     : quotient,
+            quotioent    : quotient,
             n            : n,
             n_used       : 0,
             used_user_id : []
