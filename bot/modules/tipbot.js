@@ -442,7 +442,7 @@ function doOpenTip(message, words) {
             user.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
             tipAllChannels[idx].n_used += 1;
-            tipAllChannels[idx].used_user_id.append(receiver.discordID);
+            tipAllChannels[idx].used_user_id.push(receiver.discordID);
 
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
