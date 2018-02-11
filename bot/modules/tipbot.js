@@ -367,75 +367,71 @@ function retreiveChannelTipObjIdx(set, channel_id) {
 
 /**
  * @param message
- * @param tipper
+ * @param receiver
  * @param words
  */
-function doOpenTip(message, tipper, words) {
+function doOpenTip(message, receiver_user, words) {
     // wrong command syntax
     if (words.length < 2 || !words) {
         return doHelp(message);
     }
 
-    getBalance(tipper, function (err, balance) {
+    if (err) {
+        return message.reply("Error getting balance");
+    }
+
+    let idx = retreiveChannelTipObjIdx(tipAllChannels, message.channel.id);
+    if (idx === null) {
+        message.reply("Sorry, here is NOT any tip for 'open'!");
+    }
+
+    console.log("open / idx: ", idx);
+
+    let amount;
+    if (tipAllChannels[idx].luck) {
+        console.log("tipAllChannels[idx].n_used ", tipAllChannels[idx].n_used);
+        console.log("tipAllChannels[idx].luck_tips ", tipAllChannels[idx].luck_tips);
+        amount = tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used];
+    } else {
+        console.log("open / tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
+        console.log("open / tipAllChannels[idx].quotient ", tipAllChannels[idx].quotioent);
+        amount = (tipAllChannels[idx].amount_total / tipAllChannels[idx].quotioent).toFixed(8);
+    }
+
+    console.log("open / amount: ", amount);
+
+    if ((amount <= 0) || (amount > balance)) {
+        return message.reply("I dont know how to tip that many credits");
+    }
+
+    //  prevent user from opening your own tip
+    if (tipAllChannels[idx].tipper.discordID === receiver_user.discordID) {
+        return message.reply("No, you can NOT 'open' your own tip ... ");
+    }
+
+    getUser(receiver_user.id, function (err, receiver) {
         if (err) {
-            return message.reply("Error getting balance");
+            return message.reply(err.message);
         }
 
-        let idx = retreiveChannelTipObjIdx(tipAllChannels, message.channel.id);
-        if (idx === null) {
-            message.reply("Sorry, here is NOT any tip for 'open'!");
-        }
-
-        console.log("open / idx: ", idx);
-
-        let amount;
-        if (tipAllChannels[idx].luck) {
-            console.log("tipAllChannels[idx].n_used ", tipAllChannels[idx].n_used);
-            console.log("tipAllChannels[idx].luck_tips ", tipAllChannels[idx].luck_tips);
-            amount = tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used];
-        } else {
-            console.log("open / tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
-            console.log("open / tipAllChannels[idx].quotient ", tipAllChannels[idx].quotioent);
-            amount = (tipAllChannels[idx].amount_total / tipAllChannels[idx].quotioent).toFixed(8);
-        }
-
-        console.log("open / amount: ", amount);
-
-        if ((amount <= 0) || (amount > balance)) {
-            return message.reply("I dont know how to tip that many credits");
-        }
-
-        //  get receiver's id
-        const user = message.mentions.members.first();
-        //  prevent user from opening your own tip
-        if (tipAllChannels[idx].tipper.discordID === user.id) {
-            return message.reply("No, you can NOT 'open' your own tip ... ");
-        }
-
-        getUser(user.id, function (err, receiver) {
-            if (err) {
-                return message.reply(err.message);
+        for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
+            if (tipAllChannels[idx].used_user_id[i].discordID === receiver.discordID) {
+                message.author.sendMessage("<@" + receiver.discordID + "> No, you can NOT 'open' this for the second time ... ");
+                return message.reply("No, you can NOT 'open' this for the second time ... ");
             }
+        }
 
-            for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
-                if (tipAllChannels[idx].used_user_id[i].discordID === receiver.discordID) {
-                    message.author.sendMessage("<@" + receiver.discordID + "> No, you can NOT 'open' this for the second time ... ");
-                    return message.reply("No, you can NOT 'open' this for the second time ... ");
-                }
-            }
+        sendZen(tipAllChannels[idx].tipper, receiver, amount);
+        message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
+        user.sendMessage("<@" + tipAllChannels[idx].tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
 
-            sendZen(tipAllChannels[idx].tipper, receiver, amount);
-            message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
-            user.sendMessage("<@" + tipAllChannels[idx].tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
+        tipAllChannels[idx].n_used += 1;
+        tipAllChannels[idx].used_user_id.append(receiver.discordID);
 
-            tipAllChannels[idx].n_used += 1;
-            tipAllChannels[idx].used_user_id.append(receiver.discordID);
-
-            // if empty, then remove from active list of open tips
-            if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
-                tipAllChannels.splice(idx, 1);
-            }
-        });
+        // if empty, then remove from active list of open tips
+        if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
+            tipAllChannels.splice(idx, 1);
+        }
     });
 }
 
@@ -486,12 +482,12 @@ function createTipLuck(message, tipper, words) {
             luckTips.push((Math.random() * quotioent).toFixed(8))
         }
 
-        let sum = 0;
+        let summed = 0;
         for(let i = 0; i < (n - 1); i++){
-            sum += luckTips[i];
+            summed += luckTips[i];
         }
 
-        luckTips.push(amount - sum);
+        luckTips.push((amount - summed.toFixed(8)));
 
         let tipOneChannel = {
             channel_id   : message.channel.id,
