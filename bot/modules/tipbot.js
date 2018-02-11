@@ -413,9 +413,9 @@ function doOpenTip(message, words) {
             console.log("open balance: ", balance);
         }
 
-        if ((parseFloat(amount).toFixed(8) > 0) && (parseFloat(amount).toFixed(8) <= parseFloat(balance).toFixed(8))) {
-            return message.reply("I dont know how to tip that many credits");
-        }
+        //if ((parseFloat(amount).toFixed(8) > 0) && (parseFloat(amount).toFixed(8) <= parseFloat(balance).toFixed(8))) {
+        //    return message.reply("I dont know how to tip that many credits");
+        //}
 
         if (message.mentions.members.first().id) {
             //  get receiver's id
