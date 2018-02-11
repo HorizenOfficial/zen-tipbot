@@ -1,6 +1,7 @@
 "use strict";
 
 const config = require("config");
+const config_bot = config.get("bot");
 const bitcoin = require("bitcoin");
 const zen = new bitcoin.Client(config.get("zen"));
 const mongoose = require("mongoose");
@@ -473,22 +474,32 @@ function createTipLuck(message, tipper, words) {
         let n = parseFloat(words[3]).toFixed(8);
         let quotioent = (amount / n).toFixed(8);
 
-        console.log("createTipLuck amount", amount);
-        console.log("createTipLuck n", n);
-        console.log("createTipLuck quotioent", quotioent);
+        if (config_bot.debug) {
+            console.log("createTipLuck amount", amount);
+            console.log("createTipLuck n", n);
+            console.log("createTipLuck quotioent", quotioent);
+        }
 
         let luckTips = new Array(parseInt(n));
         for(let i = 0; i < (luckTips.length - 1); i++){
             luckTips[i] = (Math.random() * parseFloat(quotioent)).toFixed(8);
         }
 
-        console.log("createTipLuck luckTips", luckTips);
+        if (config_bot.debug) {
+            console.log("createTipLuck luckTips", luckTips);
+        }
         let sum = luckTips.reduce(function (total, num) {
             return parseFloat(total) + parseFloat(num)
         });
-        console.log("createTipLuck sum", sum);
+        if (config_bot.debug) {
+            console.log("createTipLuck sum", sum);
+        }
+
         luckTips[luckTips.length - 1] = (parseFloat(amount) - parseFloat(sum)).toFixed(8);
-        console.log("createTipLuck luckTips", luckTips);
+        if (config_bot.debug) {
+            console.log("createTipLuck luckTips", luckTips);
+        }
+
 
         let tipOneChannel = {
             channel_id: message.channel.id,
@@ -527,19 +538,26 @@ function createTipEach(message, tipper, words) {
             return message.reply("Error getting balance");
         }
 
-        let amount = getValidatedAmount(words[2], balance);
-        if (amount === null) {
+        let amountToValidate = getValidatedAmount(words[2], balance);
+        if (amountToValidate === null) {
             return message.reply("I dont know how to tip that many credits");
-        } else if (amount === "Over9K") {
+        } else if (amountToValidate === "Over9K") {
             return message.reply("What? Over 9000!");
         }
 
-        amount = parseFloat(amount).toFixed(8);
+        let amount = parseFloat(amountToValidate).toFixed(8);
+        if (config_bot.debug) {
+            console.log("createTipEach amount", amount);
+        }
+
         let n = parseFloat(words[3]).toFixed(8);
-
-        let quotient = Math.floor(amount / n);
-
-        amount -= amount % n;
+        let quotient = (amount / n).toFixed(8);
+        amount = (parseFloat(amount) - (parseFloat(amount) % parseFloat(n))).toFixed(8);
+        if (config_bot.debug) {
+            console.log("createTipEach n", n);
+            console.log("createTipEach quotient", quotient);
+            console.log("createTipEach amount", amount);
+        }
 
         let tipOneChannel = {
             channel_id   : message.channel.id,
@@ -557,7 +575,7 @@ function createTipEach(message, tipper, words) {
             tipAllChannels.push(tipOneChannel);
         }
 
-        message.reply("New tip 'EACH' has been created (" + quotient.toString() + " ZEN / open)! Claim it with command '!tip open'!");
+        message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN / open)! Claim it with command '!tip open'!");
     });
 }
 
