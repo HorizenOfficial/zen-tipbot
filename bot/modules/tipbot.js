@@ -381,21 +381,27 @@ function doOpenTip(message, receiver_user, words) {
     if (idx === null) {
         message.reply("Sorry, here is NOT any tip for 'open'!");
     }
-
-    console.log("open / idx: ", idx);
+    if (config_bot.debug) {
+        console.log("open idx", idx);
+    }
 
     let amount;
     if (tipAllChannels[idx].luck) {
-        console.log("tipAllChannels[idx].n_used ", tipAllChannels[idx].n_used);
-        console.log("tipAllChannels[idx].luck_tips ", tipAllChannels[idx].luck_tips);
-        amount = parseFloat(tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used]);
+        if (config_bot.debug) {
+            console.log("open tipAllChannels[idx].n_used ", tipAllChannels[idx].n_used);
+            console.log("open tipAllChannels[idx].luck_tips ", tipAllChannels[idx].luck_tips);
+        }
+        amount = parseFloat(tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used]).toFixed(8);
     } else {
-        console.log("open / tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
-        console.log("open / tipAllChannels[idx].quotient ", tipAllChannels[idx].quotioent);
-        amount = (tipAllChannels[idx].amount_total / tipAllChannels[idx].quotioent).toFixed(8);
+        if (config_bot.debug) {
+            console.log("open tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
+            console.log("open tipAllChannels[idx].quotient ", tipAllChannels[idx].quotioent);
+        }
+        amount = parseFloat(tipAllChannels[idx].quotioent).toFixed(8);
     }
-
-    console.log("open / amount: ", amount);
+    if (config_bot.debug) {
+        console.log("open amount: ", amount);
+    }
 
     if (amount <= 0) {
         return message.reply("I dont know how to tip that many credits");
@@ -406,7 +412,7 @@ function doOpenTip(message, receiver_user, words) {
         return message.reply("No, you can NOT 'open' your own tip ... ");
     }
 
-    getUser(receiver_user.id, function (err, receiver) {
+    getUser(receiver_user.discordID, function (err, receiver) {
         if (err) {
             return message.reply(err.message);
         }
@@ -581,11 +587,11 @@ function createTipEach(message, tipper, words) {
 
         let n = parseFloat(words[3]).toFixed(8);
         let quotient = (amount / n).toFixed(8);
-        amount = (parseFloat(amount) - (parseFloat(amount).toFixed(8) % parseFloat(quotient).toFixed(8))).toFixed(8);
+        // amount = (parseFloat(amount) - (parseFloat(amount).toFixed(8) % parseFloat(quotient).toFixed(8))).toFixed(8);
         if (config_bot.debug) {
             console.log("createTipEach n", n);
             console.log("createTipEach quotient", quotient);
-            console.log("createTipEach amount", amount);
+            // console.log("createTipEach amount", amount);
         }
 
         let tipOneChannel = {
