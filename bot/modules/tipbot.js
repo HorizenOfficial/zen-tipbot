@@ -431,15 +431,16 @@ function doOpenTip(message, words) {
             }
 
             for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
-                if (tipAllChannels[idx].used_user_id[i].discordID === receiver.discordID) {
-                    message.author.sendMessage("<@" + receiver.discordID + "> No, you can NOT 'open' this for the second time ... ");
+                if (tipAllChannels[idx].used_user_id[i] === receiver.discordID) {
+                    user.sendMessage("<@" + receiver.discordID + "> No, you can NOT 'open' this for the second time ... ");
                     return message.reply("No, you can NOT 'open' this for the second time ... ");
                 }
             }
 
             sendZen(tipper, receiver, amount);
-            message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount.toString() + " ZEN)!");
-            user.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
+
+            tipper.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount.toString() + " ZEN)!");
+            receiver.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
             tipAllChannels[idx].n_used += 1;
             tipAllChannels[idx].used_user_id.push(receiver.discordID);
