@@ -462,26 +462,28 @@ function createTipLuck(message, tipper, words) {
             return message.reply("Error getting balance");
         }
 
-        let amount = getValidatedAmount(words[2], balance);
-        if (amount === null) {
+        let amountToValidate = getValidatedAmount(words[2], balance);
+        if (amountToValidate === null) {
             return message.reply("I dont know how to tip that many credits");
-        } else if (amount === "Over9K") {
+        } else if (amountToValidate === "Over9K") {
             return message.reply("What? Over 9000!");
         }
 
-        amount = parseFloat(amount).toFixed(8);
+        let amount = parseFloat(amountToValidate).toFixed(8);
         let n = parseFloat(words[3]).toFixed(8);
         let quotioent = (amount / n).toFixed(8);
         let luckTips = [];
-        let summed = 0;
-        let iter_val;
+        let summed = 0.0;
+        let iter_val = 0.0;
         for(let i = 0; i < (n - 1); i++){
             iter_val = (Math.random() * quotioent).toFixed(8);
-            luckTips.push((Math.random() * quotioent).toFixed(8))
+            luckTips.push(iter_val);
             summed += iter_val;
+            console.log("createTipLuck iter_val", iter_val);
+            console.log("createTipLuck summed", summed);
         }
 
-        luckTips.push((amount - summed.toFixed(8)));
+        luckTips.push((amount - summed));
 
         let tipOneChannel = {
             channel_id   : message.channel.id,
