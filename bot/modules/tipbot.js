@@ -391,6 +391,7 @@ function doOpenTip(message, tipper, words) {
         let amount;
         if (tipAllChannels[idx].luck) {
             console.log("tipAllChannels[idx].n_used ", tipAllChannels[idx].n_used);
+            console.log("tipAllChannels[idx].luck_tips ", tipAllChannels[idx].luck_tips);
             amount = tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used];
         } else {
             console.log("open / tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
@@ -478,7 +479,7 @@ function createTipLuck(message, tipper, words) {
 
         amount = parseFloat(amount).toFixed(8);
         let n = parseFloat(words[3]).toFixed(8);
-        let quotioent = Math.floor(amount / n);
+        let quotioent = (amount / n).toFixed(8);
         let luckTips = [];
 
         for(let i = 0; i < (n - 1); i++){
