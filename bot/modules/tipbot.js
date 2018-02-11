@@ -423,7 +423,7 @@ function doOpenTip(message, receiver, words) {
             return message.reply("No, you can NOT 'open' your own tip ... ");
         }
 
-        getUser(receiver, function (err, rec) {
+        getUser(receiver.id, function (err, rec) {
             if (err) {
                 return message.reply(err.message);
             }
