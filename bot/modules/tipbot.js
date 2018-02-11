@@ -432,7 +432,7 @@ function doOpenTip(message, receiver, words) {
             console.log("open receiver.discordID ", receiver.discordID);
 
             for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
-                if (tipAllChannels[idx].used_user_id[i] === receiver.discordID) {
+                if (tipAllChannels[idx].used_user_id[i] === message.author.id) {
                     return message.reply("No, you can NOT 'open' this for the second time ... ");
                 }
             }
@@ -446,10 +446,11 @@ function doOpenTip(message, receiver, words) {
 
             tipAllChannels[idx].n_used += 1;
 
-            console.log("open message.author.discordID ", message.author.discordID);
+            // undefined
+            // console.log("open message.author.discordID ", message.author.discordID);
             console.log("open message.author.id ", message.author.id);
 
-            tipAllChannels[idx].used_user_id.push(message.author.discordID);
+            tipAllChannels[idx].used_user_id.push(message.author.id);
 
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
