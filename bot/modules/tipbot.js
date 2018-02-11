@@ -552,7 +552,7 @@ function createTipEach(message, tipper, words) {
 
         let n = parseFloat(words[3]).toFixed(8);
         let quotient = (amount / n).toFixed(8);
-        amount = (parseFloat(amount) - (parseFloat(amount) % parseFloat(n))).toFixed(8);
+        amount = (parseFloat(amount) - (parseFloat(amount) % parseFloat(quotient))).toFixed(8);
         if (config_bot.debug) {
             console.log("createTipEach n", n);
             console.log("createTipEach quotient", quotient);
