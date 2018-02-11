@@ -581,7 +581,7 @@ function createTipEach(message, tipper, words) {
 
         let n = parseFloat(words[3]).toFixed(8);
         let quotient = (amount / n).toFixed(8);
-        amount = (parseFloat(amount) - (parseFloat(amount) % parseFloat(quotient))).toFixed(8);
+        amount = (parseFloat(amount) - (parseFloat(amount).toFixed(8) % parseFloat(quotient).toFixed(8))).toFixed(8);
         if (config_bot.debug) {
             console.log("createTipEach n", n);
             console.log("createTipEach quotient", quotient);
@@ -604,7 +604,7 @@ function createTipEach(message, tipper, words) {
             tipAllChannels.push(tipOneChannel);
         }
 
-        message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN / open)! Claim it with command '!tip open'!");
+        message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
     });
 }
 
