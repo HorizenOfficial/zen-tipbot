@@ -385,6 +385,9 @@ function doOpenTip(message, words) {
     }
 
     let tipper = tipAllChannels[idx].tipper;
+    if (config_bot.debug) {
+        console.log("open tipper.discordID", tipper.discordID);
+    }
 
     getBalance(tipper, function (err, balance) {
         if (err) {
@@ -407,9 +410,10 @@ function doOpenTip(message, words) {
         }
         if (config_bot.debug) {
             console.log("open amount: ", amount);
+            console.log("open balance: ", balance);
         }
 
-        if ((amount > 0) && (amount <= balance)) {
+        if ((parseFloat(amount).toFixed(8) > 0) && (parseFloat(amount).toFixed(8) <= parseFloat(balance).toFixed(8))) {
             return message.reply("I dont know how to tip that many credits");
         }
 
@@ -418,11 +422,11 @@ function doOpenTip(message, words) {
             const user = message.mentions.members.first();
 
             //  prevent user from opening your own tip
-            if (tipper.discordID === user.id) {
+            if (tipper.discordID === user.discordID) {
                 return message.reply("No, you can NOT 'open' your own tip ... ");
             }
 
-            getUser(user.id, function (err, receiver) {
+            getUser(user.discordID, function (err, receiver) {
                 if (err) {
                     return message.reply(err.message);
                 }
