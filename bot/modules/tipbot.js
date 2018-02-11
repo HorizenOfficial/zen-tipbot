@@ -435,7 +435,7 @@ function doOpenTip(message, words) {
 
             sendZen(tipper, receiver, amount);
 
-            tipper.author.sendMessage("<@" + message.author.discordID + "> received your tip (" + amount.toString() + " ZEN)!");
+            // tipper.author.sendMessage("<@" + message.author.discordID + "> received your tip (" + amount.toString() + " ZEN)!");
             // ok
             message.author.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
