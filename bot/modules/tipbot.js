@@ -452,7 +452,7 @@ function isChannelTipAlreadyExist(set, obj) {
  * @param array
  */
 function shuffle(array) {
-    let counter = array.length;
+    let counter = array.length ;
 
     // While there are elements in the array
     while (counter > 0) {
@@ -505,27 +505,31 @@ function createTipLuck(message, tipper, words) {
         }
 
         let luckTips = new Array(parseInt(n));
-        for(let i = 0; i < (luckTips.length - 1); i++){
-            luckTips[i] = (Math.random() * parseFloat(quotioent)).toFixed(8);
-        }
+        if (n > 1) {
+            for(let i = 0; i < (luckTips.length - 1); i++){
+                luckTips[i] = (Math.random() * parseFloat(quotioent)).toFixed(8);
+            }
 
-        if (config_bot.debug) {
-            console.log("createTipLuck luckTips", luckTips);
-        }
-        let sum = luckTips.reduce(function (total, num) {
-            return parseFloat(total) + parseFloat(num)
-        });
-        if (config_bot.debug) {
-            console.log("createTipLuck sum", sum);
-        }
+            let sum = luckTips.reduce(function (total, num) {
+                return parseFloat(total) + parseFloat(num)
+            });
+            if (config_bot.debug) {
+                console.log("createTipLuck sum", sum);
+            }
 
-        luckTips[luckTips.length - 1] = (parseFloat(amount) - parseFloat(sum)).toFixed(8);
-        if (config_bot.debug) {
-            console.log("createTipLuck luckTips", luckTips);
-        }
+            luckTips[luckTips.length - 1] = (parseFloat(amount) - parseFloat(sum)).toFixed(8);
+            if (config_bot.debug) {
+                console.log("createTipLuck luckTips", luckTips);
+            }
 
-        // shuffle random tips (somewhere is BONUS) :-)
-        luckTips = shuffle(luckTips);
+            // shuffle random tips (somewhere is BONUS) :-)
+            luckTips = shuffle(luckTips);
+            if (config_bot.debug) {
+                console.log("createTipLuck luckTips (shuffled) ", luckTips);
+            }
+        } else {
+            luckTips[0] = parseFloat(amount).toFixed(8);
+        }
 
         let tipOneChannel = {
             channel_id   : message.channel.id,
@@ -538,7 +542,6 @@ function createTipLuck(message, tipper, words) {
             luck_tips    : luckTips,
             used_user_id : []
         };
-
 
         if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
             tipAllChannels.push(tipOneChannel);
