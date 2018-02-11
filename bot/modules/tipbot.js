@@ -85,7 +85,7 @@ exports.tip = {
                     break;
 
                 case "open":
-                    doOpenTip(msg, words);
+                    doOpenTip(msg, tipper, words);
                     break;
 
                 default:
@@ -368,9 +368,10 @@ function retreiveChannelTipObjIdx(set, channel_id) {
 
 /**
  * @param message
+ * @param receiver
  * @param words
  */
-function doOpenTip(message, words) {
+function doOpenTip(message, receiver, words) {
     // wrong command syntax
     if (words.length < 2 || !words) {
         return doHelp(message);
@@ -418,17 +419,17 @@ function doOpenTip(message, words) {
         //}
 
         // prevent user from opening your own tip
-        if (tipper.discordID === message.author.discordID) {
+        if (tipper.discordID === message.author.id) {
             return message.reply("No, you can NOT 'open' your own tip ... ");
         }
 
-        getUser(message.author.discordID, function (err, receiver) {
+        getUser(receiver, function (err, rec) {
             if (err) {
                 return message.reply(err.message);
             }
 
             for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
-                if (tipAllChannels[idx].used_user_id[i] === receiver.discordID) {
+                if (tipAllChannels[idx].used_user_id[i] === receiver.id) {
                     return message.reply("No, you can NOT 'open' this for the second time ... ");
                 }
             }
@@ -437,10 +438,10 @@ function doOpenTip(message, words) {
 
             // tipper.author.sendMessage("<@" + message.author.discordID + "> received your tip (" + amount.toString() + " ZEN)!");
             // ok
-            message.author.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
+            message.author.sendMessage("<@" + tipper.id + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
             tipAllChannels[idx].n_used += 1;
-            tipAllChannels[idx].used_user_id.push(message.author.discordID);
+            tipAllChannels[idx].used_user_id.push(message.author.id);
 
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
