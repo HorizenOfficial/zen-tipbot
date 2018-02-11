@@ -448,6 +448,30 @@ function isChannelTipAlreadyExist(set, obj) {
 }
 
 /**
+ * Shuffle array.
+ * @param array
+ */
+function shuffle(array) {
+    let counter = array.length;
+
+    // While there are elements in the array
+    while (counter > 0) {
+        // Pick a random index
+        let index = Math.floor(Math.random() * counter);
+
+        // Decrease counter by 1
+        counter--;
+
+        // And swap the last element with it
+        let temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+
+    return array;
+}
+
+/**
  * @param message
  * @param tipper
  * @param words
@@ -500,11 +524,13 @@ function createTipLuck(message, tipper, words) {
             console.log("createTipLuck luckTips", luckTips);
         }
 
+        // shuffle random tips (somewhere is BONUS) :-)
+        luckTips = shuffle(luckTips);
 
         let tipOneChannel = {
-            channel_id: message.channel.id,
-            tipper: tipper,
-            luck: true,
+            channel_id   : message.channel.id,
+            tipper       : tipper,
+            luck         : true,
             amount_total : amount,
             quotioent    : quotioent,
             n            : n,
