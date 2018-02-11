@@ -371,6 +371,7 @@ function retreiveChannelTipObjIdx(set, channel_id) {
  * @param message
  * @param receiver
  * @param words
+ * @param bot
  */
 function doOpenTip(message, receiver, words, bot) {
     // wrong command syntax
