@@ -473,15 +473,19 @@ function createTipLuck(message, tipper, words) {
         let n = parseFloat(words[3]).toFixed(8);
         let quotioent = (amount / n).toFixed(8);
 
-        let luckTips = new Array(n);
+        console.log("createTipLuck amount", amount);
+        console.log("createTipLuck n", n);
+        console.log("createTipLuck quotioent", quotioent);
+
+        let luckTips = new Array(parseInt(n));
         for(let i = 0; i < (luckTips.length - 1); i++){
-            luckTips[i] = (Math.random() * quotioent).toFixed(8);
+            luckTips[i] = (Math.random() * parseFloat(quotioent)).toFixed(8);
         }
 
         console.log("createTipLuck luckTips", luckTips);
         let sum = luckTips.reduce(function(total, num){ return total + num }, 0);
         console.log("createTipLuck sum", sum);
-        luckTips[luckTips.length - 1] = (amount - sum).toFixed(8);
+        luckTips[luckTips.length - 1] = (parseFloat(amount) - parseFloat(sum)).toFixed(8);
         console.log("createTipLuck luckTips", luckTips);
 
         let tipOneChannel = {
