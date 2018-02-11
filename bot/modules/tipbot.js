@@ -414,11 +414,10 @@ function doOpenTip(message, receiver, words, bot) {
             console.log("open balance: ", balance);
         }
 
-        //if ((parseFloat(amount).toFixed(8) > 0) && (parseFloat(amount).toFixed(8) <= parseFloat(balance).toFixed(8))) {
-        //    return message.reply("I dont know how to tip that many credits");
-        //}
+        if ((amount > 0) && (amount <= balance)) {
+            return message.reply("I dont know how to tip that many credits");
+        }
 
-        // OK
         // prevent user from opening your own tip
         if (tipper.discordID === message.author.id) {
             return message.reply("No, you can NOT 'open' your own tip ... ");
@@ -429,7 +428,9 @@ function doOpenTip(message, receiver, words, bot) {
                 return message.reply(err.message);
             }
 
-            console.log("open receiver.discordID ", receiver.discordID);
+            if (config_bot.debug) {
+                console.log("open receiver.discordID ", receiver.discordID);
+            }
 
             for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
                 if (tipAllChannels[idx].used_user_id[i] === message.author.id) {
@@ -438,19 +439,14 @@ function doOpenTip(message, receiver, words, bot) {
             }
 
             sendZen(tipper, receiver, amount);
-
-            let tipper_user = bot.users.get(tipper.discordID);
-            tipper_user.sendMessage("<@" + message.author.id + "> received your tip (" + amount.toString() + " ZEN)!");
-
-            // OK
+            bot.users.get(tipper.discordID).sendMessage("<@" + message.author.id + "> received your tip (" + amount.toString() + " ZEN)!");
             message.author.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
+            if (config_bot.debug) {
+                console.log("open message.author.id ", message.author.id);
+            }
+
             tipAllChannels[idx].n_used += 1;
-
-            // undefined
-            // console.log("open message.author.discordID ", message.author.discordID);
-            console.log("open message.author.id ", message.author.id);
-
             tipAllChannels[idx].used_user_id.push(message.author.id);
 
             // if empty, then remove from active list of open tips
