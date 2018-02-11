@@ -418,6 +418,7 @@ function doOpenTip(message, receiver, words) {
         //    return message.reply("I dont know how to tip that many credits");
         //}
 
+        // OK
         // prevent user from opening your own tip
         if (tipper.discordID === message.author.id) {
             return message.reply("No, you can NOT 'open' your own tip ... ");
@@ -428,8 +429,10 @@ function doOpenTip(message, receiver, words) {
                 return message.reply(err.message);
             }
 
+            console.log("open receiver.discordID ", receiver.discordID);
+
             for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
-                if (tipAllChannels[idx].used_user_id[i] === receiver.id) {
+                if (tipAllChannels[idx].used_user_id[i] === receiver.discordID) {
                     return message.reply("No, you can NOT 'open' this for the second time ... ");
                 }
             }
@@ -437,11 +440,16 @@ function doOpenTip(message, receiver, words) {
             sendZen(tipper, receiver, amount);
 
             // tipper.author.sendMessage("<@" + message.author.discordID + "> received your tip (" + amount.toString() + " ZEN)!");
-            // ok
-            message.author.sendMessage("<@" + tipper.id + "> sent you a **" + amount.toString() + " ZEN** tip !");
+
+            // OK
+            message.author.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
             tipAllChannels[idx].n_used += 1;
-            tipAllChannels[idx].used_user_id.push(message.author.id);
+
+            console.log("open message.author.discordID ", message.author.discordID);
+            console.log("open message.author.id ", message.author.id);
+
+            tipAllChannels[idx].used_user_id.push(message.author.discordID);
 
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
