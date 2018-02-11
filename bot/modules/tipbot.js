@@ -416,7 +416,7 @@ function doOpenTip(message, receiver, words, bot) {
             console.log("open balance: ", balance);
         }
 
-        if ((amount > 0) && (amount <= balance)) {
+        if ((amount <= 0) || (amount > balance)) {
             return message.reply("I dont know how to tip that many credits");
         }
 
