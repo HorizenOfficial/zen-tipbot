@@ -276,7 +276,7 @@ function getValidatedAmount(amount, balance) {
             console.log("Fiat symbol is: " + amount.toLowerCase().slice(-3));
         }
 
-        if (isNaN(amount)) {
+        if (amount.slice(-3).isNaN) {
             return null
         }
 
