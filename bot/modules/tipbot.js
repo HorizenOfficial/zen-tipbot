@@ -296,6 +296,14 @@ function getValidatedAmount(amount, balance) {
         console.log(amount.substring(0, amount.length - 3) + " " + amount.toLowerCase().slice(-3) + " = " + amount);
     }
 
+    if (amount.toLowerCase() === "random") {
+        // random <0.0, 0.1) ZENs
+        amount = Math.random() / 10;
+        // 8 decimals maximum
+        amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
+        return amount
+    }
+
     if (isNaN(amount)) {
         return null
     }
@@ -307,12 +315,6 @@ function getValidatedAmount(amount, balance) {
         if ((amount > 0) && (amount <= balance)) {
             return amount;
         }
-    } else if (amount.toLowerCase() === "random") {
-        // random <0.0, 0.1) ZENs
-        amount = Math.random() / 10;
-        // 8 decimals maximum
-        amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
-        return amount
     }
 
     // Invalid amount
