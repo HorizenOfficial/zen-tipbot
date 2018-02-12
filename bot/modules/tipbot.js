@@ -267,22 +267,23 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
 function getValidatedAmount(amount, balance) {
     amount = amount.trim();
     if (amount.toLowerCase().endsWith("zen")) {
-        if (amount.slice(-3).isNaN) {
+        if (amount.substring(0, amount.length - 3).isNaN) {
             return null
         }
         amount = amount.substring(0, amount.length - 3);
     } else if (amount.toLowerCase().endsWith("zens")) {
-        if (amount.slice(-4).isNaN) {
+        if (amount.substring(0, amount.length - 4).isNaN) {
             return null
         }
         amount = amount.substring(0, amount.length - 4);
     } else if (allowedFiatCurrencySymbols.indexOf(amount.toUpperCase().slice(-3)) > -1) {
         if (config_bot.debug){
-            console.log("Amount is: " + amount.substring(0, amount.length - 3));
-            console.log("Fiat symbol is: " + amount.toLowerCase().slice(-3));
+            console.log("Amount string is: ", amount);
+            console.log("Amount is: ", amount.substring(0, amount.length - 3));
+            console.log("Fiat symbol is: ", amount.toLowerCase().slice(-3));
         }
 
-        if (amount.slice(-3).isNaN) {
+        if (amount.substring(0, amount.length - 3).isNaN) {
             return null
         }
 
