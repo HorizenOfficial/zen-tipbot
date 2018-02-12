@@ -267,12 +267,12 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
 function getValidatedAmount(amount, balance) {
     amount = amount.trim();
     if (amount.toLowerCase().endsWith("zen")) {
-        if (amount.substring(0, amount.length - 3).isNaN) {
+        if (isNaN(amount.substring(0, amount.length - 3))) {
             return null
         }
         amount = amount.substring(0, amount.length - 3);
     } else if (amount.toLowerCase().endsWith("zens")) {
-        if (amount.substring(0, amount.length - 4).isNaN) {
+        if (isNaN(amount.substring(0, amount.length - 4))) {
             return null
         }
         amount = amount.substring(0, amount.length - 4);
@@ -283,7 +283,7 @@ function getValidatedAmount(amount, balance) {
             console.log("Fiat symbol is: ", amount.toLowerCase().slice(-3));
         }
 
-        if (amount.substring(0, amount.length - 3).isNaN) {
+        if (isNaN(amount.substring(0, amount.length - 3))) {
             return null
         }
 
