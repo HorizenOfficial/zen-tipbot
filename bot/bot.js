@@ -89,8 +89,7 @@ function checkMessageForCommand(msg, isEdit) {
             // using a mention here can lead to looping
             msg.channel.send("Yes, how can I help you?");
         } else {
-            // TODO: ???
-            console.log("Unknown state!");
+            // regular msg that has probably nothing to do with the bot ;)
         }
     }
 }

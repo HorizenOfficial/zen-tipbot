@@ -259,8 +259,8 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
 }
 
 /**
- * Validate syntax and check if user's balance is enough to manipulate the requested amount and also stop manipulation
- * if amount is 0.
+ * Validate syntax and check if user's balance is enough to manipulate the
+ * requested amount and also stop manipulation if amount is 0.
  * @param amount
  * @param balance
  */
@@ -541,6 +541,11 @@ function createTipLuck(message, tipper, words) {
 
         let amount = parseFloat(amountToValidate).toFixed(8);
         let n = parseFloat(words[3]).toFixed(8);
+        if (isNaN(n) || n <= 0) {
+            return message.reply("I dont know how to tip that many people");
+        } else if (n > 20) {
+            return message.reply("20 people maximum per packet");
+        }
         let quotioent = (amount / n).toFixed(8);
 
         if (config_bot.debug) {
@@ -625,6 +630,12 @@ function createTipEach(message, tipper, words) {
         }
 
         let n = parseFloat(words[3]).toFixed(8);
+        if (isNaN(n) || n <= 0) {
+            return message.reply("I dont know how to tip that many people");
+        } else if (n > 20) {
+            return message.reply("20 people maximum per packet");
+        }
+
         let quotient = (amount / n).toFixed(8);
         // amount = (parseFloat(amount) - (parseFloat(amount).toFixed(8) % parseFloat(quotient).toFixed(8))).toFixed(8);
         if (config_bot.debug) {
