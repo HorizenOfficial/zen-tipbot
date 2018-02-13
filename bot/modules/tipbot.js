@@ -399,7 +399,7 @@ function doOpenTip(message, receiver, words, bot) {
 
     let idx = retreiveChannelTipObjIdx(tipAllChannels, message.channel.id);
     if (idx === null) {
-        message.reply("Sorry, here is NOT any tip for 'open'!");
+        return message.reply("Sorry, here is NOT any tip for 'open'!");
     }
     if (config_bot.debug) {
         console.log("open idx", idx);
