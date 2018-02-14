@@ -497,7 +497,7 @@ function isChannelTipAlreadyExist(set, obj) {
 
     for (let i = 0; i < set.length; i++) {
         if (set[i].channel_id === obj.channel_id) {
-            // milliseconds between now & Christmas
+            // milliseconds between now
             diffMs = (now - set[i].creation_date);
             // minutes
             diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
@@ -508,12 +508,17 @@ function isChannelTipAlreadyExist(set, obj) {
             }
 
             if (diffMins > allowedTimeBetweenChannelTips) {
+                // tip already exist, but it expire -> replace it
                 set[i] = obj;
-                return true
+                return 0
+            } else {
+                // tip already exist and is still valid
+                return 1
             }
         }
     }
-    return false
+    // tip doesnt exist in this channel -> create new
+    return 2
 }
 
 /**
@@ -618,11 +623,19 @@ function createTipLuck(message, tipper, words) {
             creation_date: new Date()
         };
 
-        if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
-            tipAllChannels.push(tipOneChannel);
-            message.reply("New tip 'LUCK' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
-        } else {
-            message.reply("Can NOT create new tip because previous tip is in progress!");
+        switch (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel)) {
+            case 0:
+                message.reply("New tip 'LUCK' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+                break;
+
+            case 1:
+                message.reply("Can NOT create new tip because previous tip is in progress!");
+                break;
+
+            case 2:
+                tipAllChannels.push(tipOneChannel);
+                message.reply("New tip 'LUCK' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+                break;
         }
     });
 }
@@ -663,11 +676,10 @@ function createTipEach(message, tipper, words) {
         }
 
         let quotient = (amount / n).toFixed(8);
-        // amount = (parseFloat(amount) - (parseFloat(amount).toFixed(8) % parseFloat(quotient).toFixed(8))).toFixed(8);
         if (config_bot.debug) {
             console.log("createTipEach n", n);
             console.log("createTipEach quotient", quotient);
-            // console.log("createTipEach amount", amount);
+            console.log("createTipEach amount", amount);
         }
 
         let tipOneChannel = {
@@ -682,11 +694,19 @@ function createTipEach(message, tipper, words) {
             creation_date: new Date()
         };
 
-        if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
-            tipAllChannels.push(tipOneChannel);
-            message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
-        } else {
-            message.reply("Can NOT create new tip because previous tip is in progress!");
+        switch (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel)) {
+            case 0:
+                message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+                break;
+
+            case 1:
+                message.reply("Can NOT create new tip because previous tip is in progress!");
+                break;
+
+            case 2:
+                tipAllChannels.push(tipOneChannel);
+                message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+                break;
         }
     });
 }
