@@ -105,21 +105,21 @@ const allowedFiatCurrencySymbols = ["USD", "EUR", "RUB", "JPY", "GBP", "AUD", "B
  */
 function doHelp(message) {
     if (message.channel.type !== "dm") {
-        return message.reply("Please DM me for this command.");
+        return message.reply("send me this command in direct message!");
     }
 
     message.author.send(
         "**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n"
-        + "Here is the commands you can use:\n"
-        + "**!tip help** : display this message.\n"
-        + "**!tip deposit** : get an address to top up your balance.\n"
-        + "**!tip balance** : get your balance.\n"
-        + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your balance to your <address>.\n"
-        + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, the <amount> is divided *randomly* (one tip is bigger, you can win jackpot) between the <n> first people to open the packet. Leave an optionnal [message] with the packet.\n"
-        + "**!tip each <amount> <n> [message]** : drop a packet in a channel, the <amount> is divided *equally* between the <n> first people to open the packet. Leave an optionnal [message] with the packet.\n"
-        + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs\n"
-        + "**!tip <@user> random [message]** : tip <@user> random ZENs where random is <0.0, 0.1)\n"
-        + "**!tip <@user> <amount><fiat_currency_ticker> [message]** : tip <@user> ZENs in fiat equivalent. Example: **!tip @lukas 200czk**. You can use <fiat_currency_ticker> with every command. Where <fiat_currency_ticker> can be: USD, EUR, RUB, JPY, GBP, AUD, BRL, CAD, CHF, CLP, CNY, CZK, DKK, HKD, IDR, ILS, INR, KRW, MXN, MYR, NOK, NZD, PHP, PKR, PLN, SEK, SGD, THB, TRY, TWD, ZAR"
+        + "Here are the commands you can use:\n"
+        + "**!tip help** : display this message.\n\n"
+        + "**!tip deposit** : get an address to top up your balance.\n\n"
+        + "**!tip balance** : get your balance.\n\n"
+        + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your balance to your <address>.\n\n"
+        + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, the <amount> is divided *randomly* (one tip is bigger, you can win jackpot) between the <n> first people to open the packet. Leave an optionnal [message] with the packet. Only one packet per channel is allowed. Maximum is 20 people. Your packet will be active for next 20 minutes, then can be overwritten.\n\n"
+        + "**!tip each <amount> <n> [message]** : drop a packet in a channel, the <amount> is divided *equally* between the <n> first people to open the packet. Leave an optionnal [message] with the packet. Only one packet per channel is allowed. Maximum is 20 people. Your packet will be active for next 20 minutes, then can be overwritten.\n\n"
+        + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs\n\n"
+        + "**!tip <@user> random [message]** : tip <@user> random ZENs where random is <0.0, 0.1)\n\n"
+        + "**!tip <@user> <amount><fiat_currency_ticker> [message]** : tip <@user> ZENs in fiat equivalent. Example: **!tip @lukas 200czk**. You can use <fiat_currency_ticker> with every command. Where <fiat_currency_ticker> can be: USD, EUR, RUB, JPY, GBP, AUD, BRL, CAD, CHF, CLP, CNY, CZK, DKK, HKD, IDR, ILS, INR, KRW, MXN, MYR, NOK, NZD, PHP, PKR, PLN, SEK, SGD, THB, TRY, TWD, ZAR\n"
     );
 }
 
@@ -192,12 +192,12 @@ function getBalance(tipper, cb) {
  */
 function doBalance(message, tipper) {
     if (message.channel.type !== "dm") {
-        return message.reply("Please DM me for this command.");
+        return message.reply("send me this command in direct message!");
     }
 
     getBalance(tipper, function (err, balance) {
         if (err) {
-            return message.reply("Error getting balance");
+            return message.reply("error getting balance!");
         }
 
         message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "You have **" + balance + "** ZEN");
@@ -210,7 +210,7 @@ function doBalance(message, tipper) {
  */
 function doDeposit(message, tipper) {
     if (message.channel.type !== "dm") {
-        return message.reply("Please DM me for this command.");
+        return message.reply("send me this command in direct message!");
     }
 
     if (tipper.address) {
@@ -220,7 +220,7 @@ function doDeposit(message, tipper) {
         // tipper has no deposit address yet, generate a new one
         zen.getNewAddress(function (err, address) {
             if (err) {
-                return message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "Error getting deposit address");
+                return message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "Error getting deposit address!");
             }
 
             User.update(
@@ -290,7 +290,7 @@ function getValidatedAmount(amount, balance) {
         amount = getFiatToZenEquivalent(amount.substring(0, amount.length - 3), amount.toLowerCase().slice(-3));
 
         if (amount === null) {
-            console.log("Can NOT get exchange rate!");
+            console.log("Can't get exchange rate!");
             return null
         }
         console.log(amount.substring(0, amount.length - 3) + " " + amount.toLowerCase().slice(-3) + " = " + amount);
@@ -331,7 +331,7 @@ function getValidatedAmount(amount, balance) {
  */
 function doWithdraw(message, tipper, words) {
     if (message.channel.type !== "dm") {
-        return message.reply("Please DM me for this command.");
+        return message.reply("send me this command in direct message!");
     }
 
     //  wrong command syntax
@@ -341,14 +341,14 @@ function doWithdraw(message, tipper, words) {
 
     getBalance(tipper, function (err, balance) {
         if (err) {
-            return message.reply("Error getting balance");
+            return message.reply("error getting balance!");
         }
 
         const amount = getValidatedAmount(words[2], balance);
         if (amount === null) {
-            return message.reply("I dont know how to withdraw that many credits");
+            return message.reply("I don't know how to withdraw that many credits!");
         } else if (amount === "Over9K") {
-            return message.reply("What? Over 9000!");
+            return message.reply("what? Over 9000!");
         }
         const address = words[3];
 
@@ -369,7 +369,7 @@ function doWithdraw(message, tipper, words) {
                             }
                         }
                     );
-                    message.reply("You withdrew **" + amount + " ZEN** to **" + address + "** (" + txLink(txId) + ")");
+                    message.reply("you withdrew **" + amount + " ZEN** to **" + address + "** (" + txLink(txId) + ")!");
                 }
             }
         );
@@ -399,7 +399,7 @@ function doOpenTip(message, receiver, words, bot) {
 
     let idx = retreiveChannelTipObjIdx(tipAllChannels, message.channel.id);
     if (idx === null) {
-        return message.reply("Sorry, here is NOT any tip for 'open'!");
+        return message.reply("sorry here isn't any tip for `open`!");
     }
     if (config_bot.debug) {
         console.log("open idx", idx);
@@ -412,7 +412,7 @@ function doOpenTip(message, receiver, words, bot) {
 
     getBalance(tipper, function (err, balance) {
         if (err) {
-            return message.reply("Error getting balance");
+            return message.reply("error getting balance!");
         }
 
         let amount;
@@ -435,12 +435,12 @@ function doOpenTip(message, receiver, words, bot) {
         }
 
         if ((amount <= 0) || (amount > balance)) {
-            return message.reply("I dont know how to tip that many credits");
+            return message.reply("I don't know how to tip that many credits!");
         }
 
         // prevent user from opening your own tip
         if (tipper.discordID === message.author.id) {
-            return message.reply("No, you can NOT 'open' your own tip ... ");
+            return message.reply("you can't `open` your own tip ...");
         }
 
         getUser(receiver.id, function (err, rec) {
@@ -454,7 +454,7 @@ function doOpenTip(message, receiver, words, bot) {
 
             for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
                 if (tipAllChannels[idx].used_user_id[i] === message.author.id) {
-                    return message.reply("No, you can NOT 'open' this for the second time ... ");
+                    return message.reply("you can't `open` this for the second time ...");
                 }
             }
 
@@ -476,13 +476,8 @@ function doOpenTip(message, receiver, words, bot) {
 
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
-
-                if (config_bot.debug) {
-                    console.log("tipAllChannels[idx].n", tipAllChannels[idx].n);
-                    console.log("tipAllChannels[idx].n_used", tipAllChannels[idx].n_used);
-                }
                 tipAllChannels.splice(idx, 1);
-                return message.reply("Package from <@" + tipper.discordID + "> is empty, thank you!");
+                return message.reply("that was the last piece! Package from <@" + tipper.discordID + "> is now empty, thank you!");
             }
         });
     });
@@ -496,7 +491,7 @@ function doOpenTip(message, receiver, words, bot) {
 function isChannelTipAlreadyExist(set, obj) {
     let now = new Date();
     // in minutes
-    let allowedTimeBetweenChannelTips = 1;
+    let allowedTimeBetweenChannelTips = 20;
     let diffMs;
     let diffMins;
 
@@ -563,22 +558,22 @@ function createTipLuck(message, tipper, words) {
 
     getBalance(tipper, function (err, balance) {
         if (err) {
-            return message.reply("Error getting balance");
+            return message.reply("error getting balance");
         }
 
         let amountToValidate = getValidatedAmount(words[2], balance);
         if (amountToValidate === null) {
-            return message.reply("I dont know how to tip that many credits");
+            return message.reply("I don't know how to tip that many credits!");
         } else if (amountToValidate === "Over9K") {
-            return message.reply("What? Over 9000!");
+            return message.reply("what? Over 9000!");
         }
 
         let amount = parseFloat(amountToValidate).toFixed(8);
         let n = parseFloat(words[3]).toFixed(8);
         if (isNaN(n) || n <= 0) {
-            return message.reply("I dont know how to tip that many people");
+            return message.reply("I don't know how to tip that many people!");
         } else if (n > 20) {
-            return message.reply("20 people maximum per packet");
+            return message.reply("20 people is the maximum per packet!");
         }
         let quotioent = (amount / n).toFixed(8);
 
@@ -630,16 +625,16 @@ function createTipLuck(message, tipper, words) {
 
         switch (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel)) {
             case 0:
-                message.reply("New tip 'LUCK' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+                message.reply("new tip `LUCK` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`!");
                 break;
 
             case 1:
-                message.reply("Can NOT create new tip because previous tip is in progress!");
+                message.reply("can't create new tip because previous tip is in progress!");
                 break;
 
             case 2:
                 tipAllChannels.push(tipOneChannel);
-                message.reply("New tip 'LUCK' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+                message.reply("new tip `LUCK` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`!");
                 break;
         }
     });
@@ -663,9 +658,9 @@ function createTipEach(message, tipper, words) {
 
         let amountToValidate = getValidatedAmount(words[2], balance);
         if (amountToValidate === null) {
-            return message.reply("I dont know how to tip that many credits");
+            return message.reply("I don't know how to tip that many credits!");
         } else if (amountToValidate === "Over9K") {
-            return message.reply("What? Over 9000!");
+            return message.reply("what? Over 9000!");
         }
 
         let amount = parseFloat(amountToValidate).toFixed(8);
@@ -675,9 +670,9 @@ function createTipEach(message, tipper, words) {
 
         let n = parseFloat(words[3]).toFixed(8);
         if (isNaN(n) || n <= 0) {
-            return message.reply("I dont know how to tip that many people");
+            return message.reply("I dont know how to tip that many people!");
         } else if (n > 20) {
-            return message.reply("20 people maximum per packet");
+            return message.reply("20 people is the maximum per packet!");
         }
 
         let quotient = (amount / n).toFixed(8);
@@ -701,16 +696,16 @@ function createTipEach(message, tipper, words) {
 
         switch (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel)) {
             case 0:
-                message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+                message.reply("new tip `EACH` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`!");
                 break;
 
             case 1:
-                message.reply("Can NOT create new tip because previous tip is in progress!");
+                message.reply("can't create new tip because previous tip is in progress!");
                 break;
 
             case 2:
                 tipAllChannels.push(tipOneChannel);
-                message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+                message.reply("new tip `EACH` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`!");
                 break;
         }
     });
@@ -729,14 +724,14 @@ function doTip(message, tipper, words) {
 
     getBalance(tipper, function (err, balance) {
         if (err) {
-            return message.reply("Error getting balance");
+            return message.reply("error getting balance");
         }
 
         const amount = getValidatedAmount(words[2], balance);
         if (amount === null) {
-            return message.reply("I dont know how to tip that many credits");
+            return message.reply("I don't know how to tip that many credits!");
         } else if (amount === "Over9K") {
-            return message.reply("What? Over 9000!");
+            return message.reply("what? Over 9000!");
         }
 
         if (message.mentions.members.first().id) {
@@ -744,7 +739,7 @@ function doTip(message, tipper, words) {
             const user = message.mentions.members.first();
             //  prevent user from tipping him/her self
             if (tipper.discordID === user.id) {
-                return message.reply("No, you cannot tip yourself...");
+                return message.reply("you can't tip yourself ...");
             }
 
             getUser(user.id, function (err, receiver) {
@@ -758,7 +753,7 @@ function doTip(message, tipper, words) {
             });
 
         } else {
-            message.reply("Sorry, I could not find a user in your tip...");
+            message.reply("sorry, I couldn't find a user in your tip ...");
         }
     });
 }
