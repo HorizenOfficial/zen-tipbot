@@ -469,6 +469,11 @@ function doOpenTip(message, receiver, words, bot) {
             tipAllChannels[idx].n_used += 1;
             tipAllChannels[idx].used_user_id.push(message.author.id);
 
+            if (config_bot.debug) {
+                console.log("tipAllChannels[idx].n", tipAllChannels[idx].n);
+                console.log("tipAllChannels[idx].n_used", tipAllChannels[idx].n_used);
+            }
+
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
                 tipAllChannels.splice(idx, 1);
@@ -497,11 +502,15 @@ function isChannelTipAlreadyExist(set, obj) {
             // minutes
             diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
 
+            if (config_bot.debug) {
+                console.log("isChannelTipAlreadyExist diffMs: ", diffMs);
+                console.log("isChannelTipAlreadyExist diffMins: ", diffMins);
+            }
+
             if (diffMins > allowedTimeBetweenChannelTips) {
                 set[i] = obj;
                 return true
             }
-
         }
     }
     return false
@@ -671,7 +680,6 @@ function createTipEach(message, tipper, words) {
             used_user_id : [],
             creation_date: new Date()
         };
-
 
         if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
             tipAllChannels.push(tipOneChannel);
