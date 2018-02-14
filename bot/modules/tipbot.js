@@ -476,6 +476,11 @@ function doOpenTip(message, receiver, words, bot) {
 
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
+
+                if (config_bot.debug) {
+                    console.log("tipAllChannels[idx].n", tipAllChannels[idx].n);
+                    console.log("tipAllChannels[idx].n_used", tipAllChannels[idx].n_used);
+                }
                 tipAllChannels.splice(idx, 1);
                 return message.reply("Package from <@" + tipper.discordID + "> is empty, thank you!");
             }
@@ -616,7 +621,7 @@ function createTipLuck(message, tipper, words) {
             luck         : true,
             amount_total : amount,
             quotioent    : quotioent,
-            n            : n,
+            n            : parseInt(n),
             n_used       : 0,
             luck_tips    : luckTips,
             used_user_id : [],
@@ -688,7 +693,7 @@ function createTipEach(message, tipper, words) {
             luck         : false,
             amount_total : amount,
             quotioent    : quotient,
-            n            : n,
+            n            : parseInt(n),
             n_used       : 0,
             used_user_id : [],
             creation_date: new Date()
