@@ -620,9 +620,10 @@ function createTipLuck(message, tipper, words) {
 
         if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
             tipAllChannels.push(tipOneChannel);
+            message.reply("New tip 'LUCK' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+        } else {
+            message.reply("Can NOT create new tip because previous tip is in progress!");
         }
-
-        message.reply("New tip 'LUCK' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
     });
 }
 
@@ -683,9 +684,10 @@ function createTipEach(message, tipper, words) {
 
         if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
             tipAllChannels.push(tipOneChannel);
+            message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
+        } else {
+            message.reply("Can NOT create new tip because previous tip is in progress!");
         }
-
-        message.reply("New tip 'EACH' has been created (" + amount.toString() + " ZEN)! Claim it with command '!tip open'!");
     });
 }
 
