@@ -472,6 +472,7 @@ function doOpenTip(message, receiver, words, bot) {
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
                 tipAllChannels.splice(idx, 1);
+                return message.reply("Package from <@" + tipper.discordID + "> is empty, thank you!");
             }
         });
     });
@@ -483,10 +484,24 @@ function doOpenTip(message, receiver, words, bot) {
  * @param obj - we are looking for this in 'set'
  */
 function isChannelTipAlreadyExist(set, obj) {
+    let now = new Date();
+    // in minutes
+    let allowedTimeBetweenChannelTips = 1;
+    let diffMs;
+    let diffMins;
+
     for (let i = 0; i < set.length; i++) {
         if (set[i].channel_id === obj.channel_id) {
-            set[i] = obj;
-            return true
+            // milliseconds between now & Christmas
+            diffMs = (now - set[i].creation_date);
+            // minutes
+            diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+
+            if (diffMins > allowedTimeBetweenChannelTips) {
+                set[i] = obj;
+                return true
+            }
+
         }
     }
     return false
@@ -590,7 +605,8 @@ function createTipLuck(message, tipper, words) {
             n            : n,
             n_used       : 0,
             luck_tips    : luckTips,
-            used_user_id : []
+            used_user_id : [],
+            creation_date: new Date()
         };
 
         if (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel) === false) {
@@ -652,7 +668,8 @@ function createTipEach(message, tipper, words) {
             quotioent    : quotient,
             n            : n,
             n_used       : 0,
-            used_user_id : []
+            used_user_id : [],
+            creation_date: new Date()
         };
 
 
