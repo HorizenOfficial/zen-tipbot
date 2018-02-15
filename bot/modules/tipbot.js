@@ -392,6 +392,10 @@ function retreiveChannelTipObjIdx(set, channel_id) {
  * @param bot
  */
 function doOpenTip(message, receiver, words, bot) {
+    if (message.channel.type === "dm") {
+        return message.reply("you can't send me this command in direct message!");
+    }
+
     // wrong command syntax
     if (words.length < 2 || !words) {
         return doHelp(message);
@@ -551,6 +555,10 @@ function shuffle(array) {
  * @param words
  */
 function createTipLuck(message, tipper, words) {
+    if (message.channel.type === "dm") {
+        return message.reply("you can't send me this command in direct message!");
+    }
+
     // wrong command syntax
     if (words.length < 4 || !words) {
         return doHelp(message);
@@ -646,6 +654,10 @@ function createTipLuck(message, tipper, words) {
  * @param words
  */
 function createTipEach(message, tipper, words) {
+    if (message.channel.type === "dm") {
+        return message.reply("you can't send me this command in direct message!");
+    }
+
     // wrong command syntax
     if (words.length < 4 || !words) {
         return doHelp(message);
