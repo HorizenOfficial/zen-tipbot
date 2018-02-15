@@ -729,6 +729,10 @@ function createTipEach(message, tipper, words) {
  * @param words
  */
 function doTip(message, tipper, words) {
+    if (message.channel.type === "dm") {
+        return message.reply("you can't send me this command in direct message!");
+    }
+
     // wrong command syntax
     if (words.length < 3 || !words) {
         return doHelp(message);
