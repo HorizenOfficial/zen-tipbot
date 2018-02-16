@@ -27,12 +27,6 @@ bot.on("ready", function () {
     require("./plugins.js").init();
     console.log("type " + config.prefix + "help in Discord for a commands list.");
     guild = bot.guilds.get(config.serverId);
-
-    if (guild)
-        console.log("bot guild exist ", guild);
-    else
-        console.log("bot guild DOESNT exist ", guild);
-
 });
 
 bot.on("disconnected", function () {
