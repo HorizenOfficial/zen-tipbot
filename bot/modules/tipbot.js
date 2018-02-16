@@ -373,7 +373,7 @@ function doWithdraw(message, tipper, words) {
                             }
                         }
                     );
-                    message.reply("you withdrew **" + amount + " ZEN** to **" + destinationAddress + "** (" + txLink(txId) + ")!");
+                    message.reply("you withdrew **" + spent.toString() + " ZEN** (+ fee: " + fee.toString() + ") to **" + destinationAddress + "** (" + txLink(txId) + ")!");
                 }
             }
         );
@@ -812,7 +812,7 @@ function sendZen(tipper, receiver, amount) {
 }
 
 /**
- * @param txId
+ * @param txId is transaction id
  */
 function txLink(txId) {
     return "<https://explorer.zensystem.io/tx/" + txId + ">";
