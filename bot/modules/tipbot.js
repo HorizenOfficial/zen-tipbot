@@ -747,7 +747,9 @@ function doTip(message, tipper, words) {
             return message.reply("error getting balance");
         }
 
-        const amount = getValidatedAmount(words[2], balance);
+        let amount = getValidatedAmount(words[2], balance);
+        amount = parseFloat(amount.toFixed(8));
+
         if (amount === null) {
             return message.reply("I don't know how to tip that many credits!");
         } else if (amount === "Over9K") {
