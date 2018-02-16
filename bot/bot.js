@@ -66,10 +66,10 @@ function checkMessageForCommand(msg, isEdit) {
 
         if (cmd) {
             // permission check
-            if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
-                console.log("member " + msg.author.id + " not allowed to use the bot");
-                return;
-            }
+            //if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
+            //    console.log("member " + msg.author.id + " not allowed to use the bot");
+            //    return;
+            //}
 
             try {
                 cmd.process(bot, msg, suffix, isEdit);
