@@ -396,8 +396,8 @@ function retreiveChannelTipObjIdx(set, channel_id) {
  * @param bot
  */
 function doOpenTip(message, receiver, words, bot) {
-    let myRole = message.guild.roles.find("name", "everyone");
-    console.log("open myRole  everyone", myRole);
+    let myRole = message.guild.roles.find("334085157441110017");
+    console.log("open myRole  everyone: ", myRole);
     console.log("open message.member.roles", message.member.roles);
 
     if (message.channel.type === "dm") {
