@@ -754,10 +754,8 @@ function doTip(message, tipper, words) {
             return message.reply("what? Over 9000!");
         }
 
-        if (message.mentions.members.first().id) {
-            //  get receiver's id
-            const user = message.mentions.members.first();
-            //  prevent user from tipping him/her self
+        message.guild.members.fetch(message.mentions.members.first()).then(user => {
+            // prevent user from tipping him/her self
             if (tipper.discordID === user.id) {
                 return message.reply("you can't tip yourself ...");
             }
@@ -771,10 +769,7 @@ function doTip(message, tipper, words) {
                 message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
                 user.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
             });
-
-        } else {
-            message.reply("sorry, I couldn't find a user in your tip ...");
-        }
+        });
     });
 }
 
