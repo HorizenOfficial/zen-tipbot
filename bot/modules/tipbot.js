@@ -399,7 +399,7 @@ function doOpenTip(message, receiver, words, bot) {
     console.log("open myRole message.guild.id: ", message.guild.id);
     let myRole = message.guild.roles.get(message.guild.id);
     console.log("open myRole  everyone: ", myRole);
-    console.log("open message.member.roles", message.member.roles);
+    // console.log("open message.member.roles", message.member.roles);
 
     if (message.channel.type === "dm") {
         return message.reply("you can't send me this command in direct message!");
