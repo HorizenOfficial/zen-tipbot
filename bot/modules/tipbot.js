@@ -396,6 +396,10 @@ function retreiveChannelTipObjIdx(set, channel_id) {
  * @param bot
  */
 function doOpenTip(message, receiver, words, bot) {
+    let myRole = message.guild.roles.find("name", "everyone");
+    console.log("open myRole  everyone", myRole);
+    console.log("open message.member.roles", message.member.roles);
+
     if (message.channel.type === "dm") {
         return message.reply("you can't send me this command in direct message!");
     }
