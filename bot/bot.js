@@ -65,9 +65,6 @@ function checkMessageForCommand(msg, isEdit) {
         }
 
         if (cmd) {
-            console.log("bot msg.author.id: ", msg.author.id);
-            console.log("bot guild.members.get(msg.author.id).roles.get(moderation.role): ", guild.members.get(msg.author.id).roles.get(moderation.role));
-
             // permission check
             if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
                 console.log("member " + msg.author.id + " not allowed to use the bot");
