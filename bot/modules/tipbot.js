@@ -467,8 +467,8 @@ function doOpenTip(message, receiver, words, bot) {
             }
 
             sendZen(tipper, receiver, amount);
-            bot.users.get(tipper.discordID).sendMessage("<@" + message.author.id + "> received your tip (" + amount.toString() + " ZEN)!");
-            message.author.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
+            bot.users.get(tipper.discordID).send("<@" + message.author.id + "> received your tip (" + amount.toString() + " ZEN)!");
+            message.author.send("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
             if (config_bot.debug) {
                 console.log("open message.author.id ", message.author.id);
@@ -756,7 +756,7 @@ function doTip(message, tipper, words) {
             return message.reply("what? Over 9000!");
         }
 
-        message.guild.members.fetch(message.mentions.members.first()).then(user => {
+        message.guild.fetchMember(message.mentions.members.first()).then(user => {
             // prevent user from tipping him/her self
             if (tipper.discordID === user.id) {
                 return message.reply("you can't tip yourself ...");
@@ -768,8 +768,8 @@ function doTip(message, tipper, words) {
                 }
 
                 sendZen(tipper, receiver, amount);
-                message.author.sendMessage("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
-                user.sendMessage("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
+                message.author.send("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
+                user.send("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
             });
         });
     });
