@@ -112,9 +112,9 @@ function doHelp(message) {
         "**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n"
         + "Here are the commands you can use:\n"
         + "**!tip help** : display this message.\n\n"
-        + "**!tip deposit** : get an address to top up your balance.\n\n"
+        + "**!tip deposit** : get an address to top up your balance. `Warning:` Mining directly into your `tip-bot-address` is prohibited (You won't be able to use these ZENs)! And no support for retrieving these ZENs will be provided!\n\n"
         + "**!tip balance** : get your balance.\n\n"
-        + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your balance to your <address>.\n\n"
+        + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your balance to your `T` <address> (Only `T` addresses are supported!).\n\n"
         + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, the <amount> is divided *randomly* (one tip is bigger, you can win jackpot) between the <n> first people to open the packet. Leave an optionnal [message] with the packet. Only one packet per channel is allowed. Maximum is 20 people. Your packet will be active for next 20 minutes, then can be overwritten.\n\n"
         + "**!tip each <amount> <n> [message]** : drop a packet in a channel, the <amount> is divided *equally* between the <n> first people to open the packet. Leave an optionnal [message] with the packet. Only one packet per channel is allowed. Maximum is 20 people. Your packet will be active for next 20 minutes, then can be overwritten.\n\n"
         + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs\n\n"
@@ -344,15 +344,19 @@ function doWithdraw(message, tipper, words) {
             return message.reply("error getting balance!");
         }
 
-        const amount = getValidatedAmount(words[2], balance);
+        let amount = getValidatedAmount(words[2], balance);
         if (amount === null) {
             return message.reply("I don't know how to withdraw that many credits!");
         } else if (amount === "Over9K") {
             return message.reply("what? Over 9000!");
         }
-        const address = words[3];
 
-        zen.cmd("sendtoaddress", address, amount, "", "", true,
+        const destinationAddress = words[3];
+        const fee = 0.0001;
+        let spent = parseFloat(amount) - fee;
+
+        // TODO: check if the destinationAddress is T address, only T addresses will be supported!
+        zen.cmd("z_sendmany", tipper.address, '[{"amount": ' + spent.toString() + ', "address": "' + destinationAddress + '"}]',
             function (err, txId) {
                 if (err) {
                     message.reply(err.message);
@@ -369,7 +373,7 @@ function doWithdraw(message, tipper, words) {
                             }
                         }
                     );
-                    message.reply("you withdrew **" + amount + " ZEN** to **" + address + "** (" + txLink(txId) + ")!");
+                    message.reply("you withdrew **" + amount + " ZEN** to **" + destinationAddress + "** (" + txLink(txId) + ")!");
                 }
             }
         );
