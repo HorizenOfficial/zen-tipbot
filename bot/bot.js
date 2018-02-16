@@ -27,6 +27,12 @@ bot.on("ready", function () {
     require("./plugins.js").init();
     console.log("type " + config.prefix + "help in Discord for a commands list.");
     guild = bot.guilds.get(config.serverId);
+
+    if (guild)
+        console.log("bot guild exist ", guild);
+    else
+        console.log("bot guild DOESNT exist ", guild);
+
 });
 
 bot.on("disconnected", function () {
@@ -65,11 +71,14 @@ function checkMessageForCommand(msg, isEdit) {
         }
 
         if (cmd) {
+            console.log("bot msg.author.id: ", msg.author.id);
+            console.log("bot guild.members.get(msg.author.id).roles.get(moderation.role): ", guild.members.get(msg.author.id).roles.get(moderation.role));
+
             // permission check
-            //if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
-            //    console.log("member " + msg.author.id + " not allowed to use the bot");
-            //    return;
-            //}
+            if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
+                console.log("member " + msg.author.id + " not allowed to use the bot");
+                return;
+            }
 
             try {
                 cmd.process(bot, msg, suffix, isEdit);
