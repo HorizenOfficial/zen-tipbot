@@ -89,7 +89,7 @@ exports.tip = {
                     break;
 
                 default:
-                    doTip(msg, tipper, words, bot);
+                    doTip(msg, tipper, words);
             }
         });
     }
@@ -733,7 +733,7 @@ function createTipEach(message, tipper, words) {
  * @param words
  * @param bot
  */
-function doTip(message, tipper, words, bot) {
+function doTip(message, tipper, words) {
     if (message.channel.type === "dm") {
         return message.reply("you can't send me this command in direct message!");
     }
@@ -757,8 +757,8 @@ function doTip(message, tipper, words, bot) {
             return message.reply("what? Over 9000!");
         }
 
-        const member = bot.guild.member(message.mentions.members.first());
-
+        // bot.users.get(tipper.discordID)
+        let member = message.mentions.members.first();
         message.guild.fetchMember(member).then(user => {
             // prevent user from tipping him/her self
             if (tipper.discordID === user.id) {
