@@ -266,6 +266,10 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
  */
 function getValidatedAmount(amount, balance) {
     amount = amount.trim();
+    if (config_bot.debug) {
+        console.log("getValidatedAmount amount: ", amount);
+    }
+
     if (amount.toLowerCase().endsWith("zen")) {
         if (isNaN(amount.substring(0, amount.length - 3))) {
             return null
@@ -764,6 +768,9 @@ function doTip(message, tipper, words, bot) {
         }
 
         let amount = getValidatedAmount(words[2], balance);
+        if (config_bot.debug) {
+            console.log("doTip amount", amount);
+        }
         amount = parseFloat(amount.toFixed(8));
 
         if (amount === null) {
@@ -781,9 +788,9 @@ function doTip(message, tipper, words, bot) {
         }
 
         let target = message.guild.members.get(targetId);
-        if (config_bot.debug) {
-            console.log("doTip target", target);
-        }
+        //if (config_bot.debug) {
+            // console.log("doTip target", target);
+        // }
 
         // let member = message.mentions.members.first();
         if (!target) {
