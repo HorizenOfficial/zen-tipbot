@@ -47,7 +47,7 @@ exports.tip = {
     + " the packet. Leave an optionnal [message] with the packet.\n"
     + "**!tip open** : open the latest packet dropped into the channel.\n",
 
-    process: async function (bot, msg, suffix) {
+    process: async function (bot, msg) {
         getUser(msg.author.id, function (err, doc) {
             if (err) return console.error(err);
 
@@ -148,7 +148,7 @@ function getUser(id, cb) {
         } else {
             // New User
             zen.getNewAddress(function (err, address) {
-                if (err){
+                if (err) {
                     return cb(err, null);
                 }
                 user.address = address;
@@ -281,7 +281,7 @@ function getValidatedAmount(amount, balance) {
         }
         amount = amount.substring(0, amount.length - 4);
     } else if (allowedFiatCurrencySymbols.indexOf(amount.toUpperCase().slice(-3)) > -1) {
-        if (config_bot.debug){
+        if (config_bot.debug) {
             console.log("Amount string is: ", amount);
             console.log("Amount is: ", amount.substring(0, amount.length - 3));
             console.log("Fiat symbol is: ", amount.toLowerCase().slice(-3));
@@ -538,7 +538,7 @@ function isChannelTipAlreadyExist(set, obj) {
  * @param array
  */
 function shuffle(array) {
-    let counter = array.length ;
+    let counter = array.length;
 
     // While there are elements in the array
     while (counter > 0) {
@@ -601,7 +601,7 @@ function createTipLuck(message, tipper, words) {
 
         let luckTips = new Array(parseInt(n));
         if (n > 1) {
-            for(let i = 0; i < (luckTips.length - 1); i++){
+            for (let i = 0; i < (luckTips.length - 1); i++) {
                 luckTips[i] = (Math.random() * parseFloat(quotioent)).toFixed(8);
             }
 
@@ -627,15 +627,15 @@ function createTipLuck(message, tipper, words) {
         }
 
         let tipOneChannel = {
-            channel_id   : message.channel.id,
-            tipper       : tipper,
-            luck         : true,
-            amount_total : amount,
-            quotioent    : quotioent,
-            n            : parseInt(n),
-            n_used       : 0,
-            luck_tips    : luckTips,
-            used_user_id : [],
+            channel_id: message.channel.id,
+            tipper: tipper,
+            luck: true,
+            amount_total: amount,
+            quotioent: quotioent,
+            n: parseInt(n),
+            n_used: 0,
+            luck_tips: luckTips,
+            used_user_id: [],
             creation_date: new Date()
         };
 
@@ -703,14 +703,14 @@ function createTipEach(message, tipper, words) {
         }
 
         let tipOneChannel = {
-            channel_id   : message.channel.id,
-            tipper       : tipper,
-            luck         : false,
-            amount_total : amount,
-            quotioent    : quotient,
-            n            : parseInt(n),
-            n_used       : 0,
-            used_user_id : [],
+            channel_id: message.channel.id,
+            tipper: tipper,
+            luck: false,
+            amount_total: amount,
+            quotioent: quotient,
+            n: parseInt(n),
+            n_used: 0,
+            used_user_id: [],
             creation_date: new Date()
         };
 
@@ -775,31 +775,18 @@ function doTip(message, tipper, words, bot) {
         }
         amount = parseFloat(amount.toFixed(8));
 
-        if (config_bot.debug) {
-            console.log("doTip words[1]", words[1]);
-        }
         let targetId = resolveMention(words[1]);
         if (config_bot.debug) {
             console.log("doTip targetId", targetId);
         }
 
         let target = message.guild.members.get(targetId);
-        //if (config_bot.debug) {
-            // console.log("doTip target", target);
-        // }
-
-        // let member = message.mentions.members.first();
         if (!target) {
-            return message.reply("sorry, I couldn't find a user in your tip ...");
+            return message.reply("I cant't find a user in your tip ...");
         } else {
-
-            // let foo = message.guild.members.get(targetId);
-
-            //  prevent user from tipping him/her self
             if (tipper.discordID === target.id) {
                 return message.reply("you can't tip yourself ...");
             }
-            // bot.User.
 
             getUser(target.id, function (err, receiver) {
                 if (err) {
@@ -810,7 +797,6 @@ function doTip(message, tipper, words, bot) {
                 message.author.send("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
                 target.send("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
             });
-            // message.guild.fetchMember(member).then(user => {});
         }
     });
 }

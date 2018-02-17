@@ -72,7 +72,7 @@ function checkMessageForCommand(msg, isEdit) {
             }
 
             try {
-                cmd.process(bot, msg, suffix, isEdit);
+                cmd.process(bot, msg);
             } catch (e) {
                 let msgTxt = "command " + cmdTxt + " failed :(";
                 if (config.debug) {
