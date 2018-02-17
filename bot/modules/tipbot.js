@@ -89,7 +89,7 @@ exports.tip = {
                     break;
 
                 default:
-                    doTip(msg, tipper, words);
+                    doTip(msg, tipper, words, bot);
             }
         });
     }
@@ -728,12 +728,27 @@ function createTipEach(message, tipper, words) {
 }
 
 /**
+ * @param usertxt
+ */
+function resolveMention(usertxt) {
+    let userid = usertxt;
+    if (usertxt.startsWith("<@!")) {
+        userid = usertxt.substr(3, usertxt.length - 4);
+    } else {
+        if (usertxt.startsWith("<@")) {
+            userid = usertxt.substr(2, usertxt.length - 3);
+        }
+    }
+    return userid;
+}
+
+/**
  * @param message
  * @param tipper
  * @param words
  * @param bot
  */
-function doTip(message, tipper, words) {
+function doTip(message, tipper, words, bot) {
     if (message.channel.type === "dm") {
         return message.reply("you can't send me this command in direct message!");
     }
@@ -757,24 +772,43 @@ function doTip(message, tipper, words) {
             return message.reply("what? Over 9000!");
         }
 
-        // bot.users.get(tipper.discordID)
-        let member = message.mentions.members.first();
-        message.guild.fetchMember(member).then(user => {
-            // prevent user from tipping him/her self
-            if (tipper.discordID === user.id) {
+        if (config_bot.debug) {
+            console.log("doTip words[1]", words[1]);
+        }
+        let targetId = resolveMention(words[1]);
+        if (config_bot.debug) {
+            console.log("doTip targetId", targetId);
+        }
+
+        let target = message.guild.members.get(targetId);
+        if (config_bot.debug) {
+            console.log("doTip target", target);
+        }
+
+        // let member = message.mentions.members.first();
+        if (!target) {
+            return message.reply("sorry, I couldn't find a user in your tip ...");
+        } else {
+
+            // let foo = message.guild.members.get(targetId);
+
+            //  prevent user from tipping him/her self
+            if (tipper.discordID === target.id) {
                 return message.reply("you can't tip yourself ...");
             }
+            // bot.User.
 
-            getUser(user.id, function (err, receiver) {
+            getUser(target.id, function (err, receiver) {
                 if (err) {
                     return message.reply(err.message);
                 }
 
                 sendZen(tipper, receiver, amount);
                 message.author.send("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
-                user.send("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
+                target.send("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
             });
-        });
+            // message.guild.fetchMember(member).then(user => {});
+        }
     });
 }
 
