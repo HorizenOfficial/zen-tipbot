@@ -768,16 +768,12 @@ function doTip(message, tipper, words, bot) {
         }
 
         let amount = getValidatedAmount(words[2], balance);
-        if (config_bot.debug) {
-            console.log("doTip amount", amount);
-        }
-        amount = parseFloat(amount.toFixed(8));
-
         if (amount === null) {
             return message.reply("I don't know how to tip that many credits!");
         } else if (amount === "Over9K") {
             return message.reply("what? Over 9000!");
         }
+        amount = parseFloat(amount.toFixed(8));
 
         if (config_bot.debug) {
             console.log("doTip words[1]", words[1]);
