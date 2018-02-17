@@ -3,7 +3,8 @@
     "token":"DISCORD TOKEN",
     "serverId": "SERVER ID",
     "prefix": "!",
-    "debug": true
+    "debug": true,
+    "testnet" true
   },
   "zen": {
     "host": "localhost",

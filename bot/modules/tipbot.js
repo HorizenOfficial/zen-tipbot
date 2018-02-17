@@ -270,6 +270,7 @@ function getValidatedAmount(amount, balance) {
         console.log("getValidatedAmount amount: ", amount);
     }
 
+    // Has currency symbol (zen/zens/ or fiat)
     if (amount.toLowerCase().endsWith("zen")) {
         if (isNaN(amount.substring(0, amount.length - 3))) {
             return null
@@ -282,9 +283,7 @@ function getValidatedAmount(amount, balance) {
         amount = amount.substring(0, amount.length - 4);
     } else if (allowedFiatCurrencySymbols.indexOf(amount.toUpperCase().slice(-3)) > -1) {
         if (config_bot.debug) {
-            console.log("Amount string is: ", amount);
-            console.log("Amount is: ", amount.substring(0, amount.length - 3));
-            console.log("Fiat symbol is: ", amount.toLowerCase().slice(-3));
+            console.log("Amount string is: " + amount + ", amount is: " + amount.substring(0, amount.length - 3) + ", fiat symbol is: " + amount.toLowerCase().slice(-3));
         }
 
         if (isNaN(amount.substring(0, amount.length - 3))) {
@@ -292,14 +291,13 @@ function getValidatedAmount(amount, balance) {
         }
 
         amount = getFiatToZenEquivalent(amount.substring(0, amount.length - 3), amount.toLowerCase().slice(-3));
-
         if (amount === null) {
             console.log("Can't get exchange rate!");
             return null
         }
-        console.log(amount.substring(0, amount.length - 3) + " " + amount.toLowerCase().slice(-3) + " = " + amount);
     }
 
+    // Is random
     if (amount.toLowerCase() === "random") {
         // random <0.0, 0.1) ZENs
         amount = Math.random() / 10;
@@ -308,10 +306,12 @@ function getValidatedAmount(amount, balance) {
         return amount
     }
 
+    // Is not a number
     if (isNaN(amount)) {
         return null
     }
 
+    // Is a number
     if (amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
         // 8 decimals maximum
         amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
@@ -359,7 +359,16 @@ function doWithdraw(message, tipper, words) {
         const fee = 0.0001;
         let spent = parseFloat(amount) - fee;
 
-        // TODO: check if the destinationAddress is T address, only T addresses will be supported!
+        let prefix = "zn";
+        if (config_bot.testnet) {
+            prefix = "zt";
+        }
+
+        // only T addresses are supported!
+        if (destinationAddress.length !== 35 || destinationAddress.toLowerCase().substring(0, 1) !== prefix) {
+            return message.reply("only `T` addresses are supported!");
+        }
+
         zen.cmd("z_sendmany", tipper.address, '[{"amount": ' + spent.toString() + ', "address": "' + destinationAddress + '"}]',
             function (err, txId) {
                 if (err) {
@@ -377,7 +386,7 @@ function doWithdraw(message, tipper, words) {
                             }
                         }
                     );
-                    message.reply("you withdrew **" + spent.toString() + " ZEN** (+ fee: " + fee.toString() + ") to **" + destinationAddress + "** (" + txLink(txId) + ")!");
+                    return message.reply("you withdrew **" + spent.toString() + " ZEN** (+ fee: " + fee.toString() + ") to **" + destinationAddress + "** (" + txLink(txId) + ")!");
                 }
             }
         );
