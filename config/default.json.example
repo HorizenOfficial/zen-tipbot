@@ -4,7 +4,7 @@
     "serverId": "SERVER ID",
     "prefix": "!",
     "debug": true,
-    "testnet" true
+    "testnet": true
   },
   "zen": {
     "host": "localhost",
