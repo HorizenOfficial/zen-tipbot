@@ -420,7 +420,7 @@ function doOpenTip(message, receiver, words, bot) {
 
     let idx = retreiveChannelTipObjIdx(tipAllChannels, message.channel.id);
     if (idx === null) {
-        return message.reply("sorry here isn't any tip for `open`!");
+        return message.reply("sorry here isn't any tip for `open`");
     }
     if (config_bot.debug) {
         console.log("open idx", idx);
@@ -650,7 +650,7 @@ function createTipLuck(message, tipper, words) {
 
         switch (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel)) {
             case 0:
-                message.reply("new tip `LUCK` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`!");
+                message.reply("new tip `LUCK` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`");
                 break;
 
             case 1:
@@ -659,7 +659,7 @@ function createTipLuck(message, tipper, words) {
 
             case 2:
                 tipAllChannels.push(tipOneChannel);
-                message.reply("new tip `LUCK` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`!");
+                message.reply("new tip `LUCK` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`");
                 break;
         }
     });
@@ -725,7 +725,7 @@ function createTipEach(message, tipper, words) {
 
         switch (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel)) {
             case 0:
-                message.reply("new tip `EACH` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`!");
+                message.reply("new tip `EACH` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`");
                 break;
 
             case 1:
@@ -734,7 +734,7 @@ function createTipEach(message, tipper, words) {
 
             case 2:
                 tipAllChannels.push(tipOneChannel);
-                message.reply("new tip `EACH` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`!");
+                message.reply("new tip `EACH` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`");
                 break;
         }
     });
