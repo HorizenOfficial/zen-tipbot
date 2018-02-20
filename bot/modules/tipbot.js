@@ -446,9 +446,9 @@ function doOpenTip(message, receiver, words, bot) {
         } else {
             if (config_bot.debug) {
                 console.log("open tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
-                console.log("open tipAllChannels[idx].quotient ", tipAllChannels[idx].quotioent);
+                console.log("open tipAllChannels[idx].quotient ", tipAllChannels[idx].quotient);
             }
-            amount = parseFloat(tipAllChannels[idx].quotioent).toFixed(8);
+            amount = parseFloat(tipAllChannels[idx].quotient).toFixed(8);
         }
         if (config_bot.debug) {
             console.log("open amount: ", amount);
@@ -473,8 +473,8 @@ function doOpenTip(message, receiver, words, bot) {
                 console.log("open receiver.discordID ", receiver.discordID);
             }
 
-            for (let i = 0; i < tipAllChannels[idx].used_user_id.length; i++) {
-                if (tipAllChannels[idx].used_user_id[i] === message.author.id) {
+            for (let i = 0; i < tipAllChannels[idx].used_user.length; i++) {
+                if (tipAllChannels[idx].used_user[i].id === message.author.id) {
                     return message.reply("you can't `open` this for the second time ...");
                 }
             }
@@ -488,7 +488,10 @@ function doOpenTip(message, receiver, words, bot) {
             }
 
             tipAllChannels[idx].n_used += 1;
-            tipAllChannels[idx].used_user_id.push(message.author.id);
+            tipAllChannels[idx].used_user.push({
+                id: message.author.id,
+                amount: amount
+            });
 
             if (config_bot.debug) {
                 console.log("tipAllChannels[idx].n", tipAllChannels[idx].n);
@@ -498,6 +501,7 @@ function doOpenTip(message, receiver, words, bot) {
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
                 tipAllChannels.splice(idx, 1);
+
                 return message.reply("that was the last piece! Package from <@" + tipper.discordID + "> is now empty, thank you!");
             }
         });
@@ -509,17 +513,17 @@ function doOpenTip(message, receiver, words, bot) {
  * @param set of objects
  * @param obj - we are looking for this in 'set'
  */
-function isChannelTipAlreadyExist(set, obj) {
+function isChannelTipAlreadyExist(tip, message) {
     let now = new Date();
     // in minutes
     let allowedTimeBetweenChannelTips = 20;
     let diffMs;
     let diffMins;
 
-    for (let i = 0; i < set.length; i++) {
-        if (set[i].channel_id === obj.channel_id) {
+    for (let i = 0; i < tipAllChannels.length; i++) {
+        if (tipAllChannels[i].channel_id === tip.channel_id) {
             // milliseconds between now
-            diffMs = (now - set[i].creation_date);
+            diffMs = (now - tipAllChannels[i].creation_date);
             // minutes
             diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
 
@@ -530,15 +534,19 @@ function isChannelTipAlreadyExist(set, obj) {
 
             if (diffMins > allowedTimeBetweenChannelTips) {
                 // tip already exist, but it expire -> replace it
-                set[i] = obj;
+                tipAllChannels[i] = tip;
+                message.reply("new tip `LUCK` has been created (" + tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
                 return 0
             } else {
                 // tip already exist and is still valid
+                message.reply("can't create new tip because previous tip is in progress!\n**" + tipAllChannels[i].n_used + "/" + tipAllChannels[i].n + " opened**\n**" + (20 - diffMins) + " minutes left**" );
                 return 1
             }
         }
     }
     // tip doesnt exist in this channel -> create new
+    tipAllChannels.push(tip);
+    message.reply("new tip `LUCK` has been created (" + tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
     return 2
 }
 
@@ -600,18 +608,18 @@ function createTipLuck(message, tipper, words) {
         } else if (n > 20) {
             return message.reply("20 people is the maximum per packet!");
         }
-        let quotioent = (amount / n).toFixed(8);
+        let quotient = (amount / n).toFixed(8);
 
         if (config_bot.debug) {
             console.log("createTipLuck amount", amount);
             console.log("createTipLuck n", n);
-            console.log("createTipLuck quotioent", quotioent);
+            console.log("createTipLuck quotient", quotient);
         }
 
         let luckTips = new Array(parseInt(n));
         if (n > 1) {
             for (let i = 0; i < (luckTips.length - 1); i++) {
-                luckTips[i] = (Math.random() * parseFloat(quotioent)).toFixed(8);
+                luckTips[i] = (Math.random() * parseFloat(quotient)).toFixed(8);
             }
 
             let sum = luckTips.reduce(function (total, num) {
@@ -640,28 +648,15 @@ function createTipLuck(message, tipper, words) {
             tipper: tipper,
             luck: true,
             amount_total: amount,
-            quotioent: quotioent,
+            quotient: quotient,
             n: parseInt(n),
             n_used: 0,
             luck_tips: luckTips,
-            used_user_id: [],
+            used_user: [],
             creation_date: new Date()
         };
 
-        switch (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel)) {
-            case 0:
-                message.reply("new tip `LUCK` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`");
-                break;
-
-            case 1:
-                message.reply("can't create new tip because previous tip is in progress!");
-                break;
-
-            case 2:
-                tipAllChannels.push(tipOneChannel);
-                message.reply("new tip `LUCK` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`");
-                break;
-        }
+        isChannelTipAlreadyExist(tipOneChannel, message);
     });
 }
 
@@ -716,27 +711,14 @@ function createTipEach(message, tipper, words) {
             tipper: tipper,
             luck: false,
             amount_total: amount,
-            quotioent: quotient,
+            quotient: quotient,
             n: parseInt(n),
             n_used: 0,
-            used_user_id: [],
+            used_user: [],
             creation_date: new Date()
         };
 
-        switch (isChannelTipAlreadyExist(tipAllChannels, tipOneChannel)) {
-            case 0:
-                message.reply("new tip `EACH` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`");
-                break;
-
-            case 1:
-                message.reply("can't create new tip because previous tip is in progress!");
-                break;
-
-            case 2:
-                tipAllChannels.push(tipOneChannel);
-                message.reply("new tip `EACH` has been created (" + amount.toString() + " ZEN)! Claim it with command `!tip open`");
-                break;
-        }
+        isChannelTipAlreadyExist(tipOneChannel, message);
     });
 }
 
