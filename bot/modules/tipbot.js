@@ -519,6 +519,7 @@ function isChannelTipAlreadyExist(tip, message) {
     let allowedTimeBetweenChannelTips = 20;
     let diffMs;
     let diffMins;
+    let type = tip.luck ? "LUCK" : "EACH";
 
     for (let i = 0; i < tipAllChannels.length; i++) {
         if (tipAllChannels[i].channel_id === tip.channel_id) {
@@ -535,7 +536,7 @@ function isChannelTipAlreadyExist(tip, message) {
             if (diffMins > allowedTimeBetweenChannelTips) {
                 // tip already exist, but it expire -> replace it
                 tipAllChannels[i] = tip;
-                message.reply("new tip `LUCK` has been created (" + tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
+                message.reply("new tip `" + type + "` has been created (" + tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
                 return 0
             } else {
                 // tip already exist and is still valid
@@ -546,7 +547,7 @@ function isChannelTipAlreadyExist(tip, message) {
     }
     // tip doesnt exist in this channel -> create new
     tipAllChannels.push(tip);
-    message.reply("new tip `LUCK` has been created (" + tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
+    message.reply("new tip `" + type + "` has been created (" + tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
     return 2
 }
 

@@ -11,8 +11,8 @@ Features:
 
 - node > 8.0.0
 - npm > 0.12.x
-- mongod > ?
-- one Zen full node
+- mongod > 3.6.0
+- zen > 2.0.11
 
 
 ## Installation
