@@ -772,7 +772,7 @@ function doTip(message, tipper, words, bot) {
             console.log("doTip targetId", targetId);
         }
 
-        bot.fetchUser(targetId).then(target => {
+        bot.fetchUser(targetId, true).then(target => {
             if (config_bot.debug) {
                 console.log("doTip target.id", target.id);
             }
@@ -797,8 +797,6 @@ function doTip(message, tipper, words, bot) {
         }).catch(err => {
             console.log("Failed fetch user: ", err);
         });
-
-
     });
 }
 

@@ -65,21 +65,26 @@ function checkMessageForCommand(msg, isEdit) {
         }
 
         if (cmd) {
-            // permission check
-            if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
-                console.log("member " + msg.author.id + " not allowed to use the bot");
-                return;
-            }
-
-            try {
-                cmd.process(bot, msg);
-            } catch (e) {
-                let msgTxt = "command " + cmdTxt + " failed :(";
-                if (config.debug) {
-                    msgTxt += "\n" + e.stack;
+            // if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
+            guild.fetchMember(msg.author.id, true).then(target => {
+                // permission check
+                if (!target.roles.get(moderation.role)) {
+                    console.log("member " + msg.author.id + " not allowed to use the bot");
+                    return;
                 }
-                msg.channel.send(msgTxt);
-            }
+
+                try {
+                    cmd.process(bot, msg);
+                } catch (e) {
+                    let msgTxt = "command " + cmdTxt + " failed :(";
+                    if (config.debug) {
+                        msgTxt += "\n" + e.stack;
+                    }
+                    msg.channel.send(msgTxt);
+                }
+            }).catch(err => {
+                console.log("Failed to fetch guild user: ", err);
+            });
         }
     } else {
         // message is not a command or is from us drop our own messages to prevent feedback loops
