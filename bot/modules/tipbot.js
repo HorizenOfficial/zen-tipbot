@@ -772,10 +772,11 @@ function doTip(message, tipper, words, bot) {
             console.log("doTip targetId", targetId);
         }
 
-        let foo_user = bot.fetchUser(targetId);
-        if (config_bot.debug) {
-            console.log("doTip foo_user.id", foo_user.id);
-        }
+        bot.fetchUser(targetId).then(foo_user => {
+            if (config_bot.debug) {
+                console.log("doTip foo_user.id", foo_user.id);
+            }
+        });
 
         let target = message.guild.members.get(targetId);
         if (!target) {
