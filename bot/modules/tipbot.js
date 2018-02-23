@@ -350,7 +350,7 @@ function doWithdraw(message, tipper, words) {
 
         let amount = getValidatedAmount(words[2], balance);
         if (amount === null) {
-            return message.reply("I don't know how to withdraw that many credits!");
+            return message.reply("I don't know how to withdraw that many ZENs!");
         } else if (amount === "Over9K") {
             return message.reply("what? Over 9000!");
         }
@@ -456,7 +456,7 @@ function doOpenTip(message, receiver, words, bot) {
         }
 
         if ((amount <= 0) || (amount > balance)) {
-            return message.reply("I don't know how to tip that many credits!");
+            return message.reply("I don't know how to tip that many ZENs!");
         }
 
         // prevent user from opening your own tip
@@ -597,7 +597,7 @@ function createTipLuck(message, tipper, words) {
 
         let amountToValidate = getValidatedAmount(words[2], balance);
         if (amountToValidate === null) {
-            return message.reply("I don't know how to tip that many credits!");
+            return message.reply("I don't know how to tip that many ZENs!");
         } else if (amountToValidate === "Over9K") {
             return message.reply("what? Over 9000!");
         }
@@ -683,7 +683,7 @@ function createTipEach(message, tipper, words) {
 
         let amountToValidate = getValidatedAmount(words[2], balance);
         if (amountToValidate === null) {
-            return message.reply("I don't know how to tip that many credits!");
+            return message.reply("I don't know how to tip that many ZENs!");
         } else if (amountToValidate === "Over9K") {
             return message.reply("what? Over 9000!");
         }
@@ -761,7 +761,7 @@ function doTip(message, tipper, words, bot) {
 
         let amount = getValidatedAmount(words[2], balance);
         if (amount === null) {
-            return message.reply("I don't know how to tip that many credits!");
+            return message.reply("I don't know how to tip that many ZENs!");
         } else if (amount === "Over9K") {
             return message.reply("what? Over 9000!");
         }

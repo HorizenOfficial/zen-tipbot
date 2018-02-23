@@ -65,7 +65,6 @@ function checkMessageForCommand(msg, isEdit) {
         }
 
         if (cmd) {
-            // if (!guild.members.get(msg.author.id).roles.get(moderation.role)) {
             guild.fetchMember(msg.author.id, true).then(target => {
                 // permission check
                 if (!target.roles.get(moderation.role)) {
