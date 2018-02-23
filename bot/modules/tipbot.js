@@ -772,6 +772,11 @@ function doTip(message, tipper, words, bot) {
             console.log("doTip targetId", targetId);
         }
 
+        let foo = bot.users.get(targetId);
+        if (config_bot.debug) {
+            console.log("doTip foo.id", foo.id);
+        }
+
         let target = message.guild.members.get(targetId);
         if (!target) {
             return message.reply("I cant't find a user in your tip ...");
