@@ -329,6 +329,19 @@ function getValidatedAmount(amount, balance) {
 }
 
 /**
+ * Validate amount if max is lower than maxTipZenAmount = 1
+ * * @param amount
+ */
+function getValidatedMaxAmount(amount) {
+    let maxTipZenAmount = 1;
+    if (amount <= maxTipZenAmount) {
+        return amount
+    } else {
+        return null
+    }
+}
+
+/**
  * @param message
  * @param tipper
  * @param words
@@ -596,6 +609,7 @@ function createTipLuck(message, tipper, words) {
         }
 
         let amountToValidate = getValidatedAmount(words[2], balance);
+        amountToValidate = getValidatedMaxAmount(amountToValidate);
         if (amountToValidate === null) {
             return message.reply("I don't know how to tip that many ZENs!");
         } else if (amountToValidate === "Over9K") {
@@ -682,6 +696,7 @@ function createTipEach(message, tipper, words) {
         }
 
         let amountToValidate = getValidatedAmount(words[2], balance);
+        amountToValidate = getValidatedMaxAmount(amountToValidate);
         if (amountToValidate === null) {
             return message.reply("I don't know how to tip that many ZENs!");
         } else if (amountToValidate === "Over9K") {
@@ -759,14 +774,15 @@ function doTip(message, tipper, words, bot) {
             return message.reply("error getting balance");
         }
 
-        let amount = getValidatedAmount(words[2], balance);
-        if (amount === null) {
+        let amountToValidate = getValidatedAmount(words[2], balance);
+        amountToValidate = getValidatedMaxAmount(amountToValidate);
+        if (amountToValidate === null) {
             return message.reply("I don't know how to tip that many ZENs!");
-        } else if (amount === "Over9K") {
+        } else if (amountToValidate === "Over9K") {
             return message.reply("what? Over 9000!");
         }
-        amount = parseFloat(amount.toFixed(8));
 
+        let amount = parseFloat(amountToValidate.toFixed(8));
         let targetId = resolveMention(words[1]);
         if (config_bot.debug) {
             console.log("doTip targetId", targetId);
