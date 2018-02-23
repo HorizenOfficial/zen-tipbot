@@ -772,30 +772,33 @@ function doTip(message, tipper, words, bot) {
             console.log("doTip targetId", targetId);
         }
 
-        bot.fetchUser(targetId).then(foo_user => {
+        bot.fetchUser(targetId).then(target => {
             if (config_bot.debug) {
-                console.log("doTip foo_user.id", foo_user.id);
-            }
-        });
-
-        let target = message.guild.members.get(targetId);
-        if (!target) {
-            return message.reply("I cant't find a user in your tip ...");
-        } else {
-            if (tipper.discordID === target.id) {
-                return message.reply("you can't tip yourself ...");
+                console.log("doTip target.id", target.id);
             }
 
-            getUser(target.id, function (err, receiver) {
-                if (err) {
-                    return message.reply(err.message);
+            if (!target) {
+                return message.reply("I cant't find a user in your tip ...");
+            } else {
+                if (tipper.discordID === target.id) {
+                    return message.reply("you can't tip yourself ...");
                 }
 
-                sendZen(tipper, receiver, amount);
-                message.author.send("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
-                target.send("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
-            });
-        }
+                getUser(target.id, function (err, receiver) {
+                    if (err) {
+                        return message.reply(err.message);
+                    }
+
+                    sendZen(tipper, receiver, amount);
+                    message.author.send("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
+                    target.send("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
+                });
+            }
+        }).catch(err => {
+            console.log("Failed fetch user: ", err);
+        });
+
+
     });
 }
 
