@@ -378,7 +378,7 @@ function doWithdraw(message, tipper, words) {
         }
 
         // only T addresses are supported!
-        if (destinationAddress.length !== 35 || destinationAddress.toLowerCase().substring(0, 1) !== prefix) {
+        if (destinationAddress.length !== 35 || destinationAddress.toLowerCase().substring(0, 2) !== prefix) {
             return message.reply("only `T` addresses are supported!");
         }
 
