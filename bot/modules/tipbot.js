@@ -215,7 +215,7 @@ function doDeposit(message, tipper) {
 
     if (tipper.address) {
         // tipper already has a deposit address
-        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "Your deposit address is: " + tipper.address);
+        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n\n" + "**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + tipper.address);
     } else {
         // tipper has no deposit address yet, generate a new one
         zen.getNewAddress(function (err, address) {
@@ -231,7 +231,7 @@ function doDeposit(message, tipper) {
                         console.error(err);
                     } else {
                         console.log(raw);
-                        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "Your deposit address is: " + address);
+                        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n\n" + "**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + address);
                     }
                 }
             );
