@@ -382,7 +382,8 @@ function doWithdraw(message, tipper, words) {
             return message.reply("only `T` addresses are supported!");
         }
 
-        zen.cmd("z_sendmany", tipper.address, '[{"amount": ' + spent.toString() + ', "address": "' + destinationAddress + '"}]',
+        // zen.cmd("z_sendmany", tipper.address, '[{"amount": ' + spent.toString() + ', "address": "' + destinationAddress + '"}]',
+        zen.cmd("sendtoaddress", destinationAddress, spent, "", "", true,
             function (err, txId) {
                 if (err) {
                     message.reply(err.message);
