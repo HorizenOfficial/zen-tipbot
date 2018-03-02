@@ -109,8 +109,7 @@ function doHelp(message) {
     }
 
     message.author.send(
-        "**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n"
-        + "Here are the commands you can use:\n"
+        "Here are the commands you can use:\n"
         + "**!tip help** : display this message.\n\n"
         + "**!tip deposit** : get an address to top up your balance. `Warning:` Mining directly into your `tip-bot-address` is prohibited (You won't be able to use these ZENs)! And no support for retrieving these ZENs will be provided!\n\n"
         + "**!tip balance** : get your balance.\n\n"
@@ -200,7 +199,7 @@ function doBalance(message, tipper) {
             return message.reply("error getting balance!");
         }
 
-        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "You have **" + balance + "** ZEN");
+        message.reply("You have **" + balance + "** ZEN");
     });
 }
 
@@ -215,12 +214,12 @@ function doDeposit(message, tipper) {
 
     if (tipper.address) {
         // tipper already has a deposit address
-        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n\n" + "**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + tipper.address);
+        message.reply("**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + tipper.address);
     } else {
         // tipper has no deposit address yet, generate a new one
         zen.getNewAddress(function (err, address) {
             if (err) {
-                return message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n" + "Error getting deposit address!");
+                return message.reply("Error getting deposit address!");
             }
 
             User.update(
@@ -231,7 +230,7 @@ function doDeposit(message, tipper) {
                         console.error(err);
                     } else {
                         console.log(raw);
-                        message.reply("**BETATEST: PLEASE USE TESTNET ZEN ONLY !**\n\n" + "**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + address);
+                        message.reply("**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + address);
                     }
                 }
             );
