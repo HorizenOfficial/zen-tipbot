@@ -397,7 +397,7 @@ function doWithdraw(message, tipper, words) {
                             }
                         }
                     );
-                    return message.reply("you withdrew **" + spent.toString() + " ZEN** (+ fee: " + fee.toString() + ") to **" + destinationAddress + "** (" + txLink(txId) + ")!");
+                    return message.reply("you withdrew **" + amount.toString() + " ZEN** (- fee) to **" + destinationAddress + "** (" + txLink(txId) + ")!");
                 }
             }
         );
