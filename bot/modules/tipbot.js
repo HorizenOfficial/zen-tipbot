@@ -369,8 +369,6 @@ function doWithdraw(message, tipper, words) {
         }
 
         const destinationAddress = words[3];
-        const fee = 0.0001;
-        let spent = parseFloat(amount) - fee;
 
         let prefix = "zn";
         if (config_bot.testnet) {
