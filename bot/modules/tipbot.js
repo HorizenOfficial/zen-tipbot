@@ -4,6 +4,8 @@ const config = require("config");
 const config_bot = config.get("bot");
 const bitcoin = require("bitcoin");
 const zen = new bitcoin.Client(config.get("zen"));
+const zencashjs = require('zencashjs');
+const randomBytes = require('crypto-browserify').randomBytes;
 const mongoose = require("mongoose");
 const syncRequest = require("sync-request");
 
@@ -18,6 +20,9 @@ db.once("open", function () {
 
 const userSchema = mongoose.Schema({
     "discordID": String,
+    "priv": String,
+    "privWIF": String,
+    "pubKey": String,
     "address": String,
     "spent": Number,
     "received": Number
@@ -130,6 +135,9 @@ function getUser(id, cb) {
     //  default user
     const user = new User({
         discordID: id,
+        priv: "",
+        privWIF: "",
+        pubKey: "",
         address: "",
         spent: 0,
         received: 0
@@ -146,17 +154,17 @@ function getUser(id, cb) {
             cb(null, doc);
         } else {
             // New User
-            zen.getNewAddress(function (err, address) {
+            const seed = randomBytes(id % 65535);
+            user.priv = zencashjs.address.mkPrivKey(seed.toString('hex'));
+            user.privWIF = zencashjs.address.privKeyToWIF(user.priv)
+            user.pubKey = zencashjs.address.privKeyToPubKey(user.priv)
+            user.address = zencashjs.address.pubKeyToAddr(user.pubKey)
+
+            user.save(function (err) {
                 if (err) {
-                    return cb(err, null);
+                    cb(err, null);
                 }
-                user.address = address;
-                user.save(function (err) {
-                    if (err) {
-                        cb(err, null);
-                    }
-                    cb(null, user);
-                });
+                cb(null, user);
             });
         }
     });
