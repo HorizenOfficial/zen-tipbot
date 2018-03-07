@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "axios": "^0.18.0",
     "babel-cli": "^6.26.0",
     "babel-preset-node8": "^1.2.0",
     "bitcoin": "^3.0.1",
@@ -13,7 +14,7 @@
     "node-config": "^0.0.2",
     "numeral": "^2.0.6",
     "request": "^2.83.0",
-    "sync-request": "^5.0.0"
+    "zencashjs": "^1.1.9-a"
   },
   "scripts": {
     "prettier": "prettier * --write",

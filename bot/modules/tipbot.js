@@ -7,7 +7,7 @@ const zen = new bitcoin.Client(config.get("zen"));
 const zencashjs = require('zencashjs');
 const randomBytes = require('crypto-browserify').randomBytes;
 const mongoose = require("mongoose");
-const syncRequest = require("sync-request");
+const axios = require("axios");
 
 mongoose.Promise = global.Promise;
 const mongodb = config.get("mongodb");
@@ -255,13 +255,11 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
     const BASE_API_URL = "https://api.coinmarketcap.com/v1/ticker";
     let API_URL = BASE_API_URL + "/zencash/?convert=" + fiatCurrencySymbol;
 
-    // TODO: rework this sync request!
-    let response = syncRequest("GET", API_URL);
-    if (response && response.statusCode === 200) {
-        let json = JSON.parse(response.body);
+    axios.get(API_URL).then(res => {
+        res = JSON.parse(res);
         let zenPrice = parseFloat(json[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
         return (parseFloat(amount) / zenPrice).toFixed(8).toString();
-    }
+    });
     return null
 }
 
