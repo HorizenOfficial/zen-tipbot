@@ -176,19 +176,16 @@ function getUser(id, cb) {
  * @param cb
  */
 function getBalance(tipper, cb) {
-    // tipper has no address, never made a deposit
-    if (!tipper.address) {
-        return cb(null, tipper.received - tipper.spent);
-    }
-
     // balance = total deposit amount + total received - total spent
-    zen.cmd("getreceivedbyaddress", tipper.address, function (err, amount) {
-        if (err) {
-            return cb(err, null);
-        }
-
-        const balance = amount + tipper.received - tipper.spent;
+    axios.get(
+        "https://explorer.zensystem.io/insight-api-zen/addr/" + tipper.address
+    )
+    .then((res) => {
+        const balance = res.data.totalReceived + tipper.received - tipper.spent;
         return cb(null, balance);
+    })
+    .catch((err) => {
+        return cb(err, null);
     });
 }
 
