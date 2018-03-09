@@ -19,7 +19,7 @@ db.once("open", function () {
 });
 
 const userSchema = mongoose.Schema({
-    "discordID": String,
+    "id": String,
     "priv": String,
     "privWIF": String,
     "pubKey": String,
@@ -134,7 +134,7 @@ function doHelp(message) {
 function getUser(id, cb) {
     //  default user
     const user = new User({
-        discordID: id,
+        id: id,
         priv: "",
         privWIF: "",
         pubKey: "",
@@ -144,7 +144,7 @@ function getUser(id, cb) {
     });
 
     // look for user in DB
-    User.findOne({"discordID": id}, function (err, doc) {
+    User.findOne({"id": id}, function (err, doc) {
         if (err) {
             return cb(err, null);
         }
@@ -154,7 +154,7 @@ function getUser(id, cb) {
             cb(null, doc);
         } else {
             // New User
-            const seed = randomBytes(id % 65535);
+            const seed = randomBytes((id % 65535) | 0);
             user.priv = zencashjs.address.mkPrivKey(seed.toString('hex'));
             user.privWIF = zencashjs.address.privKeyToWIF(user.priv)
             user.pubKey = zencashjs.address.privKeyToPubKey(user.priv)
@@ -367,7 +367,7 @@ function doWithdraw(message, tipper, words) {
                 } else {
                     // update tippers spent amount
                     User.update(
-                        {discordID: tipper.discordID},
+                        {id: tipper.id},
                         {"$inc": {spent: amount}},
                         function (err, raw) {
                             if (err) {
@@ -419,7 +419,7 @@ function doOpenTip(message, receiver, words, bot) {
 
     let tipper = tipAllChannels[idx].tipper;
     if (config_bot.debug) {
-        console.log("open tipper.discordID", tipper.discordID);
+        console.log("open tipper.id", tipper.id);
     }
 
     getBalance(tipper, function (err, balance) {
@@ -451,7 +451,7 @@ function doOpenTip(message, receiver, words, bot) {
         }
 
         // prevent user from opening your own tip
-        if (tipper.discordID === message.author.id) {
+        if (tipper.id === message.author.id) {
             return message.reply("you can't `open` your own tip ...");
         }
 
@@ -461,7 +461,7 @@ function doOpenTip(message, receiver, words, bot) {
             }
 
             if (config_bot.debug) {
-                console.log("open receiver.discordID ", receiver.discordID);
+                console.log("open receiver.id ", receiver.id);
             }
 
             for (let i = 0; i < tipAllChannels[idx].used_user.length; i++) {
@@ -471,8 +471,8 @@ function doOpenTip(message, receiver, words, bot) {
             }
 
             sendZen(tipper, receiver, amount);
-            bot.users.get(tipper.discordID).send("<@" + message.author.id + "> received your tip (" + amount.toString() + " ZEN)!");
-            message.author.send("<@" + tipper.discordID + "> sent you a **" + amount.toString() + " ZEN** tip !");
+            bot.users.get(tipper.id).send("<@" + message.author.id + "> received your tip (" + amount.toString() + " ZEN)!");
+            message.author.send("<@" + tipper.id + "> sent you a **" + amount.toString() + " ZEN** tip !");
 
             if (config_bot.debug) {
                 console.log("open message.author.id ", message.author.id);
@@ -493,7 +493,7 @@ function doOpenTip(message, receiver, words, bot) {
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
                 tipAllChannels.splice(idx, 1);
 
-                return message.reply("that was the last piece! Package from <@" + tipper.discordID + "> is now empty, thank you!");
+                return message.reply("that was the last piece! Package from <@" + tipper.id + "> is now empty, thank you!");
             }
         });
     });
@@ -774,7 +774,7 @@ function doTip(message, tipper, words, bot) {
             if (!target) {
                 return message.reply("I cant't find a user in your tip ...");
             } else {
-                if (tipper.discordID === target.id) {
+                if (tipper.id === target.id) {
                     return message.reply("you can't tip yourself ...");
                 }
 
@@ -784,8 +784,8 @@ function doTip(message, tipper, words, bot) {
                     }
 
                     sendZen(tipper, receiver, amount);
-                    message.author.send("<@" + receiver.discordID + "> received your tip (" + amount + " ZEN)!");
-                    target.send("<@" + tipper.discordID + "> sent you a **" + amount + " ZEN** tip !");
+                    message.author.send("<@" + receiver.id + "> received your tip (" + amount + " ZEN)!");
+                    target.send("<@" + tipper.id + "> sent you a **" + amount + " ZEN** tip !");
                 });
             }
         }).catch(err => {
@@ -802,7 +802,7 @@ function doTip(message, tipper, words, bot) {
 function sendZen(tipper, receiver, amount) {
     // update tipper's spent amount
     User.update(
-        {discordID: tipper.discordID},
+        {id: tipper.id},
         {"$inc": {spent: amount}},
         function (err, raw) {
             if (err) {
@@ -815,7 +815,7 @@ function sendZen(tipper, receiver, amount) {
 
     // and receiver's received amount
     User.update(
-        {discordID: receiver.discordID},
+        {id: receiver.id},
         {"$inc": {received: amount}},
         function (err, raw) {
             if (err) {
