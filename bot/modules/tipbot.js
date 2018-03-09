@@ -217,30 +217,7 @@ function doDeposit(message, tipper) {
         return message.reply("send me this command in direct message!");
     }
 
-    if (tipper.address) {
-        // tipper already has a deposit address
-        message.reply("**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + tipper.address);
-    } else {
-        // tipper has no deposit address yet, generate a new one
-        zen.getNewAddress(function (err, address) {
-            if (err) {
-                return message.reply("Error getting deposit address!");
-            }
-
-            User.update(
-                {discordID: tipper.discordID},
-                {"$set": {address: address}},
-                function (err, raw) {
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        console.log(raw);
-                        message.reply("**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + address);
-                    }
-                }
-            );
-        });
-    }
+    message.reply("**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + tipper.address);
 }
 
 /**
