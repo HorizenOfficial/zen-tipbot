@@ -243,8 +243,8 @@ function doDeposit(message, tipper) {
     }
 
     message.reply("**WARNING: do not mine to this address, your ZENs will not"
-    + " be credited to your balance !**\n\n" + "Your deposit address is: " +
-    tipper.address);
+    + " be credited to your balance !**\n\n" + "Your deposit address is:");
+    message.reply(tipper.address);
 }
 
 /**

@@ -13,7 +13,7 @@
     "mongoose": "^4.13.11",
     "node-config": "^0.0.2",
     "numeral": "^2.0.6",
-    "request": "^2.83.0",
+    "request": "^2.85.0",
     "zencashjs": "^1.1.9-a"
   },
   "scripts": {
