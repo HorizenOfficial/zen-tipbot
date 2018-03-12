@@ -101,9 +101,11 @@ exports.tip = {
 };
 
 let tipAllChannels = [];
-const allowedFiatCurrencySymbols = ["USD", "EUR", "RUB", "JPY", "GBP", "AUD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK",
-    "DKK", "HKD", "IDR", "ILS", "INR", "KRW", "MXN", "MYR", "NOK", "NZD", "PHP", "PKR", "PLN", "SEK", "SGD", "THB",
-    "TRY", "TWD", "ZAR"];
+const allowedFiatCurrencySymbols = [
+    "usd", "eur", "rub", "jpy", "gbp", "aud", "brl", "cad", "chf", "clp", "cny",
+    "czk", "dkk", "hkd", "idr", "ils", "inr", "krw", "mxn", "myr", "nok", "nzd",
+    "php", "pkr", "pln", "sek", "sgd", "thb", "try", "twd", "zar"
+];
 
 /**
  * @param message
@@ -116,14 +118,37 @@ function doHelp(message) {
     message.author.send(
         "Here are the commands you can use:\n"
         + "**!tip help** : display this message.\n\n"
-        + "**!tip deposit** : get an address to top up your balance. `Warning:` Mining directly into your `tip-bot-address` is prohibited (You won't be able to use these ZENs)! And no support for retrieving these ZENs will be provided!\n\n"
+        + "**!tip deposit** : get an address to top up your balance. "
+        + "`Warning:` Mining directly into your `tip-bot-address` is "
+        + "prohibited (You won't be able to use these ZENs)! And no support "
+        + "for retrieving these ZENs will be provided!\n\n"
         + "**!tip balance** : get your balance.\n\n"
-        + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your balance to your `T` <address> (Only `T` addresses are supported!).\n\n"
-        + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, the <amount> is divided *randomly* (one tip is bigger, you can win jackpot) between the <n> first people to open the packet. Leave an optionnal [message] with the packet. Only one packet per channel is allowed. Maximum is 20 people. Your packet will be active for next 20 minutes, then can be overwritten. Maximum tip has to be ≤ 1 ZEN.\n\n"
-        + "**!tip each <amount> <n> [message]** : drop a packet in a channel, the <amount> is divided *equally* between the <n> first people to open the packet. Leave an optionnal [message] with the packet. Only one packet per channel is allowed. Maximum is 20 people. Your packet will be active for next 20 minutes, then can be overwritten. Maximum tip has to be ≤ 1 ZEN.\n\n"
-        + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs. Maximum tip has to be ≤ 1 ZEN.\n\n"
-        + "**!tip <@user> random [message]** : tip <@user> random ZENs where random is <0.0, 0.1)\n\n"
-        + "**!tip <@user> <amount><fiat_currency_ticker> [message]** : tip <@user> ZENs in fiat equivalent. Example: **!tip @lukas 200czk**. You can use <fiat_currency_ticker> with every command. Where <fiat_currency_ticker> can be: USD, EUR, RUB, JPY, GBP, AUD, BRL, CAD, CHF, CLP, CNY, CZK, DKK, HKD, IDR, ILS, INR, KRW, MXN, MYR, NOK, NZD, PHP, PKR, PLN, SEK, SGD, THB, TRY, TWD, ZAR\n"
+        + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from "
+        + "your balance to your `T` <address> (Only `T` addresses are "
+        + "supported!).\n\n"
+        + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, "
+        + "the <amount> is divided *randomly* (one tip is bigger, you can win "
+        + "jackpot) between the <n> first people to open the packet. Leave an "
+        + "optionnal [message] with the packet. Only one packet per channel is "
+        + "allowed. Maximum is 20 people. Your packet will be active for next "
+        + "20minutes, then can be overwritten. Maximum tip has to be ≤ 1 "
+        + "ZEN.\n\n"
+        + "**!tip each <amount> <n> [message]** : drop a packet in a channel, "
+        + "the <amount> is divided *equally* between the <n> first people to "
+        + "open the packet. Leave an optionnal [message] with the packet. Only "
+        + "one packet per channel is allowed. Maximum is 20 people. Your "
+        + "packet will be active for next 20 minutes, then can be overwritten. "
+        + "Maximum tip has to be ≤ 1 ZEN.\n\n"
+        + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs. "
+        + "Maximum tip has to be ≤ 1 ZEN.\n\n"
+        + "**!tip <@user> random [message]** : tip <@user> random ZENs where "
+        + "random is <0.0, 0.1)\n\n"
+        + "**!tip <@user> <amount><fiat_currency_ticker> [message]** : tip "
+        + "<@user> ZENs in fiat equivalent. Example: **!tip @lukas 200czk**. "
+        + "You can use <fiat_currency_ticker> with every command. Where "
+        + "<fiat_currency_ticker> can be: USD, EUR, RUB, JPY, GBP, AUD, BRL, "
+        + "CAD, CHF, CLP, CNY, CZK, DKK, HKD, IDR, ILS, INR, KRW, MXN, MYR, "
+        + "NOK, NZD, PHP, PKR, PLN, SEK, SGD, THB, TRY, TWD, ZAR\n"
     );
 }
 
@@ -151,7 +176,7 @@ function getUser(id, cb) {
 
         if (doc) {
             // Existing User
-            cb(null, doc);
+            return cb(null, doc);
         } else {
             // New User
             const seed = randomBytes((id % 65535) | 0);
@@ -162,9 +187,9 @@ function getUser(id, cb) {
 
             user.save(function (err) {
                 if (err) {
-                    cb(err, null);
+                    return cb(err, null);
                 }
-                cb(null, user);
+                return cb(null, user);
             });
         }
     });
@@ -217,94 +242,104 @@ function doDeposit(message, tipper) {
         return message.reply("send me this command in direct message!");
     }
 
-    message.reply("**WARNING: do not mine to this address, your ZENs will not be credited to your balance !**\n\n" + "Your deposit address is: " + tipper.address);
+    message.reply("**WARNING: do not mine to this address, your ZENs will not"
+    + " be credited to your balance !**\n\n" + "Your deposit address is: " +
+    tipper.address);
 }
 
 /**
  * Calculate equivalent of ZEN in given currency.
  * @param amount - float - given in specific currency
  * @param fiatCurrencySymbol - string - fiat currency ticker
+ * @param cb
  */
-function getFiatToZenEquivalent(amount, fiatCurrencySymbol) {
+function getFiatToZenEquivalent(amount, fiatCurrencySymbol, cb) {
     const BASE_API_URL = "https://api.coinmarketcap.com/v1/ticker";
     let API_URL = BASE_API_URL + "/zencash/?convert=" + fiatCurrencySymbol;
 
     axios.get(API_URL).then(res => {
-        res = JSON.parse(res);
-        let zenPrice = parseFloat(json[0]["price_" + fiatCurrencySymbol.toLowerCase()]);
-        return (parseFloat(amount) / zenPrice).toFixed(8).toString();
+        const zenPrice = parseFloat(res.data[0]["price_" + fiatCurrencySymbol]);
+        return cb(null, (amount / zenPrice).toFixed(8).toString());
+    }).catch((err) => {
+        return cb(err, null);
     });
-    return null
 }
 
 /**
  * Validate syntax and check if user's balance is enough to manipulate the
  * requested amount and also stop manipulation if amount is 0.
+ * @param tipper
+ * @param message
  * @param amount
- * @param balance
+ * @param cb
  */
-function getValidatedAmount(amount, balance) {
-    amount = amount.trim();
-    if (config_bot.debug) {
-        console.log("getValidatedAmount amount: ", amount);
-    }
-
-    // Has currency symbol (zen/zens/ or fiat)
-    if (amount.toLowerCase().endsWith("zen")) {
-        if (isNaN(amount.substring(0, amount.length - 3))) {
-            return null
-        }
-        amount = amount.substring(0, amount.length - 3);
-    } else if (amount.toLowerCase().endsWith("zens")) {
-        if (isNaN(amount.substring(0, amount.length - 4))) {
-            return null
-        }
-        amount = amount.substring(0, amount.length - 4);
-    } else if (allowedFiatCurrencySymbols.indexOf(amount.toUpperCase().slice(-3)) > -1) {
-        if (config_bot.debug) {
-            console.log("Amount string is: " + amount + ", amount is: " + amount.substring(0, amount.length - 3) + ", fiat symbol is: " + amount.toLowerCase().slice(-3));
+function getValidatedAmount(tipper, message, amount, cb) {
+    getBalance(tipper, function (err, balance) {
+        if(err){
+            message.reply("Error getting your balance");
+            return cb(err, null);
         }
 
-        if (isNaN(amount.substring(0, amount.length - 3))) {
-            return null
+        amount = amount.trim().toLowerCase();
+        debugLog("getValidatedAmount amount: " + amount);
+
+        let symbol = "";
+        if(allowedFiatCurrencySymbols.indexOf(amount.slice(-3)) > -1
+        || amount.toLowerCase().endsWith("zen")){
+            // Has a correct currency symbol
+            symbol = amount.slice(-3);
+
+        } else if(amount.endsWith("zens")){
+            symbol = "zen";
+
+        } else if(amount === "random"){
+            // random <0.0, 0.1) ZENs
+            amount = Math.random() / 10;
         }
 
-        amount = getFiatToZenEquivalent(amount.substring(0, amount.length - 3), amount.toLowerCase().slice(-3));
-        if (amount === null) {
-            console.log("Can't get exchange rate!");
-            return null
-        }
-    }
-
-    // Is random
-    if (amount.toLowerCase() === "random") {
-        // random <0.0, 0.1) ZENs
-        amount = Math.random() / 10;
         // 8 decimals maximum
-        amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
-        return amount
-    }
+        amount = Math.trunc(parseFloat(amount) * 10e7) / 10e7;
 
-    // Is not a number
-    if (isNaN(amount)) {
-        return null
-    }
-
-    // Is a number
-    if (amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
-        // 8 decimals maximum
-        amount = Math.trunc((parseFloat(amount) * 10e7)) / 10e7;
-
-        if ((amount > 0) && (amount <= balance)) {
-            return amount;
+        // Not A Number
+        if(isNaN(amount)){
+            message.reply("Error incorrect amount");
+            return cb("NaN", null);
         }
-    }
 
-    // Invalid amount
-    if (amount > 9000) {
-        return "Over9K"
-    }
-    return null
+        // Invalid amount
+        if(amount > 9000){
+            message.reply("what? Over 9000!");
+            return cb("Over9K", null);
+        }
+
+        if(amount <= 0){
+            message.reply("Amount should be >= 1e-8 Zen");
+            return cb("0", null);
+        }
+
+        // get fiat to zen value
+        if(symbol && symbol !== "zen"){
+            getFiatToZenEquivalent(amount, symbol, function(err, value){
+                if(err){
+                    message.reply("Error getting fiat rate");
+                    return cb(err, null);
+                }
+                if(value > balance){
+                    message.reply("Your balance is too low");
+                    return cb("balance", null);
+                }
+                return cb(null, value);
+            });
+
+        // zen value with no symbol
+        } else {
+            if(amount > balance){
+                message.reply("Your balance is too low");
+                return cb("balance", null);
+            }
+            return cb(null, amount);
+        }
+    });
 }
 
 /**
@@ -314,9 +349,9 @@ function getValidatedAmount(amount, balance) {
 function getValidatedMaxAmount(amount) {
     let maxTipZenAmount = 1;
     if (amount <= maxTipZenAmount) {
-        return amount
+        return true;
     } else {
-        return null
+        return false;
     }
 }
 
@@ -335,17 +370,8 @@ function doWithdraw(message, tipper, words) {
         return doHelp(message);
     }
 
-    getBalance(tipper, function (err, balance) {
-        if (err) {
-            return message.reply("error getting balance!");
-        }
-
-        let amount = getValidatedAmount(words[2], balance);
-        if (amount === null) {
-            return message.reply("I don't know how to withdraw that many ZENs!");
-        } else if (amount === "Over9K") {
-            return message.reply("what? Over 9000!");
-        }
+    getValidatedAmount(tipper, message, words[2], function(err, amount){
+        if(err) return;
 
         const destinationAddress = words[3];
 
@@ -355,11 +381,11 @@ function doWithdraw(message, tipper, words) {
         }
 
         // only T addresses are supported!
-        if (destinationAddress.length !== 35 || destinationAddress.toLowerCase().substring(0, 2) !== prefix) {
+        if(destinationAddress.length !== 35
+        || destinationAddress.toLowerCase().substring(0, 2) !== prefix){
             return message.reply("only `T` addresses are supported!");
         }
 
-        // zen.cmd("z_sendmany", tipper.address, '[{"amount": ' + spent.toString() + ', "address": "' + destinationAddress + '"}]',
         zen.cmd("sendtoaddress", destinationAddress, amount, "", "", true,
             function (err, txId) {
                 if (err) {
@@ -377,13 +403,19 @@ function doWithdraw(message, tipper, words) {
                             }
                         }
                     );
-                    return message.reply("you withdrew **" + amount.toString() + " ZEN** (- fee) to **" + destinationAddress + "** (" + txLink(txId) + ")!");
+                    return message.reply("you withdrew **" + amount.toString()
+                    + " ZEN** (- fee) to **" + destinationAddress + "** (" +
+                    txLink(txId) + ")!");
                 }
             }
         );
     });
 }
 
+/**
+ * @param set
+ * @param channel_id
+ */
 function retreiveChannelTipObjIdx(set, channel_id) {
     for (let i = 0; i < set.length; i++) {
         if (set[i].channel_id === channel_id) {
@@ -401,7 +433,7 @@ function retreiveChannelTipObjIdx(set, channel_id) {
  */
 function doOpenTip(message, receiver, words, bot) {
     if (message.channel.type === "dm") {
-        return message.reply("you can't send me this command in direct message!");
+        return message.reply("you can't send me this command in DM");
     }
 
     // wrong command syntax
@@ -413,14 +445,10 @@ function doOpenTip(message, receiver, words, bot) {
     if (idx === null) {
         return message.reply("sorry here isn't any tip for `open`");
     }
-    if (config_bot.debug) {
-        console.log("open idx", idx);
-    }
+    debugLog("open idx" + idx);
 
     let tipper = tipAllChannels[idx].tipper;
-    if (config_bot.debug) {
-        console.log("open tipper.id", tipper.id);
-    }
+    debugLog("open tipper.id" + tipper.id);
 
     getBalance(tipper, function (err, balance) {
         if (err) {
@@ -429,22 +457,22 @@ function doOpenTip(message, receiver, words, bot) {
 
         let amount;
         if (tipAllChannels[idx].luck) {
-            if (config_bot.debug) {
-                console.log("open tipAllChannels[idx].n_used ", tipAllChannels[idx].n_used);
-                console.log("open tipAllChannels[idx].luck_tips ", tipAllChannels[idx].luck_tips);
-            }
-            amount = parseFloat(tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used]).toFixed(8);
+            debugLog("open tipAllChannels[idx].n_used "
+            + tipAllChannels[idx].n_used);
+            debugLog("open tipAllChannels[idx].luck_tips "
+            + tipAllChannels[idx].luck_tips);
+            amount = parseFloat(
+                tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used]
+            ).toFixed(8);
         } else {
-            if (config_bot.debug) {
-                console.log("open tipAllChannels[idx].amount_total: ", tipAllChannels[idx].amount_total);
-                console.log("open tipAllChannels[idx].quotient ", tipAllChannels[idx].quotient);
-            }
+            debugLog("open tipAllChannels[idx].amount_total: "
+            + tipAllChannels[idx].amount_total);
+            debugLog("open tipAllChannels[idx].quotient "
+            + tipAllChannels[idx].quotient);
             amount = parseFloat(tipAllChannels[idx].quotient).toFixed(8);
         }
-        if (config_bot.debug) {
-            console.log("open amount: ", amount);
-            console.log("open balance: ", balance);
-        }
+        debugLog("open amount: " + amount);
+        debugLog("open balance: " + balance);
 
         if ((amount <= 0) || (amount > balance)) {
             return message.reply("I don't know how to tip that many ZENs!");
@@ -460,23 +488,22 @@ function doOpenTip(message, receiver, words, bot) {
                 return message.reply(err.message);
             }
 
-            if (config_bot.debug) {
-                console.log("open receiver.id ", receiver.id);
-            }
+            debugLog("open receiver.id " + receiver.id);
 
             for (let i = 0; i < tipAllChannels[idx].used_user.length; i++) {
                 if (tipAllChannels[idx].used_user[i].id === message.author.id) {
-                    return message.reply("you can't `open` this for the second time ...");
+                    return message.reply(
+                        "you can't `open` this for the second time...");
                 }
             }
 
             sendZen(tipper, receiver, amount);
-            bot.users.get(tipper.id).send("<@" + message.author.id + "> received your tip (" + amount.toString() + " ZEN)!");
-            message.author.send("<@" + tipper.id + "> sent you a **" + amount.toString() + " ZEN** tip !");
+            bot.users.get(tipper.id).send("<@" + message.author.id
+            + "> received your tip (" + amount.toString() + " ZEN)!");
+            message.author.send("<@" + tipper.id + "> sent you a **" +
+            amount.toString() + " ZEN** tip !");
 
-            if (config_bot.debug) {
-                console.log("open message.author.id ", message.author.id);
-            }
+            debugLog("open message.author.id " + message.author.id);
 
             tipAllChannels[idx].n_used += 1;
             tipAllChannels[idx].used_user.push({
@@ -484,23 +511,23 @@ function doOpenTip(message, receiver, words, bot) {
                 amount: amount
             });
 
-            if (config_bot.debug) {
-                console.log("tipAllChannels[idx].n", tipAllChannels[idx].n);
-                console.log("tipAllChannels[idx].n_used", tipAllChannels[idx].n_used);
-            }
+            debugLog("tipAllChannels[idx].n" + tipAllChannels[idx].n);
+            debugLog("tipAllChannels[idx].n_used" + tipAllChannels[idx].n_used);
 
             // if empty, then remove from active list of open tips
             if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
                 tipAllChannels.splice(idx, 1);
 
-                return message.reply("that was the last piece! Package from <@" + tipper.id + "> is now empty, thank you!");
+                return message.reply("that was the last piece! Package from <@"
+                + tipper.id + "> is now empty, thank you!");
             }
         });
     });
 }
 
 /**
- * Try to find if channel has been already used, if so, then replace last open tip in that channel.
+ * Try to find if channel has been already used,
+ * if so, then replace last open tip in that channel.
  * @param set of objects
  * @param obj - we are looking for this in 'set'
  */
@@ -519,26 +546,31 @@ function isChannelTipAlreadyExist(tip, message) {
             // minutes
             diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
 
-            if (config_bot.debug) {
-                console.log("isChannelTipAlreadyExist diffMs: ", diffMs);
-                console.log("isChannelTipAlreadyExist diffMins: ", diffMins);
-            }
+            debugLog("isChannelTipAlreadyExist diffMs: " + diffMs);
+            debugLog("isChannelTipAlreadyExist diffMins: " + diffMins);
 
             if (diffMins > allowedTimeBetweenChannelTips) {
                 // tip already exist, but it expire -> replace it
                 tipAllChannels[i] = tip;
-                message.reply("new tip `" + type + "` has been created (" + tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
+                message.reply("new tip `" + type + "` has been created ("
+                + tip.amount_total.toString()
+                + " ZEN)! Claim it with command `!tip open`");
                 return 0
             } else {
                 // tip already exist and is still valid
-                message.reply("can't create new tip because previous tip is in progress!\n**" + tipAllChannels[i].n_used + "/" + tipAllChannels[i].n + " opened**\n**" + (20 - diffMins) + " minutes left**" );
+                message.reply("can't create new tip because,"
+                + " previous tip is in progress!\n**"
+                + tipAllChannels[i].n_used + "/"
+                + tipAllChannels[i].n + " opened**\n**" + (20 - diffMins)
+                + " minutes left**" );
                 return 1
             }
         }
     }
     // tip doesnt exist in this channel -> create new
     tipAllChannels.push(tip);
-    message.reply("new tip `" + type + "` has been created (" + tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
+    message.reply("new tip `" + type + "` has been created (" +
+    tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
     return 2
 }
 
@@ -573,7 +605,7 @@ function shuffle(array) {
  */
 function createTipLuck(message, tipper, words) {
     if (message.channel.type === "dm") {
-        return message.reply("you can't send me this command in direct message!");
+        return message.reply("you can't send me this command in DM");
     }
 
     // wrong command syntax
@@ -581,20 +613,13 @@ function createTipLuck(message, tipper, words) {
         return doHelp(message);
     }
 
-    getBalance(tipper, function (err, balance) {
-        if (err) {
-            return message.reply("error getting balance");
+    getValidatedAmount(tipper, message, words[2], function(err, amount){
+        if(err) return;
+
+        if(!getValidatedMaxAmount(amount)){
+            return message.reply("Tip 1 zen maximum !");
         }
 
-        let amountToValidate = getValidatedAmount(words[2], balance);
-        amountToValidate = getValidatedMaxAmount(amountToValidate);
-        if (amountToValidate === null) {
-            return message.reply("I don't know how to tip that many ZENs!");
-        } else if (amountToValidate === "Over9K") {
-            return message.reply("what? Over 9000!");
-        }
-
-        let amount = parseFloat(amountToValidate).toFixed(8);
         let n = parseFloat(words[3]).toFixed(8);
         if (isNaN(n) || n <= 0) {
             return message.reply("I don't know how to tip that many people!");
@@ -603,11 +628,9 @@ function createTipLuck(message, tipper, words) {
         }
         let quotient = (amount / n).toFixed(8);
 
-        if (config_bot.debug) {
-            console.log("createTipLuck amount", amount);
-            console.log("createTipLuck n", n);
-            console.log("createTipLuck quotient", quotient);
-        }
+        debugLog("createTipLuck amount" + amount);
+        debugLog("createTipLuck n" + n);
+        debugLog("createTipLuck quotient" + quotient);
 
         let luckTips = new Array(parseInt(n));
         if (n > 1) {
@@ -618,20 +641,16 @@ function createTipLuck(message, tipper, words) {
             let sum = luckTips.reduce(function (total, num) {
                 return parseFloat(total) + parseFloat(num)
             });
-            if (config_bot.debug) {
-                console.log("createTipLuck sum", sum);
-            }
+            debugLog("createTipLuck sum" + sum);
 
-            luckTips[luckTips.length - 1] = (parseFloat(amount) - parseFloat(sum)).toFixed(8);
-            if (config_bot.debug) {
-                console.log("createTipLuck luckTips", luckTips);
-            }
+            luckTips[luckTips.length - 1] = (parseFloat(amount) -
+                parseFloat(sum)).toFixed(8);
+            debugLog("createTipLuck luckTips" + luckTips);
 
             // shuffle random tips (somewhere is BONUS) :-)
             luckTips = shuffle(luckTips);
-            if (config_bot.debug) {
-                console.log("createTipLuck luckTips (shuffled) ", luckTips);
-            }
+            debugLog("createTipLuck luckTips (shuffled) " + luckTips);
+
         } else {
             luckTips[0] = parseFloat(amount).toFixed(8);
         }
@@ -660,7 +679,7 @@ function createTipLuck(message, tipper, words) {
  */
 function createTipEach(message, tipper, words) {
     if (message.channel.type === "dm") {
-        return message.reply("you can't send me this command in direct message!");
+        return message.reply("you can't send me this command in DM");
     }
 
     // wrong command syntax
@@ -668,37 +687,24 @@ function createTipEach(message, tipper, words) {
         return doHelp(message);
     }
 
-    getBalance(tipper, function (err, balance) {
-        if (err) {
-            return message.reply("Error getting balance");
-        }
+    getValidatedAmount(tipper, message, words[2], function(err, amount){
+        if(err) return;
 
-        let amountToValidate = getValidatedAmount(words[2], balance);
-        amountToValidate = getValidatedMaxAmount(amountToValidate);
-        if (amountToValidate === null) {
-            return message.reply("I don't know how to tip that many ZENs!");
-        } else if (amountToValidate === "Over9K") {
-            return message.reply("what? Over 9000!");
-        }
-
-        let amount = parseFloat(amountToValidate).toFixed(8);
-        if (config_bot.debug) {
-            console.log("createTipEach amount", amount);
+        if(!getValidatedMaxAmount(amount)){
+            return message.reply("Tip 1 zen maximum !");
         }
 
         let n = parseFloat(words[3]).toFixed(8);
         if (isNaN(n) || n <= 0) {
-            return message.reply("I dont know how to tip that many people!");
+            return message.reply("I don't know how to tip that many people!");
         } else if (n > 20) {
             return message.reply("20 people is the maximum per packet!");
         }
-
         let quotient = (amount / n).toFixed(8);
-        if (config_bot.debug) {
-            console.log("createTipEach n", n);
-            console.log("createTipEach quotient", quotient);
-            console.log("createTipEach amount", amount);
-        }
+
+        debugLog("createTipEach n" + n);
+        debugLog("createTipEach quotient" + quotient);
+        debugLog("createTipEach amount" + amount);
 
         let tipOneChannel = {
             channel_id: message.channel.id,
@@ -739,7 +745,7 @@ function resolveMention(usertxt) {
  */
 function doTip(message, tipper, words, bot) {
     if (message.channel.type === "dm") {
-        return message.reply("you can't send me this command in direct message!");
+        return message.reply("you can't send me this command in DM");
     }
 
     // wrong command syntax
@@ -747,29 +753,20 @@ function doTip(message, tipper, words, bot) {
         return doHelp(message);
     }
 
-    getBalance(tipper, function (err, balance) {
-        if (err) {
-            return message.reply("error getting balance");
+    getValidatedAmount(tipper, message, words[2], function(err, amount){
+        if(err) return;
+
+        console.log(amount);
+
+        if(!getValidatedMaxAmount(amount)){
+            return message.reply("Tip 1 zen maximum !");
         }
 
-        let amountToValidate = getValidatedAmount(words[2], balance);
-        amountToValidate = getValidatedMaxAmount(amountToValidate);
-        if (amountToValidate === null) {
-            return message.reply("I don't know how to tip that many ZENs!");
-        } else if (amountToValidate === "Over9K") {
-            return message.reply("what? Over 9000!");
-        }
-
-        let amount = parseFloat(amountToValidate.toFixed(8));
         let targetId = resolveMention(words[1]);
-        if (config_bot.debug) {
-            console.log("doTip targetId", targetId);
-        }
+        debugLog("doTip targetId" + targetId);
 
         bot.fetchUser(targetId, true).then(target => {
-            if (config_bot.debug) {
-                console.log("doTip target.id", target.id);
-            }
+            debugLog("doTip target.id" + target.id);
 
             if (!target) {
                 return message.reply("I cant't find a user in your tip ...");
@@ -784,8 +781,10 @@ function doTip(message, tipper, words, bot) {
                     }
 
                     sendZen(tipper, receiver, amount);
-                    message.author.send("<@" + receiver.id + "> received your tip (" + amount + " ZEN)!");
-                    target.send("<@" + tipper.id + "> sent you a **" + amount + " ZEN** tip !");
+                    message.author.send("<@" + receiver.id
+                    + "> received your tip (" + amount + " ZEN)!");
+                    target.send("<@" + tipper.id + "> sent you a **" + amount
+                    + " ZEN** tip !");
                 });
             }
         }).catch(err => {
@@ -832,4 +831,13 @@ function sendZen(tipper, receiver, amount) {
  */
 function txLink(txId) {
     return "<https://explorer.zensystem.io/tx/" + txId + ">";
+}
+
+/**
+ * @param log - log if bot is in debug mode
+ */
+function debugLog(log){
+    if (config_bot.debug) {
+        console.log(log);
+    }
 }
