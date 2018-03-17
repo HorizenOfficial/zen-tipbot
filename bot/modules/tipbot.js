@@ -208,13 +208,13 @@ function getBalance(tipper, cb) {
     axios.get(
         INSIGHT_API + "addr/" + tipper.address
     )
-    .then((res) => {
-        const balance = res.data.totalReceived + tipper.received - tipper.spent;
-        return cb(null, balance);
-    })
-    .catch((err) => {
-        return cb((err.data ? err.data : err), null);
-    });
+        .then((res) => {
+            const balance = res.data.totalReceived + tipper.received - tipper.spent;
+            return cb(null, balance);
+        })
+        .catch((err) => {
+            return cb((err.data ? err.data : err), null);
+        });
 }
 
 /**
@@ -248,7 +248,7 @@ function doDeposit(message, tipper) {
     }
 
     message.reply("**WARNING: do not mine to this address, your ZENs will not"
-    + " be credited to your balance !**\n\n" + "Your deposit address is:");
+        + " be credited to your balance !**\n\n" + "Your deposit address is:");
     message.reply(tipper.address);
 }
 
@@ -280,7 +280,7 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol, cb) {
  */
 function getValidatedAmount(tipper, message, _amount, cb) {
     getBalance(tipper, function (err, balance) {
-        if(err){
+        if (err) {
             message.reply("Error getting your balance");
             return cb(err, null);
         }
@@ -289,15 +289,15 @@ function getValidatedAmount(tipper, message, _amount, cb) {
         debugLog("getValidatedAmount amount: " + amount);
 
         let symbol = "";
-        if(allowedFiatCurrencySymbols.indexOf(amount.slice(-3)) > -1
-        || amount.toLowerCase().endsWith("zen")){
+        if (allowedFiatCurrencySymbols.indexOf(amount.slice(-3)) > -1
+            || amount.toLowerCase().endsWith("zen")) {
             // Has a correct currency symbol
             symbol = amount.slice(-3);
 
-        } else if(amount.endsWith("zens")){
+        } else if (amount.endsWith("zens")) {
             symbol = "zen";
 
-        } else if(amount === "random"){
+        } else if (amount === "random") {
             // random <0.0, 0.1) ZENs
             amount = Math.random() / 10;
         }
@@ -306,39 +306,39 @@ function getValidatedAmount(tipper, message, _amount, cb) {
         amount = Math.trunc(parseFloat(amount) * 10e7) / 10e7;
 
         // Not A Number
-        if(isNaN(amount)){
+        if (isNaN(amount)) {
             message.reply("Error incorrect amount");
             return cb("NaN", null);
         }
 
         // Invalid amount
-        if(amount > 9000){
+        if (amount > 9000) {
             message.reply("what? Over 9000!");
             return cb("Over9K", null);
         }
 
-        if(amount <= 0){
+        if (amount <= 0) {
             message.reply("Amount should be >= 1e-8 Zen");
             return cb("0", null);
         }
 
         // get fiat to zen value
-        if(symbol && symbol !== "zen"){
-            getFiatToZenEquivalent(amount, symbol, function(err, value){
-                if(err){
+        if (symbol && symbol !== "zen") {
+            getFiatToZenEquivalent(amount, symbol, function (err, value) {
+                if (err) {
                     message.reply("Error getting fiat rate");
                     return cb(err, null);
                 }
-                if(value > balance){
+                if (value > balance) {
                     message.reply("Your balance is too low");
                     return cb("balance", null);
                 }
                 return cb(null, value);
             });
 
-        // zen value with no symbol
+            // zen value with no symbol
         } else {
-            if(amount > balance){
+            if (amount > balance) {
                 message.reply("Your balance is too low");
                 return cb("balance", null);
             }
@@ -366,9 +366,9 @@ function getValidatedMaxAmount(amount) {
  * @param fee
  * @param cb
  */
-function findFrom(amount, fee, cb){
+function findFrom(amount, fee, cb) {
     User.find({}, function (err, allUsers) {
-        if(err) cb(err, null);
+        if (err) cb(err, null);
 
         let n = 0;
         let from = {};
@@ -377,12 +377,12 @@ function findFrom(amount, fee, cb){
             axios.get(
                 INSIGHT_API + "addr/" + oneUser.address
             ).then((res) => {
-                if(res.data.balance > amount + fee){
+                if (res.data.balance > amount + fee) {
                     from.priv = oneUser.priv;
                     from.address = oneUser.address;
                     return cb(null, from);
                 }
-                if(n === allUsers.length){
+                if (n === allUsers.length) {
                     return cb("not found", null);
                 }
             }).catch((err) => {
@@ -399,14 +399,14 @@ function findFrom(amount, fee, cb){
  * @param message
  * @param cb
  */
-function createTx(amount, fee, destinationAddress, message, cb){
-    if(amount <= fee){
+function createTx(amount, fee, destinationAddress, message, cb) {
+    if (amount <= fee) {
         message.reply("Error amount should be greater than Tx fee: " + fee);
         return cb("amount <= fee", null);
     }
 
-    findFrom(amount, fee, function(err, from){
-        if(err) return cb(err, null);
+    findFrom(amount, fee, function (err, from) {
+        if (err) return cb(err, null);
 
         message.reply("creating transaction: 0%");
 
@@ -418,68 +418,68 @@ function createTx(amount, fee, destinationAddress, message, cb){
         const satoshisFees = Math.round(fee * 1e8)
 
         axios.get(prevTxURL)
-        .then((tx_resp) => {
-            message.reply("creating transaction: 25%");
-            const tx_data = tx_resp.data;
+            .then((tx_resp) => {
+                message.reply("creating transaction: 25%");
+                const tx_data = tx_resp.data;
 
-            axios.get(infoURL)
-            .then((info_resp) => {
-                message.reply("creating transaction: 50%");
-                const info_data = info_resp.data;
+                axios.get(infoURL)
+                    .then((info_resp) => {
+                        message.reply("creating transaction: 50%");
+                        const info_data = info_resp.data;
 
-                const blockHeight = info_data.info.blocks - 300;
-                blockHashURL += blockHeight;
+                        const blockHeight = info_data.info.blocks - 300;
+                        blockHashURL += blockHeight;
 
-                // Get block hash
-                axios.get(blockHashURL)
-                .then(function (bhash_resp) {
-                    message.reply("creating transaction: 75%");
+                        // Get block hash
+                        axios.get(blockHashURL)
+                            .then(function (bhash_resp) {
+                                message.reply("creating transaction: 75%");
 
-                    const blockHash = bhash_resp.data.blockHash;
+                                const blockHash = bhash_resp.data.blockHash;
 
-                    // Iterate through each utxo
-                    // append it to history
-                    let history = [];
-                    for(let i = 0 ; i < tx_data.length ; i++){
-                        if(tx_data[i].confirmations === 0){
-                            continue;
-                        }
+                                // Iterate through each utxo
+                                // append it to history
+                                let history = [];
+                                for (let i = 0; i < tx_data.length; i++) {
+                                    if (tx_data[i].confirmations === 0) {
+                                        continue;
+                                    }
 
-                        history = history.concat({
-                            txid: tx_data[i].txid,
-                            vout: tx_data[i].vout,
-                            scriptPubKey: tx_data[i].scriptPubKey,
+                                    history = history.concat({
+                                        txid: tx_data[i].txid,
+                                        vout: tx_data[i].vout,
+                                        scriptPubKey: tx_data[i].scriptPubKey,
+                                    });
+                                }
+
+                                // Create transaction
+                                let txObj = zencashjs.transaction.createRawTx(
+                                    history, [from.address], blockHeight, blockHash);
+
+                                // Sign each history transcation
+                                for (let i = 0; i < history.length; i++) {
+                                    txObj = zencashjs.transaction.signTx(
+                                        txObj, i, from.priv, true);
+                                }
+
+                                // Convert it to hex string
+                                const txHexStr = zencashjs.transaction.serializeTx(txObj);
+
+                                axios.post(sendRawTxURL, {rawtx: txHexStr})
+                                    .then((sendtx_resp) => {
+                                        message.reply("creating transaction: 100%");
+                                        return cb(null, sendtx_resp.data.txid);
+
+                                    }).catch(function (err) { // END axios post sendRawTxURL
+                                    return cb((err.data ? err.data : err), null);
+                                });
+                            }).catch(function (err) { // END axios get blockHashURL
+                            return cb((err.data ? err.data : err), null);
                         });
-                    }
-
-                    // Create transaction
-                    let txObj = zencashjs.transaction.createRawTx(
-                        history, [from.address], blockHeight, blockHash);
-
-                    // Sign each history transcation
-                    for(let i = 0 ; i < history.length ; i++){
-                        txObj = zencashjs.transaction.signTx(
-                            txObj, i, from.priv, true);
-                    }
-
-                    // Convert it to hex string
-                    const txHexStr = zencashjs.transaction.serializeTx(txObj);
-
-                    axios.post(sendRawTxURL, { rawtx: txHexStr })
-                    .then((sendtx_resp) => {
-                        message.reply("creating transaction: 100%");
-                        return cb(null, sendtx_resp.data.txid);
-
-                    }).catch(function (err) { // END axios post sendRawTxURL
-                        return cb((err.data ? err.data : err), null);
-                    });
-                }).catch(function (err) { // END axios get blockHashURL
+                    }).catch(function (err) { // END axios get infoURL
                     return cb((err.data ? err.data : err), null);
                 });
-            }).catch(function (err) { // END axios get infoURL
-                return cb((err.data ? err.data : err), null);
-            });
-        }).catch(function (err) { // END axios get prevTxURL
+            }).catch(function (err) { // END axios get prevTxURL
             return cb((err.data ? err.data : err), null);
         });
     });
@@ -500,8 +500,8 @@ function doWithdraw(message, tipper, words) {
         return doHelp(message);
     }
 
-    getValidatedAmount(tipper, message, words[2], function(err, amount){
-        if(err) return;
+    getValidatedAmount(tipper, message, words[2], function (err, amount) {
+        if (err) return;
 
         const destinationAddress = words[3];
 
@@ -511,18 +511,18 @@ function doWithdraw(message, tipper, words) {
         }
 
         // only T addresses are supported!
-        if(destinationAddress.length !== 35
-        || destinationAddress.toLowerCase().substring(0, 2) !== prefix){
+        if (destinationAddress.length !== 35
+            || destinationAddress.toLowerCase().substring(0, 2) !== prefix) {
             return message.reply("only `T` addresses are supported!");
         }
 
         /*axios.get(
             INSIGHT_API + "/utils/estimatefee"
         ).then((res) => {*/
-            const fee = 0.0001; //temporary
-            createTx(amount, fee, destinationAddress, message,
-            function(err, txId){
-                if(err){
+        const fee = 0.0001; //temporary
+        createTx(amount, fee, destinationAddress, message,
+            function (err, txId) {
+                if (err) {
                     debugLog(err);
                     return message.reply("error creating transaction object !");
                 }
@@ -582,17 +582,17 @@ function doOpenTip(message, receiver, words, bot) {
         let amount;
         if (tipAllChannels[idx].luck) {
             debugLog("open tipAllChannels[idx].n_used "
-            + tipAllChannels[idx].n_used);
+                + tipAllChannels[idx].n_used);
             debugLog("open tipAllChannels[idx].luck_tips "
-            + tipAllChannels[idx].luck_tips);
+                + tipAllChannels[idx].luck_tips);
             amount = parseFloat(
                 tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used]
             ).toFixed(8);
         } else {
             debugLog("open tipAllChannels[idx].amount_total: "
-            + tipAllChannels[idx].amount_total);
+                + tipAllChannels[idx].amount_total);
             debugLog("open tipAllChannels[idx].quotient "
-            + tipAllChannels[idx].quotient);
+                + tipAllChannels[idx].quotient);
             amount = parseFloat(tipAllChannels[idx].quotient).toFixed(8);
         }
         debugLog("open amount: " + amount);
@@ -623,9 +623,9 @@ function doOpenTip(message, receiver, words, bot) {
 
             sendZen(tipper, receiver, amount);
             bot.users.get(tipper.id).send("<@" + message.author.id
-            + "> received your tip (" + amount.toString() + " ZEN)!");
+                + "> received your tip (" + amount.toString() + " ZEN)!");
             message.author.send("<@" + tipper.id + "> sent you a **" +
-            amount.toString() + " ZEN** tip !");
+                amount.toString() + " ZEN** tip !");
 
             debugLog("open message.author.id " + message.author.id);
 
@@ -643,7 +643,7 @@ function doOpenTip(message, receiver, words, bot) {
                 tipAllChannels.splice(idx, 1);
 
                 return message.reply("that was the last piece! Package from <@"
-                + tipper.id + "> is now empty, thank you!");
+                    + tipper.id + "> is now empty, thank you!");
             }
         });
     });
@@ -677,16 +677,16 @@ function isChannelTipAlreadyExist(tip, message) {
                 // tip already exist, but it expire -> replace it
                 tipAllChannels[i] = tip;
                 message.reply("new tip `" + type + "` has been created ("
-                + tip.amount_total.toString()
-                + " ZEN)! Claim it with command `!tip open`");
+                    + tip.amount_total.toString()
+                    + " ZEN)! Claim it with command `!tip open`");
                 return 0
             } else {
                 // tip already exist and is still valid
                 message.reply("can't create new tip because,"
-                + " previous tip is in progress!\n**"
-                + tipAllChannels[i].n_used + "/"
-                + tipAllChannels[i].n + " opened**\n**" + (20 - diffMins)
-                + " minutes left**" );
+                    + " previous tip is in progress!\n**"
+                    + tipAllChannels[i].n_used + "/"
+                    + tipAllChannels[i].n + " opened**\n**" + (20 - diffMins)
+                    + " minutes left**");
                 return 1
             }
         }
@@ -694,7 +694,7 @@ function isChannelTipAlreadyExist(tip, message) {
     // tip doesnt exist in this channel -> create new
     tipAllChannels.push(tip);
     message.reply("new tip `" + type + "` has been created (" +
-    tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
+        tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
     return 2
 }
 
@@ -737,10 +737,10 @@ function createTipLuck(message, tipper, words) {
         return doHelp(message);
     }
 
-    getValidatedAmount(tipper, message, words[2], function(err, amount){
-        if(err) return;
+    getValidatedAmount(tipper, message, words[2], function (err, amount) {
+        if (err) return;
 
-        if(!getValidatedMaxAmount(amount)){
+        if (!getValidatedMaxAmount(amount)) {
             return message.reply("Tip 1 zen maximum !");
         }
 
@@ -811,10 +811,10 @@ function createTipEach(message, tipper, words) {
         return doHelp(message);
     }
 
-    getValidatedAmount(tipper, message, words[2], function(err, amount){
-        if(err) return;
+    getValidatedAmount(tipper, message, words[2], function (err, amount) {
+        if (err) return;
 
-        if(!getValidatedMaxAmount(amount)){
+        if (!getValidatedMaxAmount(amount)) {
             return message.reply("Tip 1 zen maximum !");
         }
 
@@ -877,12 +877,12 @@ function doTip(message, tipper, words, bot) {
         return doHelp(message);
     }
 
-    getValidatedAmount(tipper, message, words[2], function(err, amount){
-        if(err) return;
+    getValidatedAmount(tipper, message, words[2], function (err, amount) {
+        if (err) return;
 
         console.log(amount);
 
-        if(!getValidatedMaxAmount(amount)){
+        if (!getValidatedMaxAmount(amount)) {
             return message.reply("Tip 1 zen maximum !");
         }
 
@@ -906,9 +906,9 @@ function doTip(message, tipper, words, bot) {
 
                     sendZen(tipper, receiver, amount);
                     message.author.send("<@" + receiver.id
-                    + "> received your tip (" + amount + " ZEN)!");
+                        + "> received your tip (" + amount + " ZEN)!");
                     target.send("<@" + tipper.id + "> sent you a **" + amount
-                    + " ZEN** tip !");
+                        + " ZEN** tip !");
                 });
             }
         }).catch(err => {
@@ -960,7 +960,7 @@ function txLink(txId) {
 /**
  * @param log - log if bot is in debug mode
  */
-function debugLog(log){
+function debugLog(log) {
     if (config_bot.debug) {
         console.log(log);
     }
