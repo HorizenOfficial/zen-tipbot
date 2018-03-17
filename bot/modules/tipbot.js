@@ -184,9 +184,9 @@ function getUser(id, cb) {
             // New User
             const seed = randomBytes((id % 65535) | 0);
             user.priv = zencashjs.address.mkPrivKey(seed.toString('hex'));
-            user.privWIF = zencashjs.address.privKeyToWIF(user.priv, true)
-            user.pubKey = zencashjs.address.privKeyToPubKey(user.priv, true)
-            user.address = zencashjs.address.pubKeyToAddr(user.pubKey)
+            user.privWIF = zencashjs.address.privKeyToWIF(user.priv, true);
+            user.pubKey = zencashjs.address.privKeyToPubKey(user.priv, true);
+            user.address = zencashjs.address.pubKeyToAddr(user.pubKey);
 
             user.save(function (err) {
                 if (err) {
@@ -275,7 +275,7 @@ function getFiatToZenEquivalent(amount, fiatCurrencySymbol, cb) {
  * requested amount and also stop manipulation if amount is 0.
  * @param tipper
  * @param message
- * @param amount
+ * @param _amount
  * @param cb
  */
 function getValidatedAmount(tipper, message, _amount, cb) {
@@ -410,8 +410,9 @@ function createTx(amount, fee, destinationAddress, message, cb) {
         const infoURL = INSIGHT_API + "status?q=getInfo";
         let blockHashURL = INSIGHT_API + "block-index/";
         const sendRawTxURL = INSIGHT_API + "tx/send";
+        // TODO: satoshisToSend and satoshisFees are unused
         const satoshisToSend = Math.round(amount * 1e8);
-        const satoshisFees = Math.round(fee * 1e8)
+        const satoshisFees = Math.round(fee * 1e8);
 
         axios.get(prevTxURL)
             .then((tx_resp) => {
@@ -603,6 +604,7 @@ function doOpenTip(message, receiver, words, bot) {
             return message.reply("you can't `open` your own tip ...");
         }
 
+        // TODO: rec is unused
         getUser(receiver.id, function (err, rec) {
             if (err) {
                 return message.reply(err.message);
@@ -648,8 +650,8 @@ function doOpenTip(message, receiver, words, bot) {
 /**
  * Try to find if channel has been already used,
  * if so, then replace last open tip in that channel.
- * @param set of objects
- * @param obj - we are looking for this in 'set'
+ * @param tip
+ * @param message
  */
 function isChannelTipAlreadyExist(tip, message) {
     let now = new Date();
