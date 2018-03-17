@@ -353,11 +353,7 @@ function getValidatedAmount(tipper, message, _amount, cb) {
  */
 function getValidatedMaxAmount(amount) {
     let maxTipZenAmount = 1;
-    if (amount <= maxTipZenAmount) {
-        return true;
-    } else {
-        return false;
-    }
+    return amount <= maxTipZenAmount;
 }
 
 /**
