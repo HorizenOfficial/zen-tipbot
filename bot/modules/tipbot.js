@@ -1,9 +1,6 @@
 "use strict";
 
 const config = require("config");
-const config_bot = config.get("bot");
-const bitcoin = require("bitcoin");
-const zen = new bitcoin.Client(config.get("zen"));
 const zencashjs = require('zencashjs');
 const randomBytes = require('crypto-browserify').randomBytes;
 const mongoose = require("mongoose");
@@ -22,9 +19,7 @@ db.once("open", function () {
 const userSchema = mongoose.Schema({
     "id": String,
     "priv": String,
-    "privWIF": String,
-    "pubKey": String,
-    "address": String,
+    "addr": String,
     "spent": Number,
     "received": Number
 });
@@ -55,7 +50,7 @@ exports.tip = {
 
     process: async function (bot, msg) {
         getUser(msg.author.id, function (err, doc) {
-            if (err) return console.error(err);
+            if (err) return debugLog(err);
 
             const tipper = doc;
             const words = msg.content.trim().split(" ").filter(
@@ -165,9 +160,7 @@ function getUser(id, cb) {
     const user = new User({
         id: id,
         priv: "",
-        privWIF: "",
-        pubKey: "",
-        address: "",
+        addr: "",
         spent: 0,
         received: 0
     });
@@ -185,9 +178,8 @@ function getUser(id, cb) {
             // New User
             const seed = randomBytes((id % 65535) | 0);
             user.priv = zencashjs.address.mkPrivKey(seed.toString('hex'));
-            user.privWIF = zencashjs.address.privKeyToWIF(user.priv, true);
-            user.pubKey = zencashjs.address.privKeyToPubKey(user.priv, true);
-            user.address = zencashjs.address.pubKeyToAddr(user.pubKey);
+            const pubKey = zencashjs.address.privKeyToPubKey(user.priv, true);
+            user.address = zencashjs.address.pubKeyToAddr(pubKey);
 
             user.save(function (err) {
                 if (err) {
@@ -459,14 +451,14 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
         let recipients = [{address: toAddress, satoshis: amountInSatoshi}];
         request.get(prevTxURL, function (txErr, txResp, txBody) {
             if (txErr) {
-                console.log(txErr);
+                debugLog(txErr);
                 return cb(String(txErr), null);
             } else if (txResp && txResp.statusCode === 200) {
                 message.reply("Creating transaction: 25%");
                 let txData = JSON.parse(txBody);
                 request.get(infoURL, function (infoErr, infoResp, infoBody) {
                     if (infoErr) {
-                        console.log(infoErr);
+                        debugLog(infoErr);
                         return cb(String(infoErr), null);
                     } else if (infoResp && infoResp.statusCode === 200) {
                         message.reply("Creating transaction: 50%");
@@ -477,7 +469,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
                         // Get block hash
                         request.get(blockHashURL, function (bhashErr, bhashResp, bhashBody) {
                             if (bhashErr) {
-                                console.log(bhashErr);
+                                debugLog(bhashErr);
                                 return cb(String(bhashErr), null);
                             } else if (bhashResp && bhashResp.statusCode === 200) {
                                 message.reply("Creating transaction: 75%");
@@ -505,7 +497,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
                                 // If we don't have enough address - fail and tell it to the user
                                 if (satoshisSoFar < amountInSatoshi + feeInSatoshi) {
                                     let errStr = "Insufficient funds on source address!";
-                                    console.log(errStr);
+                                    debugLog(errStr);
                                     return cb(errStr, null);
                                 } else {
                                     // If we don't have exact amount - refund remaining to current address
@@ -526,33 +518,33 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
                                     const txHexString = zencashjs.transaction.serializeTx(txObj);
                                     request.post({url: sendRawTxURL, form: {rawtx: txHexString}}, function(sendtxErr, sendtxResp, sendtxBody) {
                                         if (sendtxErr) {
-                                            console.log(sendtxErr);
+                                            debugLog(sendtxErr);
                                             return cb(String(sendtxErr), null);
                                         } else if(sendtxResp && sendtxResp.statusCode === 200) {
                                             const txRespData = JSON.parse(sendtxBody);
                                             message.reply("Creating transaction: 100%");
                                             return cb(null, txRespData.txid);
                                         } else {
-                                            console.log(sendtxResp);
+                                            debugLog(sendtxResp);
                                             return cb(String(sendtxResp), null);
                                         }
                                     });
                                 }
                             } else {
                                 // TODO: fix error handling: return better string of error
-                                console.log(bhashResp);
+                                debugLog(bhashResp);
                                 return cb(String(bhashResp), null);
                             }
                         });
                     } else {
                         // TODO: fix error handling: return better string of error
-                        console.log(infoResp);
+                        debugLog(infoResp);
                         return cb(String(infoResp), null);
                     }
                 });
             } else {
                 // TODO: fix error handling: return better string of error
-                console.log(txResp);
+                debugLog(txResp);
                 return cb(String(txResp), null);
             }
         });
@@ -668,7 +660,7 @@ function doWithdraw(message, tipper, words) {
         const toAddress = words[3];
 
         let prefix = "zn";
-        if (config_bot.testnet) {
+        if (config.bot.testnet) {
             prefix = "zt";
         }
 
@@ -681,9 +673,8 @@ function doWithdraw(message, tipper, words) {
             INSIGHT_API + "/utils/estimatefee"
         ).then((res) => {*/
         const fee = 0.0001; //temporary
-        // FIXME: fromAddress and privateKey have to be set!
-        let fromAddress = "";
-        let privateKey = "";
+        let fromAddress = config.zen.addr;
+        let privateKey = config.zen.priv;
 
         createTx(fromAddress, privateKey, toAddress, fee, amount, message,
             function (err, txId) {
@@ -1046,7 +1037,7 @@ function doTip(message, tipper, words, bot) {
     getValidatedAmount(tipper, message, words[2], function (err, amount) {
         if (err) return;
 
-        console.log(amount);
+        debugLog(amount);
 
         if (!getValidatedMaxAmount(amount)) {
             return message.reply("Tip 1 zen maximum !");
@@ -1078,7 +1069,7 @@ function doTip(message, tipper, words, bot) {
                 });
             }
         }).catch(err => {
-            console.log("Failed fetch user: ", err);
+            debugLog("Failed fetch user: ", err);
         });
     });
 }
@@ -1095,9 +1086,9 @@ function sendZen(tipper, receiver, amount) {
         {"$inc": {spent: amount}},
         function (err, raw) {
             if (err) {
-                console.error(err);
+                debugLog(err);
             } else {
-                console.log(raw);
+                debugLog(raw);
             }
         }
     );
@@ -1108,9 +1099,9 @@ function sendZen(tipper, receiver, amount) {
         {"$inc": {received: amount}},
         function (err, raw) {
             if (err) {
-                console.error(err);
+                debugLog(err);
             } else {
-                console.log(raw);
+                debugLog(raw);
             }
         }
     );
@@ -1127,7 +1118,7 @@ function txLink(txId) {
  * @param log - log if bot is in debug mode
  */
 function debugLog(log) {
-    if (config_bot.debug) {
+    if (config.bot.debug) {
         console.log(log);
     }
 }

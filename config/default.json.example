@@ -7,11 +7,8 @@
     "testnet": true
   },
   "zen": {
-    "host": "localhost",
-    "port": 8666,
-    "user": "example",
-    "pass": "example",
-    "timeout": 30000
+    "priv":"",
+    "addr":""
   },
   "mongodb": {
     "url":"mongodb://localhost:27017/tipbot",
