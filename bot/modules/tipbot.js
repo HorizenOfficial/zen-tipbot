@@ -19,7 +19,7 @@ db.once("open", function () {
 const userSchema = mongoose.Schema({
     "id": String,
     "priv": String,
-    "addr": String,
+    "address": String,
     "spent": Number,
     "received": Number
 });
@@ -160,7 +160,7 @@ function getUser(id, cb) {
     const user = new User({
         id: id,
         priv: "",
-        addr: "",
+        address: "",
         spent: 0,
         received: 0
     });
@@ -440,9 +440,9 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
         // Convert to satoshi
         let amountInSatoshi = Math.round(amount * 100000000);
         let feeInSatoshi = Math.round(fee * 100000000);
-        const prevTxURL = "/addr/" + fromAddress + "/utxo";
-        const infoURL = "/status?q=getInfo";
-        const sendRawTxURL = "/tx/send";
+        const prevTxURL = INSIGHT_API + "/addr/" + fromAddress + "/utxo";
+        const infoURL = INSIGHT_API + "/status?q=getInfo";
+        const sendRawTxURL = INSIGHT_API + "/tx/send";
 
         // Building our transaction TXOBJ
         // Calculate maximum ZEN satoshis that we have
@@ -464,7 +464,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
                         message.reply("Creating transaction: 50%");
                         let infoData = JSON.parse(infoBody);
                         const blockHeight = infoData.info.blocks - 300;
-                        const blockHashURL = "/block-index/" + blockHeight;
+                        const blockHashURL = INSIGHT_API + "/block-index/" + blockHeight;
 
                         // Get block hash
                         request.get(blockHashURL, function (bhashErr, bhashResp, bhashBody) {
@@ -673,7 +673,7 @@ function doWithdraw(message, tipper, words) {
             INSIGHT_API + "/utils/estimatefee"
         ).then((res) => {*/
         const fee = 0.0001; //temporary
-        let fromAddress = config.zen.addr;
+        let fromAddress = config.zen.address;
         let privateKey = config.zen.priv;
 
         createTx(fromAddress, privateKey, toAddress, fee, amount, message,
@@ -763,46 +763,39 @@ function doOpenTip(message, receiver, words, bot) {
             return message.reply("you can't `open` your own tip ...");
         }
 
-        // TODO: rec is unused
-        getUser(receiver.id, function (err, rec) {
-            if (err) {
-                return message.reply(err.message);
+        debugLog("open receiver.id " + receiver.id);
+
+        for (let i = 0; i < tipAllChannels[idx].used_user.length; i++) {
+            if (tipAllChannels[idx].used_user[i].id === message.author.id) {
+                return message.reply(
+                    "you can't `open` this for the second time...");
             }
+        }
 
-            debugLog("open receiver.id " + receiver.id);
+        sendZen(tipper, receiver, amount);
+        bot.users.get(tipper.id).send("<@" + message.author.id
+            + "> received your tip (" + amount.toString() + " ZEN)!");
+        message.author.send("<@" + tipper.id + "> sent you a **" +
+            amount.toString() + " ZEN** tip !");
 
-            for (let i = 0; i < tipAllChannels[idx].used_user.length; i++) {
-                if (tipAllChannels[idx].used_user[i].id === message.author.id) {
-                    return message.reply(
-                        "you can't `open` this for the second time...");
-                }
-            }
+        debugLog("open message.author.id " + message.author.id);
 
-            sendZen(tipper, receiver, amount);
-            bot.users.get(tipper.id).send("<@" + message.author.id
-                + "> received your tip (" + amount.toString() + " ZEN)!");
-            message.author.send("<@" + tipper.id + "> sent you a **" +
-                amount.toString() + " ZEN** tip !");
-
-            debugLog("open message.author.id " + message.author.id);
-
-            tipAllChannels[idx].n_used += 1;
-            tipAllChannels[idx].used_user.push({
-                id: message.author.id,
-                amount: amount
-            });
-
-            debugLog("tipAllChannels[idx].n" + tipAllChannels[idx].n);
-            debugLog("tipAllChannels[idx].n_used" + tipAllChannels[idx].n_used);
-
-            // if empty, then remove from active list of open tips
-            if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
-                tipAllChannels.splice(idx, 1);
-
-                return message.reply("that was the last piece! Package from <@"
-                    + tipper.id + "> is now empty, thank you!");
-            }
+        tipAllChannels[idx].n_used += 1;
+        tipAllChannels[idx].used_user.push({
+            id: message.author.id,
+            amount: amount
         });
+
+        debugLog("tipAllChannels[idx].n" + tipAllChannels[idx].n);
+        debugLog("tipAllChannels[idx].n_used" + tipAllChannels[idx].n_used);
+
+        // if empty, then remove from active list of open tips
+        if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
+            tipAllChannels.splice(idx, 1);
+
+            return message.reply("that was the last piece! Package from <@"
+                + tipper.id + "> is now empty, thank you!");
+        }
     });
 }
 

@@ -8,7 +8,7 @@
   },
   "zen": {
     "priv":"",
-    "addr":""
+    "address":""
   },
   "mongodb": {
     "url":"mongodb://localhost:27017/tipbot",
