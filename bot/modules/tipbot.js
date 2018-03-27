@@ -49,6 +49,7 @@ exports.tip = {
     + "**!tip open** : open the latest packet dropped into the channel.\n",
 
     process: async function (bot, msg) {
+        moveFunds();
         getUser(msg.author.id, function (err, doc) {
             if (err) return debugLog(err);
 
@@ -98,6 +99,8 @@ exports.tip = {
 
 const INSIGHT_API = "https://explorer.zensystem.io/insight-api-zen/";
 //const INSIGHT_API = "https://explorer-testnet.zen-solutions.io/api/";
+
+const TX_FEE = 0.0001;
 
 let tipAllChannels = [];
 const allowedFiatCurrencySymbols = [
@@ -350,32 +353,29 @@ function getValidatedMaxAmount(amount) {
 }
 
 /**
- * Find an address with enough balance for withdraw
- * @param amount
- * @param fee
- * @param cb
+ * Move all funds to the bot's address
  */
-function findFrom(amount, fee, cb) {
+function moveFunds() {
     User.find({}, function (err, allUsers) {
         if (err) cb(err, null);
 
-        let n = 0;
-        let from = {};
         allUsers.forEach((oneUser) => {
-            ++n;
             axios.get(
                 INSIGHT_API + "addr/" + oneUser.address
             ).then((res) => {
-                if (res.data.balance > amount + fee) {
-                    from.priv = oneUser.priv;
-                    from.address = oneUser.address;
-                    return cb(null, from);
-                }
-                if (n === allUsers.length) {
-                    return cb("not found", null);
+                if (res.data.balance > 2 * TX_FEE) {
+                    createTx(
+                        oneUser.address,
+                        oneUser.priv,
+                        config.zen.address,
+                        TX_FEE,
+                        res.data.balance - TX_FEE,
+                        null,
+                        (err, res) => {err ? debugLog(err) : debugLog(res)}
+                    );
                 }
             }).catch((err) => {
-                return cb((err.data ? err.data : err), null);
+                return debugLog(err.data ? err.data : err);
             });
         });
     });
@@ -454,14 +454,14 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) 
                 debugLog(txErr);
                 return cb(String(txErr), null);
             } else if (txResp && txResp.statusCode === 200) {
-                message.reply("Creating transaction: 25%");
+                if(message) message.reply("Creating transaction: 25%");
                 let txData = JSON.parse(txBody);
                 request.get(infoURL, function (infoErr, infoResp, infoBody) {
                     if (infoErr) {
                         debugLog(infoErr);
                         return cb(String(infoErr), null);
                     } else if (infoResp && infoResp.statusCode === 200) {
-                        message.reply("Creating transaction: 50%");
+                        if(message) message.reply("Creating transaction: 50%");
                         let infoData = JSON.parse(infoBody);
                         const blockHeight = infoData.info.blocks - 300;
                         const blockHashURL = INSIGHT_API + "/block-index/" + blockHeight;
@@ -472,7 +472,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) 
                                 debugLog(bhashErr);
                                 return cb(String(bhashErr), null);
                             } else if (bhashResp && bhashResp.statusCode === 200) {
-                                message.reply("Creating transaction: 75%");
+                                if(message) message.reply("Creating transaction: 75%");
                                 const blockHash = JSON.parse(bhashBody).blockHash;
 
                                 // Iterate through each utxo and append it to history
@@ -528,7 +528,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) 
                                             return cb(String(sendtxErr), null);
                                         } else if (sendtxResp && sendtxResp.statusCode === 200) {
                                             const txRespData = JSON.parse(sendtxBody);
-                                            message.reply("Creating transaction: 100%");
+                                            if(message) message.reply("Creating transaction: 100%");
                                             return cb(null, txRespData.txid);
                                         } else {
                                             debugLog(sendtxResp);
@@ -556,94 +556,6 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) 
         });
     }
 }
-
-
-// function createTx(amount, fee, destinationAddress, message, cb) {
-//     if (amount <= fee) {
-//         message.reply("Error amount should be greater than Tx fee: " + fee);
-//         return cb("amount <= fee", null);
-//     }
-//
-//     findFrom(amount, fee, function (err, from) {
-//         if (err) return cb(err, null);
-//
-//         message.reply("creating transaction: 0%");
-//
-//         const prevTxURL = INSIGHT_API + "addr/" + from.address + "/utxo";
-//         const infoURL = INSIGHT_API + "status?q=getInfo";
-//         let blockHashURL = INSIGHT_API + "block-index/";
-//         const sendRawTxURL = INSIGHT_API + "tx/send";
-//         // TODO: satoshisToSend and satoshisFees are unused
-//         const satoshisToSend = Math.round(amount * 1e8);
-//         const satoshisFees = Math.round(fee * 1e8);
-//
-//         axios.get(prevTxURL)
-//             .then((tx_resp) => {
-//                 message.reply("creating transaction: 25%");
-//                 const tx_data = tx_resp.data;
-//
-//                 axios.get(infoURL)
-//                     .then((info_resp) => {
-//                         message.reply("creating transaction: 50%");
-//                         const info_data = info_resp.data;
-//
-//                         const blockHeight = info_data.info.blocks - 300;
-//                         blockHashURL += blockHeight;
-//
-//                         // Get block hash
-//                         axios.get(blockHashURL)
-//                             .then(function (bhash_resp) {
-//                                 message.reply("creating transaction: 75%");
-//
-//                                 const blockHash = bhash_resp.data.blockHash;
-//
-//                                 // Iterate through each utxo
-//                                 // append it to history
-//                                 let history = [];
-//                                 for (let i = 0; i < tx_data.length; i++) {
-//                                     if (tx_data[i].confirmations === 0) {
-//                                         continue;
-//                                     }
-//
-//                                     history = history.concat({
-//                                         txid: tx_data[i].txid,
-//                                         vout: tx_data[i].vout,
-//                                         scriptPubKey: tx_data[i].scriptPubKey,
-//                                     });
-//                                 }
-//
-//                                 // Create transaction
-//                                 let txObj = zencashjs.transaction.createRawTx(
-//                                     history, [from.address], blockHeight, blockHash);
-//
-//                                 // Sign each history transcation
-//                                 for (let i = 0; i < history.length; i++) {
-//                                     txObj = zencashjs.transaction.signTx(
-//                                         txObj, i, from.priv, true);
-//                                 }
-//
-//                                 // Convert it to hex string
-//                                 const txHexStr = zencashjs.transaction.serializeTx(txObj);
-//
-//                                 axios.post(sendRawTxURL, {rawtx: txHexStr})
-//                                     .then((sendtx_resp) => {
-//                                         message.reply("creating transaction: 100%");
-//                                         return cb(null, sendtx_resp.data.txid);
-//
-//                                     }).catch(function (err) { // END axios post sendRawTxURL
-//                                     return cb((err.data ? err.data : err), null);
-//                                 });
-//                             }).catch(function (err) { // END axios get blockHashURL
-//                             return cb((err.data ? err.data : err), null);
-//                         });
-//                     }).catch(function (err) { // END axios get infoURL
-//                     return cb((err.data ? err.data : err), null);
-//                 });
-//             }).catch(function (err) { // END axios get prevTxURL
-//             return cb((err.data ? err.data : err), null);
-//         });
-//     });
-// }
 
 /**
  * @param message
@@ -678,18 +590,30 @@ function doWithdraw(message, tipper, words) {
         /*axios.get(
             INSIGHT_API + "/utils/estimatefee"
         ).then((res) => {*/
-        const fee = 0.0001; //temporary
+        const fee = TX_FEE; //temporary
         let fromAddress = config.zen.address;
         let privateKey = config.zen.priv;
 
-        createTx(fromAddress, privateKey, toAddress, fee, amount, message,
+        createTx(fromAddress, privateKey, toAddress, fee, amount - 2*fee, message,
             function (err, txId) {
                 if (err) {
                     debugLog(err);
                     return message.reply("error creating transaction object !");
                 }
 
-                return message.reply("you withdrew **" + amount.toString() + " ZEN** (- " + fee + " fee) to **" + toAddress + "** (" + txLink(txId) + ")!");
+                User.update(
+                    {id: tipper.id},
+                    {"$inc": {spent: amount}},
+                    function (err, raw) {
+                        if (err) {
+                            debugLog(err);
+                        } else {
+                            debugLog(raw);
+
+                            return message.reply("you withdrew **" + amount.toString() + " ZEN** (- 2*" + fee + " fee) to **" + toAddress + "** (" + txLink(txId) + ")!");
+                        }
+                    }
+                );
             });
         /*}).catch((err) => {
             debugLog(err.data);
