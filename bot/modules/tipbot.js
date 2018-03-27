@@ -430,7 +430,7 @@ function checkStandardSendParameters(fromAddress, toAddress, fee, amount) {
     return errors;
 }
 
-function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
+function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) {
     let paramErrors = checkStandardSendParameters(fromAddress, toAddress, fee, amount);
     if (paramErrors.length) {
         // TODO: Come up with better message. For now, just make a text out of it.
@@ -481,7 +481,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
                                         continue;
                                     }
 
-                                    history = history.concat( {
+                                    history = history.concat({
                                         txid: txData[i].txid,
                                         vout: txData[i].vout,
                                         scriptPubKey: txData[i].scriptPubKey
@@ -503,24 +503,30 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb){
                                     // If we don't have exact amount - refund remaining to current address
                                     if (satoshisSoFar !== (amountInSatoshi + feeInSatoshi)) {
                                         let refundSatoshis = satoshisSoFar - amountInSatoshi - feeInSatoshi;
-                                        recipients = recipients.concat({address: fromAddress, satoshis: refundSatoshis});
+                                        recipients = recipients.concat({
+                                            address: fromAddress,
+                                            satoshis: refundSatoshis
+                                        });
                                     }
 
                                     // Create transaction
                                     let txObj = zencashjs.transaction.createRawTx(history, recipients, blockHeight, blockHash);
 
                                     // Sign each history transcation
-                                    for (let i = 0; i < history.length; i ++) {
+                                    for (let i = 0; i < history.length; i++) {
                                         txObj = zencashjs.transaction.signTx(txObj, i, privateKey, true);
                                     }
 
                                     // Convert it to hex string
                                     const txHexString = zencashjs.transaction.serializeTx(txObj);
-                                    request.post({url: sendRawTxURL, form: {rawtx: txHexString}}, function(sendtxErr, sendtxResp, sendtxBody) {
+                                    request.post({
+                                        url: sendRawTxURL,
+                                        form: {rawtx: txHexString}
+                                    }, function (sendtxErr, sendtxResp, sendtxBody) {
                                         if (sendtxErr) {
                                             debugLog(sendtxErr);
                                             return cb(String(sendtxErr), null);
-                                        } else if(sendtxResp && sendtxResp.statusCode === 200) {
+                                        } else if (sendtxResp && sendtxResp.statusCode === 200) {
                                             const txRespData = JSON.parse(sendtxBody);
                                             message.reply("Creating transaction: 100%");
                                             return cb(null, txRespData.txid);
