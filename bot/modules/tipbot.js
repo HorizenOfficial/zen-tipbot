@@ -371,7 +371,9 @@ function moveFunds() {
                         TX_FEE,
                         res.data.balance - TX_FEE,
                         null,
-                        (err, res) => {err ? debugLog(err) : debugLog(res)}
+                        (err, res) => {
+                            err ? debugLog(err) : debugLog(res)
+                        }
                     );
                 }
             }).catch((err) => {
@@ -384,6 +386,7 @@ function moveFunds() {
 function checkSendParameters(fromAddresses, toAddresses, fee) {
     let errors = [];
 
+    // NOTE: this for is here only for case when there is more than 1 source address
     for (const fromAddress of fromAddresses) {
         if (fromAddress.length !== 35) {
             errors.push("Bad length of the source address!");
@@ -394,6 +397,7 @@ function checkSendParameters(fromAddresses, toAddresses, fee) {
         }
     }
 
+    // NOTE: this for is here only for case when there is more than 1 destination address
     for (const toAddress of toAddresses) {
         if (toAddress.length !== 35) {
             errors.push("Bad length of the destination address!");
@@ -454,14 +458,14 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) 
                 debugLog(txErr);
                 return cb(String(txErr), null);
             } else if (txResp && txResp.statusCode === 200) {
-                if(message) message.reply("Creating transaction: 25%");
+                if (message) message.reply("Creating transaction: 25%");
                 let txData = JSON.parse(txBody);
                 request.get(infoURL, function (infoErr, infoResp, infoBody) {
                     if (infoErr) {
                         debugLog(infoErr);
                         return cb(String(infoErr), null);
                     } else if (infoResp && infoResp.statusCode === 200) {
-                        if(message) message.reply("Creating transaction: 50%");
+                        if (message) message.reply("Creating transaction: 50%");
                         let infoData = JSON.parse(infoBody);
                         const blockHeight = infoData.info.blocks - 300;
                         const blockHashURL = INSIGHT_API + "/block-index/" + blockHeight;
@@ -472,7 +476,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) 
                                 debugLog(bhashErr);
                                 return cb(String(bhashErr), null);
                             } else if (bhashResp && bhashResp.statusCode === 200) {
-                                if(message) message.reply("Creating transaction: 75%");
+                                if (message) message.reply("Creating transaction: 75%");
                                 const blockHash = JSON.parse(bhashBody).blockHash;
 
                                 // Iterate through each utxo and append it to history
@@ -528,7 +532,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) 
                                             return cb(String(sendtxErr), null);
                                         } else if (sendtxResp && sendtxResp.statusCode === 200) {
                                             const txRespData = JSON.parse(sendtxBody);
-                                            if(message) message.reply("Creating transaction: 100%");
+                                            if (message) message.reply("Creating transaction: 100%");
                                             return cb(null, txRespData.txid);
                                         } else {
                                             debugLog(sendtxResp);
@@ -594,7 +598,7 @@ function doWithdraw(message, tipper, words) {
         let fromAddress = config.zen.address;
         let privateKey = config.zen.priv;
 
-        createTx(fromAddress, privateKey, toAddress, fee, amount - 2*fee, message,
+        createTx(fromAddress, privateKey, toAddress, fee, amount - 2 * fee, message,
             function (err, txId) {
                 if (err) {
                     debugLog(err);
