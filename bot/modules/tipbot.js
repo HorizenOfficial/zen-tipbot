@@ -372,7 +372,19 @@ function moveFunds() {
                         res.data.balance - TX_FEE,
                         null,
                         (err, res) => {
-                            err ? debugLog(err) : debugLog(res)
+                            if(err) return debugLog(err);
+
+                            User.update(
+                                {id: oneUser.id},
+                                {"$inc": {spent: TX_FEE}},
+                                function (err, raw) {
+                                    if (err) {
+                                        debugLog(err);
+                                    } else {
+                                        debugLog(raw);
+                                    }
+                                }
+                            );
                         }
                     );
                 }
@@ -598,7 +610,7 @@ function doWithdraw(message, tipper, words) {
         let fromAddress = config.zen.address;
         let privateKey = config.zen.priv;
 
-        createTx(fromAddress, privateKey, toAddress, fee, amount - 2 * fee, message,
+        createTx(fromAddress, privateKey, toAddress, fee, amount - fee, message,
             function (err, txId) {
                 if (err) {
                     debugLog(err);
@@ -614,7 +626,7 @@ function doWithdraw(message, tipper, words) {
                         } else {
                             debugLog(raw);
 
-                            return message.reply("you withdrew **" + amount.toString() + " ZEN** (- 2*" + fee + " fee) to **" + toAddress + "** (" + txLink(txId) + ")!");
+                            return message.reply("you withdrew **" + amount.toString() + " ZEN** (-" + fee + " fee) to **" + toAddress + "** (" + txLink(txId) + ")!");
                         }
                     }
                 );
