@@ -32,21 +32,21 @@ exports.commands = [
 exports.tip = {
     usage: "<subcommand>",
 
-    description: "Here is the commands you can use:\n"
+    description: "Here are the commands you can use:\n"
     + "**!tip help** : display this message.\n"
     + "**!tip deposit** : get an address to top up your balance.\n"
     + "**!tip balance** : get your balance.\n"
-    + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from your"
+    + "**!tip withdraw <amount> <address>** : withdraw <amount> ZEN from your"
     + " balance to your <address>.\n"
-    + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs (maximum"
+    + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZEN (maximum"
     + " 1 ZEN) and leave an optional [message].\n"
-    + "**!tip each <amount> <n> [message]** : drop a packet in a channel, the"
+    + "**!tip each <amount> <n> [message]** : drop a ZEN packet in a channel, the"
     + " <amount> is divided *equally* between the <n> first people to open"
-    + " the packet. Leave an optionnal [message] with the packet.\n"
-    + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, the"
+    + " the ZEN packet. Leave an optional [message] with the ZEN packet.\n"
+    + "**!tip luck <amount> <n> [message]** : drop a ZEN packet in a channel, the"
     + " <amount> is divided *randomly* between the <n> first people to open"
-    + " the packet. Leave an optionnal [message] with the packet.\n"
-    + "**!tip open** : open the latest packet dropped into the channel.\n",
+    + " the ZEN packet. Leave an optional [message] with the ZEN packet.\n"
+    + "**!tip open** : open the latest ZEN packet dropped into the channel.\n",
 
     process: async function (bot, msg) {
         moveFunds();
@@ -122,31 +122,31 @@ function doHelp(message) {
         + "**!tip help** : display this message.\n\n"
         + "**!tip deposit** : get an address to top up your balance. "
         + "`Warning:` Mining directly into your `tip-bot-address` is "
-        + "prohibited (You won't be able to use these ZENs)! And no support "
-        + "for retrieving these ZENs will be provided!\n\n"
+        + "prohibited (You won't be able to use these ZEN)! And no support "
+        + "for retrieving these ZEN will be provided!\n\n"
         + "**!tip balance** : get your balance.\n\n"
-        + "**!tip withdraw <amount> <address>** : withdraw <amount> ZENs from "
+        + "**!tip withdraw <amount> <address>** : withdraw <amount> ZEN from "
         + "your balance to your `T` <address> (Only `T` addresses are "
         + "supported!).\n\n"
-        + "**!tip luck <amount> <n> [message]** : drop a packet in a channel, "
+        + "**!tip luck <amount> <n> [message]** : drop a ZEN packet in a channel, "
         + "the <amount> is divided *randomly* (one tip is bigger, you can win "
-        + "jackpot) between the <n> first people to open the packet. Leave an "
-        + "optionnal [message] with the packet. Only one packet per channel is "
-        + "allowed. Maximum is 20 people. Your packet will be active for next "
-        + "20minutes, then can be overwritten. Maximum tip has to be ≤ 1 "
-        + "ZEN.\n\n"
-        + "**!tip each <amount> <n> [message]** : drop a packet in a channel, "
+        + "the jackpot) between the <n> first people to open the ZEN packet. Leave an "
+        + "optional [message] with the ZEN packet. Only one ZEN packet per channel is "
+        + "allowed. Maximum is 20 people. Your ZEN packet will be active for the next "
+        + "20 minutes, after that it can be overwritten by a new ZEN packet. Maximum"
+        + " tip has to be ≤ 1 ZEN.\n\n"
+        + "**!tip each <amount> <n> [message]** : drop a ZEN packet in a channel, "
         + "the <amount> is divided *equally* between the <n> first people to "
-        + "open the packet. Leave an optionnal [message] with the packet. Only "
-        + "one packet per channel is allowed. Maximum is 20 people. Your "
-        + "packet will be active for next 20 minutes, then can be overwritten. "
+        + "open the ZEN packet. Leave an optional [message] with the ZEN packet. Only "
+        + "one ZEN packet per channel is allowed. Maximum is 20 people. Your "
+        + "ZEN packet will be active for the next 20 minutes, after that it can be "
+        + "overwritten by a new ZEN packet. Maximum tip has to be ≤ 1 ZEN.\n\n"
+        + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZEN. "
         + "Maximum tip has to be ≤ 1 ZEN.\n\n"
-        + "**!tip <@user> <amount> [message]** : tip <@user> <amount> ZENs. "
-        + "Maximum tip has to be ≤ 1 ZEN.\n\n"
-        + "**!tip <@user> random [message]** : tip <@user> random ZENs where "
+        + "**!tip <@user> random [message]** : tip <@user> random ZEN where "
         + "random is <0.0, 0.1)\n\n"
         + "**!tip <@user> <amount><fiat_currency_ticker> [message]** : tip "
-        + "<@user> ZENs in fiat equivalent. Example: **!tip @lukas 200czk**. "
+        + "<@user> ZEN in fiat equivalent. Example: **!tip @lukas 200czk**. "
         + "You can use <fiat_currency_ticker> with every command. Where "
         + "<fiat_currency_ticker> can be: USD, EUR, RUB, JPY, GBP, AUD, BRL, "
         + "CAD, CHF, CLP, CNY, CZK, DKK, HKD, IDR, ILS, INR, KRW, MXN, MYR, "
@@ -221,7 +221,7 @@ function getBalance(tipper, cb) {
  */
 function doBalance(message, tipper) {
     if (message.channel.type !== "dm") {
-        return message.reply("send me this command in direct message!");
+        return message.reply("send me this command in a direct message!");
     }
 
     getBalance(tipper, function (err, balance) {
@@ -240,10 +240,10 @@ function doBalance(message, tipper) {
  */
 function doDeposit(message, tipper) {
     if (message.channel.type !== "dm") {
-        return message.reply("send me this command in direct message!");
+        return message.reply("send me this command in a direct message!");
     }
 
-    message.reply("**WARNING: do not mine to this address, your ZENs will not"
+    message.reply("**WARNING: do not mine to this address, your ZEN will not"
         + " be credited to your balance !**\n\n" + "Your deposit address is:");
     message.reply(tipper.address);
 }
@@ -294,7 +294,7 @@ function getValidatedAmount(tipper, message, _amount, cb) {
             symbol = "zen";
 
         } else if (amount === "random") {
-            // random <0.0, 0.1) ZENs
+            // random <0.0, 0.1) ZEN
             amount = Math.random() / 10;
         }
 
@@ -580,7 +580,7 @@ function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) 
  */
 function doWithdraw(message, tipper, words) {
     if (message.channel.type !== "dm") {
-        return message.reply("send me this command in direct message!");
+        return message.reply("send me this command in a direct message!");
     }
 
     //  wrong command syntax
@@ -659,7 +659,7 @@ function retreiveChannelTipObjIdx(set, channel_id) {
  */
 function doOpenTip(message, receiver, words, bot) {
     if (message.channel.type === "dm") {
-        return message.reply("you can't send me this command in DM");
+        return message.reply("you can't send me this command in a DM");
     }
 
     // wrong command syntax
@@ -669,7 +669,7 @@ function doOpenTip(message, receiver, words, bot) {
 
     let idx = retreiveChannelTipObjIdx(tipAllChannels, message.channel.id);
     if (idx === null) {
-        return message.reply("sorry here isn't any tip for `open`");
+        return message.reply("sorry, no ZEN packet to `open` in this channel!");
     }
     debugLog("open idx" + idx);
 
@@ -701,7 +701,7 @@ function doOpenTip(message, receiver, words, bot) {
         debugLog("open balance: " + balance);
 
         if ((amount <= 0) || (amount > balance)) {
-            return message.reply("I don't know how to tip that many ZENs!");
+            return message.reply("I don't know how to tip that many ZEN!");
         }
 
         // prevent user from opening your own tip
@@ -739,7 +739,7 @@ function doOpenTip(message, receiver, words, bot) {
         if (tipAllChannels[idx].n === tipAllChannels[idx].n_used) {
             tipAllChannels.splice(idx, 1);
 
-            return message.reply("that was the last piece! Package from <@"
+            return message.reply("that was the last piece! ZEN Packet from <@"
                 + tipper.id + "> is now empty, thank you!");
         }
     });
@@ -772,14 +772,14 @@ function isChannelTipAlreadyExist(tip, message) {
             if (diffMins > allowedTimeBetweenChannelTips) {
                 // tip already exist, but it expire -> replace it
                 tipAllChannels[i] = tip;
-                message.reply("new tip `" + type + "` has been created ("
+                message.reply("new `" + type + "` ZEN packet has been created ("
                     + tip.amount_total.toString()
                     + " ZEN)! Claim it with command `!tip open`");
                 return 0
             } else {
                 // tip already exist and is still valid
-                message.reply("can't create new tip because,"
-                    + " previous tip is in progress!\n**"
+                message.reply("can't create new ZEN packet because"
+                    + " the previous tip is still in progress!\n**"
                     + tipAllChannels[i].n_used + "/"
                     + tipAllChannels[i].n + " opened**\n**" + (20 - diffMins)
                     + " minutes left**");
@@ -789,7 +789,7 @@ function isChannelTipAlreadyExist(tip, message) {
     }
     // tip doesnt exist in this channel -> create new
     tipAllChannels.push(tip);
-    message.reply("new tip `" + type + "` has been created (" +
+    message.reply("new `" + type + "` ZEN packet has been created (" +
         tip.amount_total.toString() + " ZEN)! Claim it with command `!tip open`");
     return 2
 }
@@ -825,7 +825,7 @@ function shuffle(array) {
  */
 function createTipLuck(message, tipper, words) {
     if (message.channel.type === "dm") {
-        return message.reply("you can't send me this command in DM");
+        return message.reply("you can't send me this command in a DM");
     }
 
     // wrong command syntax
@@ -844,7 +844,7 @@ function createTipLuck(message, tipper, words) {
         if (isNaN(n) || n <= 0) {
             return message.reply("I don't know how to tip that many people!");
         } else if (n > 20) {
-            return message.reply("20 people is the maximum per packet!");
+            return message.reply("20 people is the maximum per ZEN packet!");
         }
         let quotient = (amount / n).toFixed(8);
 
@@ -899,7 +899,7 @@ function createTipLuck(message, tipper, words) {
  */
 function createTipEach(message, tipper, words) {
     if (message.channel.type === "dm") {
-        return message.reply("you can't send me this command in DM");
+        return message.reply("you can't send me this command in a DM");
     }
 
     // wrong command syntax
@@ -918,7 +918,7 @@ function createTipEach(message, tipper, words) {
         if (isNaN(n) || n <= 0) {
             return message.reply("I don't know how to tip that many people!");
         } else if (n > 20) {
-            return message.reply("20 people is the maximum per packet!");
+            return message.reply("20 people is the maximum per ZEN packet!");
         }
         let quotient = (amount / n).toFixed(8);
 
@@ -965,7 +965,7 @@ function resolveMention(usertxt) {
  */
 function doTip(message, tipper, words, bot) {
     if (message.channel.type === "dm") {
-        return message.reply("you can't send me this command in DM");
+        return message.reply("you can't send me this command in a DM");
     }
 
     // wrong command syntax
@@ -1008,7 +1008,7 @@ function doTip(message, tipper, words, bot) {
                 });
             }
         }).catch(err => {
-            debugLog("Failed fetch user: ", err);
+            debugLog("Failed to fetch user: ", err);
         });
     });
 }
