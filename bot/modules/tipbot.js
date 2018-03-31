@@ -121,6 +121,7 @@ function doHelp(message) {
         "Here are the commands you can use:\n"
         + "**!tip help** : display this message.\n\n"
         + "**!tip deposit** : get an address to top up your balance. "
+        + "(note that a 0.0001 fee will be applied to your deposit)\n"
         + "`Warning:` Mining directly into your `tip-bot-address` is "
         + "prohibited (You won't be able to use these ZEN)! And no support "
         + "for retrieving these ZEN will be provided!\n\n"
@@ -205,7 +206,8 @@ function getBalance(tipper, cb) {
         INSIGHT_API + "addr/" + tipper.address
     )
         .then((res) => {
-            const balance = res.data.totalReceived + tipper.received - tipper.spent;
+            let balance = res.data.totalReceived + tipper.received - tipper.spent;
+            balance = Math.trunc(parseFloat(balance) * 10e7) / 10e7;
             return cb(null, balance);
         })
         .catch((err) => {
