@@ -5,7 +5,12 @@ const zencashjs = require('zencashjs');
 const randomBytes = require('crypto-browserify').randomBytes;
 const mongoose = require("mongoose");
 const axios = require("axios");
-const request = require("request");
+const querystring = require("querystring");
+
+let axiosApi = axios.create({
+    baseURL: "https://explorer.zensystem.io/insight-api-zen",
+    timeout: 10000,
+});
 
 mongoose.Promise = global.Promise;
 const mongodb = config.get("mongodb");
@@ -346,7 +351,7 @@ function getValidatedAmount(tipper, message, _amount, cb) {
 }
 
 /**
- * Validate amount if max is lower than maxTipZenAmount = 1
+ * Validate amount if max is lower than maxTipZenAmount = 1.
  * @param amount
  */
 function getValidatedMaxAmount(amount) {
@@ -355,9 +360,10 @@ function getValidatedMaxAmount(amount) {
 }
 
 /**
- * Move all funds to the bot's address
+ * Move all funds to the bot's address.
  */
 function moveFunds() {
+    // TODO: refactor this
     User.find({}, function (err, allUsers) {
         if (err) cb(err, null);
 
@@ -397,6 +403,13 @@ function moveFunds() {
     });
 }
 
+/**
+ * This function check all input parameters.
+ *
+ * @param fromAddresses - source addresses
+ * @param toAddresses - destination addresses
+ * @param fee - transaction fee
+ */
 function checkSendParameters(fromAddresses, toAddresses, fee) {
     let errors = [];
 
@@ -434,6 +447,14 @@ function checkSendParameters(fromAddresses, toAddresses, fee) {
     return errors;
 }
 
+/**
+ * This function check all input parameters.
+ *
+ * @param fromAddress - source address
+ * @param toAddress - destination address
+ * @param fee - transaction fee
+ * @param amount - amount of ZEN which will be send
+ */
 function checkStandardSendParameters(fromAddress, toAddress, fee, amount) {
     let errors = checkSendParameters([fromAddress], [toAddress], fee);
 
@@ -448,130 +469,117 @@ function checkStandardSendParameters(fromAddress, toAddress, fee, amount) {
     return errors;
 }
 
-function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) {
+/**
+ * @param url
+ */
+async function apiGet(url) {
+    const resp = await axiosApi(url);
+    return resp.data;
+}
+
+/**
+ * @param url
+ * @param form
+ */
+async function apiPost(url, form) {
+    const resp = await axiosApi.post(url, querystring.stringify(form));
+    return resp.data;
+}
+
+/**
+ * Function for sending funds.
+ *
+ * @param fromAddress - source address
+ * @param privateKey - private key of source address
+ * @param toAddress - destination address
+ * @param fee - transaction fee
+ * @param amount - amount of ZEN which will be send
+ * @param message - message for response to the user
+ * @param cb - callback
+ */
+async function createTx(fromAddress, privateKey, toAddress, fee, amount, message, cb) {
     let paramErrors = checkStandardSendParameters(fromAddress, toAddress, fee, amount);
     if (paramErrors.length) {
         // TODO: Come up with better message. For now, just make a text out of it.
         const errString = paramErrors.join("\n\n");
+        debugLog(errString);
         return cb(errString, null);
-    } else {
+    }
+
+    try {
         // Convert to satoshi
         let amountInSatoshi = Math.round(amount * 100000000);
         let feeInSatoshi = Math.round(fee * 100000000);
-        const prevTxURL = INSIGHT_API + "/addr/" + fromAddress + "/utxo";
-        const infoURL = INSIGHT_API + "/status?q=getInfo";
-        const sendRawTxURL = INSIGHT_API + "/tx/send";
+        const prevTxURL = "/addr/" + fromAddress + "/utxo";
+        const infoURL = "/status?q=getInfo";
+        const sendRawTxURL = "/tx/send";
 
         // Building our transaction TXOBJ
         // Calculate maximum ZEN satoshis that we have
         let satoshisSoFar = 0;
         let history = [];
         let recipients = [{address: toAddress, satoshis: amountInSatoshi}];
-        request.get(prevTxURL, function (txErr, txResp, txBody) {
-            if (txErr) {
-                debugLog(txErr);
-                return cb(String(txErr), null);
-            } else if (txResp && txResp.statusCode === 200) {
-                if (message) message.reply("Creating transaction: 25%");
-                let txData = JSON.parse(txBody);
-                request.get(infoURL, function (infoErr, infoResp, infoBody) {
-                    if (infoErr) {
-                        debugLog(infoErr);
-                        return cb(String(infoErr), null);
-                    } else if (infoResp && infoResp.statusCode === 200) {
-                        if (message) message.reply("Creating transaction: 50%");
-                        let infoData = JSON.parse(infoBody);
-                        const blockHeight = infoData.info.blocks - 300;
-                        const blockHashURL = INSIGHT_API + "/block-index/" + blockHeight;
 
-                        // Get block hash
-                        request.get(blockHashURL, function (bhashErr, bhashResp, bhashBody) {
-                            if (bhashErr) {
-                                debugLog(bhashErr);
-                                return cb(String(bhashErr), null);
-                            } else if (bhashResp && bhashResp.statusCode === 200) {
-                                if (message) message.reply("Creating transaction: 75%");
-                                const blockHash = JSON.parse(bhashBody).blockHash;
+        const txData = await apiGet(prevTxURL);
+        if (message) message.reply("Creating transaction: 25%");
+        const infoData = await apiGet(infoURL);
+        if (message) message.reply("Creating transaction: 50%");
 
-                                // Iterate through each utxo and append it to history
-                                for (let i = 0; i < txData.length; i++) {
-                                    if (txData[i].confirmations === 0) {
-                                        continue;
-                                    }
+        const blockHeight = infoData.info.blocks - 300;
+        const blockHashURL = "/block-index/" + blockHeight;
 
-                                    history = history.concat({
-                                        txid: txData[i].txid,
-                                        vout: txData[i].vout,
-                                        scriptPubKey: txData[i].scriptPubKey
-                                    });
+        const blockHash = (await apiGet(blockHashURL)).blockHash;
+        if (message) message.reply("Creating transaction: 75%");
 
-                                    // How many satoshis we have so far
-                                    satoshisSoFar = satoshisSoFar + txData[i].satoshis;
-                                    if (satoshisSoFar >= amountInSatoshi + feeInSatoshi) {
-                                        break;
-                                    }
-                                }
-
-                                // If we don't have enough address - fail and tell it to the user
-                                if (satoshisSoFar < amountInSatoshi + feeInSatoshi) {
-                                    let errStr = "Insufficient funds on source address!";
-                                    debugLog(errStr);
-                                    return cb(errStr, null);
-                                } else {
-                                    // If we don't have exact amount - refund remaining to current address
-                                    if (satoshisSoFar !== (amountInSatoshi + feeInSatoshi)) {
-                                        let refundSatoshis = satoshisSoFar - amountInSatoshi - feeInSatoshi;
-                                        recipients = recipients.concat({
-                                            address: fromAddress,
-                                            satoshis: refundSatoshis
-                                        });
-                                    }
-
-                                    // Create transaction
-                                    let txObj = zencashjs.transaction.createRawTx(history, recipients, blockHeight, blockHash);
-
-                                    // Sign each history transcation
-                                    for (let i = 0; i < history.length; i++) {
-                                        txObj = zencashjs.transaction.signTx(txObj, i, privateKey, true);
-                                    }
-
-                                    // Convert it to hex string
-                                    const txHexString = zencashjs.transaction.serializeTx(txObj);
-                                    request.post({
-                                        url: sendRawTxURL,
-                                        form: {rawtx: txHexString}
-                                    }, function (sendtxErr, sendtxResp, sendtxBody) {
-                                        if (sendtxErr) {
-                                            debugLog(sendtxErr);
-                                            return cb(String(sendtxErr), null);
-                                        } else if (sendtxResp && sendtxResp.statusCode === 200) {
-                                            const txRespData = JSON.parse(sendtxBody);
-                                            if (message) message.reply("Creating transaction: 100%");
-                                            return cb(null, txRespData.txid);
-                                        } else {
-                                            debugLog(sendtxResp);
-                                            return cb(String(sendtxResp), null);
-                                        }
-                                    });
-                                }
-                            } else {
-                                // TODO: fix error handling: return better string of error
-                                debugLog(bhashResp);
-                                return cb(String(bhashResp), null);
-                            }
-                        });
-                    } else {
-                        // TODO: fix error handling: return better string of error
-                        debugLog(infoResp);
-                        return cb(String(infoResp), null);
-                    }
-                });
-            } else {
-                // TODO: fix error handling: return better string of error
-                debugLog(txResp);
-                return cb(String(txResp), null);
+        // Iterate through each utxo and append it to history
+        for (let i = 0; i < txData.length; i++) {
+            if (txData[i].confirmations === 0) {
+                continue;
             }
-        });
+
+            history = history.concat( {
+                txid: txData[i].txid,
+                vout: txData[i].vout,
+                scriptPubKey: txData[i].scriptPubKey
+            });
+
+            // How many satoshis we have so far
+            satoshisSoFar = satoshisSoFar + txData[i].satoshis;
+            if (satoshisSoFar >= amountInSatoshi + feeInSatoshi) {
+                break;
+            }
+        }
+
+        // If we don't have enough address - fail and tell it to the user
+        if (satoshisSoFar < amountInSatoshi + feeInSatoshi) {
+            let errStr = "Insufficient funds on source address!";
+            debugLog(errStr);
+            return cb(errStr, null);
+        }
+
+        // If we don't have exact amount - refund remaining to current address
+        if (satoshisSoFar !== (amountInSatoshi + feeInSatoshi)) {
+            let refundSatoshis = satoshisSoFar - amountInSatoshi - feeInSatoshi;
+            recipients = recipients.concat({address: fromAddress, satoshis: refundSatoshis});
+        }
+
+        // Create transaction
+        let txObj = zencashjs.transaction.createRawTx(history, recipients, blockHeight, blockHash);
+
+        // Sign each history transcation
+        for (let i = 0; i < history.length; i ++) {
+            txObj = zencashjs.transaction.signTx(txObj, i, privateKey, true);
+        }
+
+        // Convert it to hex string
+        const txHexString = zencashjs.transaction.serializeTx(txObj);
+        const txRespData = await apiPost(sendRawTxURL, {rawtx: txHexString});
+
+        if (message) message.reply("Creating transaction: 100%");
+        return cb(null, txRespData.txid);
+    } catch (e) {
+        debugLog(e.message);
+        return cb(e.message, null);
     }
 }
 
@@ -685,18 +693,12 @@ function doOpenTip(message, receiver, words, bot) {
 
         let amount;
         if (tipAllChannels[idx].luck) {
-            debugLog("open tipAllChannels[idx].n_used "
-                + tipAllChannels[idx].n_used);
-            debugLog("open tipAllChannels[idx].luck_tips "
-                + tipAllChannels[idx].luck_tips);
-            amount = parseFloat(
-                tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used]
-            ).toFixed(8);
+            debugLog("open tipAllChannels[idx].n_used " + tipAllChannels[idx].n_used);
+            debugLog("open tipAllChannels[idx].luck_tips " + tipAllChannels[idx].luck_tips);
+            amount = parseFloat(tipAllChannels[idx].luck_tips[tipAllChannels[idx].n_used]).toFixed(8);
         } else {
-            debugLog("open tipAllChannels[idx].amount_total: "
-                + tipAllChannels[idx].amount_total);
-            debugLog("open tipAllChannels[idx].quotient "
-                + tipAllChannels[idx].quotient);
+            debugLog("open tipAllChannels[idx].amount_total: " + tipAllChannels[idx].amount_total);
+            debugLog("open tipAllChannels[idx].quotient " + tipAllChannels[idx].quotient);
             amount = parseFloat(tipAllChannels[idx].quotient).toFixed(8);
         }
         debugLog("open amount: " + amount);
