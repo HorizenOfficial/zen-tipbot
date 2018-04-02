@@ -374,7 +374,7 @@ function moveFunds() {
                         res.data.balance - TX_FEE,
                         null,
                         (err, res) => {
-                            if(err) return debugLog(err);
+                            if (err) return debugLog(err);
 
                             User.update(
                                 {id: oneUser.id},
