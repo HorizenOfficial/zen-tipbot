@@ -27,6 +27,7 @@ bot.on("ready", function () {
     require("./plugins.js").init();
     console.log("type " + config.prefix + "help in Discord for a commands list.");
     guild = bot.guilds.get(config.serverId);
+    bot.user.setActivity(config.prefix + 'tip');
 });
 
 bot.on("disconnected", function () {
@@ -41,7 +42,8 @@ bot.on("disconnected", function () {
  */
 function checkMessageForCommand(msg, isEdit) {
     // check if message is a command
-    if ((msg.author.id !== bot.user.id) && msg.content.startsWith(config.prefix)) {
+    let txt = msg.content.split(" ")[0];
+    if ((msg.author.id !== bot.user.id) && txt === config.prefix + 'tip') {
         console.log("treating " + msg.content + " from " + msg.author + " as command");
         let cmdTxt = msg.content.split(" ")[0].substring(config.prefix.length);
         // add one for the ! and one for the space
@@ -52,7 +54,7 @@ function checkMessageForCommand(msg, isEdit) {
                 suffix = msg.content.substring(bot.user.mention().length + cmdTxt.length + config.prefix.length + 1);
             } catch (e) {
                 // no command
-                msg.channel.send("Yes, how can I help you?");
+                msg.channel.send("Yes, how can I help you? DM me with !tip help");
                 return;
             }
         }

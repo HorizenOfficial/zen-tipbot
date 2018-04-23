@@ -12,17 +12,20 @@ Features:
 - node > 8.0.0
 - npm > 0.12.x
 - mongod > 3.6.0
-- zen > 2.0.11
 
 
 ## Installation
 
 Create a bot and get the bot's API Token: https://discordapp.com/developers/applications/me
 
-Edit and rename default.json.example in /config, then run:
+Connect the bot to a discord server.
+
+Edit and rename default.json.example in /config,
+Make sure you have mongod running,
+then run:
 ```
 npm install
-node bot.js
+node bot/bot.js
 ```
 
 or for production:
