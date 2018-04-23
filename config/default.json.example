@@ -7,8 +7,8 @@
     "testnet": true
   },
   "zen": {
-    "priv":"",
-    "address":""
+    "priv":"UNCOMPRESSED PRIVATE KEY",
+    "address":"BOT'S ADDRESS"
   },
   "mongodb": {
     "url":"mongodb://localhost:27017/tipbot",
