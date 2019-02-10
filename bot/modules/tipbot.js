@@ -96,7 +96,7 @@ exports.tip = {
                     break;
 
                 default:
-                    doHelp(msg);
+                    doTip(msg, tipper, words, bot);
             }
         });
     }
