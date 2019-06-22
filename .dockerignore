@@ -1,0 +1,10 @@
+*
+.*
+!.babelrc
+!bot
+!config
+!LICENSE
+!npm-shrinkwrap.json
+!package.json
+!package-lock.json
+!README.md
