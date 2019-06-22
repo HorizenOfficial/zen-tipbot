@@ -12,7 +12,6 @@ let axiosApi = axios.create({
     timeout: 10000,
 });
 
-mongoose.Promise = global.Promise;
 const mongodb = config.get("mongodb");
 mongoose.connect(mongodb.url, mongodb.options);
 const db = mongoose.connection;
