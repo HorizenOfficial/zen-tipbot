@@ -14,8 +14,8 @@
     "prettier": "prettier * --write",
     "build": "babel bot -d dist",
     "prod": "babel bot -d dist & node dist/bot.js",
-    "lint": "prettier --write bot/**/*.js",
-    "precommit": "prettier --write bot/**/*.js"
+    "lint": "prettier --write '{bot,.}/**/*.{js,json}' --single-quote --print-width 240",
+    "precommit": "prettier --write '{bot,.}/**/*.{js,json}' --single-quote --print-width 240"
   },
   "devDependencies": {
     "prettier": "^1.18.2"
