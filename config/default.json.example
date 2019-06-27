@@ -13,7 +13,7 @@
   "mongodb": {
     "url":"mongodb://localhost:27017/tipbot",
     "options": {
-      "useMongoClient": true
+      "useNewUrlParser": true
     }
   },
   "moderation":{
