@@ -26,7 +26,7 @@
   "main": "app.js",
   "original-repository": "https://github.com/lbryio/lbry-tipbot",
   "original-author": "filipnyquist <filip@lbry.io>",
-  "repository": "https://github.com/ZencashOfficial/zen-tipbot",
+  "repository": "https://github.com/HorizenOfficial/zen-tipbot",
   "author": "Robin Guyard <Gniar@protonmail.com>",
   "license": "MIT"
 }
