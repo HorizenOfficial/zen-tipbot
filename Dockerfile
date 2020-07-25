@@ -1,4 +1,4 @@
-FROM node:dubnium-alpine
+FROM node:erbium-alpine
 
 MAINTAINER cronic@zensystem.io
 
@@ -12,7 +12,7 @@ WORKDIR /home/node
 
 COPY . .
 
-RUN npm install \
+RUN npm ci \
     && npm run build
 
 CMD ["npm","run","prod"]
