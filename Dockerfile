@@ -12,7 +12,7 @@ WORKDIR /home/node
 
 COPY . .
 
-RUN npm install \
+RUN npm ci \
     && npm run build
 
 CMD ["npm","run","prod"]
