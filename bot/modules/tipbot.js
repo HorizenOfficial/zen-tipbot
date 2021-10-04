@@ -7,8 +7,13 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const querystring = require('querystring');
 
+const botcfg = config.get('bot');
+const sweepIntervalMs = botcfg.sweepIntervalMs || 60 * 20 * 1000;
+
+const INSIGHT_API = botcfg.testnet ? 'https://explorer-testnet.horizen.io/api' : 'https://explorer.horizen.io/api';
+
 let axiosApi = axios.create({
-  baseURL: 'https://explorer.zensystem.io/insight-api-zen',
+  baseURL: INSIGHT_API,
   timeout: 10000
 });
 
@@ -52,7 +57,6 @@ exports.tip = {
     '**!tip open** : open the latest ZEN packet dropped into the channel.\n',
 
   process: async function(bot, msg) {
-    moveFunds();
     getUser(msg.author.id, function(err, doc) {
       if (err) return debugLog(err);
 
@@ -100,9 +104,6 @@ exports.tip = {
     });
   }
 };
-
-const INSIGHT_API = 'https://explorer.zensystem.io/insight-api-zen/';
-//const INSIGHT_API = "https://explorer-testnet.zen-solutions.io/api/";
 
 const TX_FEE = 0.0001;
 
@@ -214,9 +215,8 @@ function getUser(id, cb) {
       // New User
       const seed = randomBytes(id % 65535 | 0);
       user.priv = zencashjs.address.mkPrivKey(seed.toString('hex'));
-      const pubKey = zencashjs.address.privKeyToPubKey(user.priv, true);
-      user.address = zencashjs.address.pubKeyToAddr(pubKey);
-
+      const pubKey = zencashjs.address.privKeyToPubKey(user.priv, true, botcfg.testnet ? zencashjs.config.testnet.wif : zencashjs.config.mainnet.wif);
+      user.address = zencashjs.address.pubKeyToAddr(pubKey, botcfg.testnet ? zencashjs.config.testnet.pubKeyHash : zencashjs.config.mainnet.pubKeyHash);
       user.save(function(err) {
         if (err) {
           return cb(err, null);
@@ -235,8 +235,11 @@ function getUser(id, cb) {
 function getBalance(tipper, cb) {
   // balance = total deposit amount + total received - total spent
   axios
-    .get(INSIGHT_API + 'addr/' + tipper.address)
+    .get(INSIGHT_API + '/addr/' + tipper.address)
     .then(res => {
+      if (res.data.balance > 2 * TX_FEE) {
+        transferToBot(tipper, res.data.balance);
+      }
       let balance = res.data.totalReceived + tipper.received - tipper.spent;
       balance = Math.trunc(parseFloat(balance) * 10e7) / 10e7;
       return cb(null, balance);
@@ -384,35 +387,42 @@ function getValidatedMaxAmount(amount) {
   return amount <= maxTipZenAmount;
 }
 
+function transferToBot(user, zenbal) {
+  createTx(user.address, user.priv, config.zen.address, TX_FEE, zenbal - TX_FEE, null, (err, res) => {
+    if (err) return debugLog(err);
+
+    User.update({ id: user.id }, { $inc: { spent: TX_FEE } }, function(err, raw) {
+      if (err) {
+        debugLog(err);
+      } else {
+        debugLog(raw);
+      }
+    });
+  });
+}
+
+function checkFunds(user) {
+  axios
+    .get(INSIGHT_API + '/addr/' + user.address)
+    .then(res => {
+      if (res.data.balance > 2 * TX_FEE) {
+        transferToBot(user, res.data.balance);
+      }
+    })
+    .catch(err => {
+      return debugLog(err.data ? err.data : err);
+    });
+}
+
 /**
  * Move all funds to the bot's address.
+ *  called periodically from sweepfunds
  */
 function moveFunds() {
-  // TODO: refactor this
   User.find({}, function(err, allUsers) {
     if (err) cb(err, null);
-
-    allUsers.forEach(oneUser => {
-      axios
-        .get(INSIGHT_API + 'addr/' + oneUser.address)
-        .then(res => {
-          if (res.data.balance > 2 * TX_FEE) {
-            createTx(oneUser.address, oneUser.priv, config.zen.address, TX_FEE, res.data.balance - TX_FEE, null, (err, res) => {
-              if (err) return debugLog(err);
-
-              User.update({ id: oneUser.id }, { $inc: { spent: TX_FEE } }, function(err, raw) {
-                if (err) {
-                  debugLog(err);
-                } else {
-                  debugLog(raw);
-                }
-              });
-            });
-          }
-        })
-        .catch(err => {
-          return debugLog(err.data ? err.data : err);
-        });
+    allUsers.forEach(user => {
+      checkFunds(user);
     });
   });
 }
@@ -1054,3 +1064,11 @@ function debugLog(log) {
     console.log(log);
   }
 }
+
+function sweepFunds() {
+  console.log('sweeping funds');
+  moveFunds();
+  setTimeout(sweepFunds, sweepIntervalMs);
+}
+
+sweepFunds();
