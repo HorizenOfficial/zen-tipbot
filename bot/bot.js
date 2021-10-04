@@ -1,9 +1,9 @@
 'use strict';
 
 const Discord = require('discord.js');
-let config = require('config');
-const moderation = config.get('moderation');
-config = config.get('bot');
+const Config = require('config');
+const moderation = Config.get('moderation');
+const config = Config.get('bot');
 const commands = {};
 const bot = new Discord.Client();
 let guild;
