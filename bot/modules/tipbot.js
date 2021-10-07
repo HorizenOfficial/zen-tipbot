@@ -211,7 +211,7 @@ function doHelp(message, tipper, words) {
       '**!tip <@user> random [message]** : tip <@user> random ZEN where ' +
       'random is <0.0, 0.1)\n\n' +
       '**!tip <@user> <amount><currency_ticker> [message]** : tip ' +
-      '<@user> ZEN in currency equivalent. Example: **!tip @lukas 200czk**. (no space between amount and ticker)' +
+      '<@user> ZEN in currency equivalent. Example: **!tip @lukas 200czk** (_no space between amount and ticker_). ' +
       'You can use <currency_ticker> with every send tip command. To list supported currencies: !tip help currency\n\n'
     );
 
@@ -219,7 +219,7 @@ function doHelp(message, tipper, words) {
       message.author.send(
         'Here are the **admin commands** you can use:\n' +
         '**!tip suspend [30] ** : suspend scheduled background tasks for indicated minutes (default one hour) while doing payouts. ' +
-        'Optional minutes must be between 1 and 100 and is saved for next time (unless tipbot restarted). \n\n' +
+        'Optional minutes must be between 1 and 100 and is saved for next time (unless tipbot is restarted). \n\n' +
         '**!tip payout <@user> <amount><fiat_currency_ticker> [message]** : send a tip to a someone who has completed a task. ' +
         'Be sure your balance is sufficient for the total of all payouts to be made since ' +
         'your balance check is skipped when using this command. Supports the same arguments as tip user.\n\n'
