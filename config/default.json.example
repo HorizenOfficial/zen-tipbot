@@ -4,10 +4,12 @@
     "serverId": "SERVER ID",
     "prefix": "!",
     "debug": true,
-    "testnet": true
+    "testnet": true,
+    "sweepIntervalMs": 1200000,
+    "sweepSuspendMs": 3600000
   },
   "zen": {
-    "priv":"UNCOMPRESSED PRIVATE KEY",
+    "priv":"UNCOMPRESSED OR WIF PRIVATE KEY",
     "address":"BOT'S ADDRESS"
   },
   "mongodb": {
@@ -20,4 +22,5 @@
     "role": "ALLOWED ROLE ID",
     "logchannel": "LOG CHANNEL ID"
   }
+  "admins": ["USER ID", "USER ID 2"]
 }
