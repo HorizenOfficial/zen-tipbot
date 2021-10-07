@@ -37,3 +37,18 @@ npm run prod
 ## Credits
 
 Based on the original work https://github.com/lbryio/lbry-tipbot from filipnyquist <filip@lbry.io>
+
+## Changes
+2021-09: 
+- The method to check all users for new deposits each time any user makes any call to tipbot has been changed to run every 20 minutes (configurable).  The check also runs when a user checks their balance, but only for that user.
+ - A user may be designated an admin by adding their discord id to the configuration.  The admin has two extra !tip commands: suspend and payout.
+ - The admin may suspend the periodic check new deposits task so it does not run for a specified number of minutes and interrupt processing payouts.
+ - The payout command allows an admin process payments without checking the balance for the admin which was slowing down processing.
+ - Help was updated with the following:
+   - help with admin commands for admins only
+   - dynamic list of currencies supported. List is updated when tipbot restarts.
+ - Node modules were updated to more recent versions along with rewrites where needed due to changes in some modules.
+ - Fixed the alternate currency feature. It now uses coingecko and supports more currencies.
+ - Fixed sending a optional message with a tip.
+ - Fixed testing on testnet.
+
