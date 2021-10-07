@@ -182,54 +182,54 @@ function doHelp(message, tipper, words) {
   if (!words || words.length < 3) {
     message.author.send(
       'Here are the commands you can use:\n' +
-        '**!tip help** : display this message.\n\n' +
-        '**!tip deposit** : get an address to top up your balance. ' +
-        '(note that a 0.0001 fee will be applied to your deposit)\n' +
-        '`Warning:` Mining directly into your `tip-bot-address` is ' +
-        "prohibited (You won't be able to use these ZEN)! And no support " +
-        'for retrieving these ZEN will be provided!\n\n' +
-        '**!tip balance** : get your balance.\n\n' +
-        '**!tip balance <currency_ticker>** : get your balance in another currency. To list supported currencies: !tip help currency\n\n' +
-        '**!tip withdraw <amount> <address>** : withdraw <amount> ZEN from ' +
-        'your balance to your `T` <address> (Only `T` addresses are ' +
-        'supported!).\n\n' +
-        '**!tip luck <amount> <n> [message]** : drop a ZEN packet in a channel, ' +
-        'the <amount> is divided *randomly* (one tip is bigger, you can win ' +
-        'the jackpot) between the <n> first people to open the ZEN packet. Leave an ' +
-        'optional [message] with the ZEN packet. Only one ZEN packet per channel is ' +
-        'allowed. Maximum is 20 people. Your ZEN packet will be active for the next ' +
-        '20 minutes, after that it can be overwritten by a new ZEN packet. Maximum' +
-        ' tip has to be ≤ 1 ZEN.\n\n' +
-        '**!tip each <amount> <n> [message]** : drop a ZEN packet in a channel, ' +
-        'the <amount> is divided *equally* between the <n> first people to ' +
-        'open the ZEN packet. Leave an optional [message] with the ZEN packet. Only ' +
-        'one ZEN packet per channel is allowed. Maximum is 20 people. Your ' +
-        'ZEN packet will be active for the next 20 minutes, after that it can be ' +
-        'overwritten by a new ZEN packet. Maximum tip has to be ≤ 1 ZEN.\n\n' +
-        '**!tip <@user> <amount> [message]** : tip <@user> <amount> ZEN. ' +
-        'Maximum tip has to be ≤ 1 ZEN.\n\n' +
-        '**!tip <@user> random [message]** : tip <@user> random ZEN where ' +
-        'random is <0.0, 0.1)\n\n' +
-        '**!tip <@user> <amount><currency_ticker> [message]** : tip ' +
-        '<@user> ZEN in currency equivalent. Example: **!tip @lukas 200czk**. (no space between amount and ticker)' +
-        'You can use <currency_ticker> with every send tip command. To list supported currencies: !tip help currency\n\n'
+      '**!tip help** : display this message.\n\n' +
+      '**!tip deposit** : get an address to top up your balance. ' +
+      '(note that a 0.0001 fee will be applied to your deposit)\n' +
+      '`Warning:` Mining directly into your `tip-bot-address` is ' +
+      "prohibited (You won't be able to use these ZEN)! And no support " +
+      'for retrieving these ZEN will be provided!\n\n' +
+      '**!tip balance** : get your balance.\n\n' +
+      '**!tip balance <currency_ticker>** : get your balance in another currency. To list supported currencies: !tip help currency\n\n' +
+      '**!tip withdraw <amount> <address>** : withdraw <amount> ZEN from ' +
+      'your balance to your `T` <address> (Only `T` addresses are ' +
+      'supported!).\n\n' +
+      '**!tip luck <amount> <n> [message]** : drop a ZEN packet in a channel, ' +
+      'the <amount> is divided *randomly* (one tip is bigger, you can win ' +
+      'the jackpot) between the <n> first people to open the ZEN packet. Leave an ' +
+      'optional [message] with the ZEN packet. Only one ZEN packet per channel is ' +
+      'allowed. Maximum is 20 people. Your ZEN packet will be active for the next ' +
+      '20 minutes, after that it can be overwritten by a new ZEN packet. Maximum' +
+      ' tip has to be ≤ 1 ZEN.\n\n' +
+      '**!tip each <amount> <n> [message]** : drop a ZEN packet in a channel, ' +
+      'the <amount> is divided *equally* between the <n> first people to ' +
+      'open the ZEN packet. Leave an optional [message] with the ZEN packet. Only ' +
+      'one ZEN packet per channel is allowed. Maximum is 20 people. Your ' +
+      'ZEN packet will be active for the next 20 minutes, after that it can be ' +
+      'overwritten by a new ZEN packet. Maximum tip has to be ≤ 1 ZEN.\n\n' +
+      '**!tip <@user> <amount> [message]** : tip <@user> <amount> ZEN. ' +
+      'Maximum tip has to be ≤ 1 ZEN.\n\n' +
+      '**!tip <@user> random [message]** : tip <@user> random ZEN where ' +
+      'random is <0.0, 0.1)\n\n' +
+      '**!tip <@user> <amount><currency_ticker> [message]** : tip ' +
+      '<@user> ZEN in currency equivalent. Example: **!tip @lukas 200czk**. (no space between amount and ticker)' +
+      'You can use <currency_ticker> with every send tip command. To list supported currencies: !tip help currency\n\n'
     );
 
     if (tipper.isAdmin) {
       message.author.send(
         'Here are the **admin commands** you can use:\n' +
-          '**!tip suspend [30] ** : suspend scheduled background tasks for indicated minutes (default one hour) while doing payouts. ' +
-          'Optional minutes must be between 1 and 100 and is saved for next time (unless tipbot restarted). \n\n' +
-          '**!tip payout <@user> <amount><fiat_currency_ticker> [message]** : send a tip to a someone who has completed a task. ' +
-          'Be sure your balance is sufficient for the total of all payouts to be made since ' +
-          'your balance check is skipped when using this command. Supports the same arguments as tip user.\n\n'
+        '**!tip suspend [30] ** : suspend scheduled background tasks for indicated minutes (default one hour) while doing payouts. ' +
+        'Optional minutes must be between 1 and 100 and is saved for next time (unless tipbot restarted). \n\n' +
+        '**!tip payout <@user> <amount><fiat_currency_ticker> [message]** : send a tip to a someone who has completed a task. ' +
+        'Be sure your balance is sufficient for the total of all payouts to be made since ' +
+        'your balance check is skipped when using this command. Supports the same arguments as tip user.\n\n'
       );
     }
   }
 
   if (words && words[2] && words[2] === 'currency') {
     message.author.send('Supported currencies (fiat and coins): \n\n' +
-     `${currencyHelp ? currencyHelp : allowedFiatCurrencySymbols.toString().replace(/,/g, ', ')}\n`);
+      `${currencyHelp ? currencyHelp : allowedFiatCurrencySymbols.toString().replace(/,/g, ', ')}\n`);
   }
 }
 
@@ -450,7 +450,7 @@ function getValidatedAmount(tipper, message, _amount, cb) {
   });
 }
 
-function getValidatedPayoutAmount(message, _amount, cb) {
+function getValidatedPayoutAmount(tipper, message, _amount, cb) {
   // this version skips getting the balance for the tipper (admin) unless a currency symbol is found
 
   let amount = _amount.trim().toLowerCase();
@@ -524,6 +524,7 @@ function getValidatedMaxAmount(amount) {
 function transferToBot(user, zenbal) {
   createTx(user.address, user.priv, zencfg.address, TX_FEE, zenbal - TX_FEE, null, (err, res) => {
     if (err) return debugLog(err);
+    debugLog(`transfer ${zenbal} for ${user.id}  txid:${res}`);
 
     User.updateOne({ id: user.id }, { $inc: { spent: TX_FEE } }, function (err, raw) {
       if (err) {
@@ -554,7 +555,7 @@ function checkFunds(user) {
  */
 function moveFunds() {
   User.find({}, function (err, allUsers) {
-    if (err) cb(err, null);
+    if (err) return debugLog(err.data ? err.data : err);
     allUsers.forEach((user) => {
       checkFunds(user);
     });
@@ -875,7 +876,7 @@ function doOpenTip(message, receiver, words, bot) {
     }
 
     sendZen(tipper, receiver, amount);
-    bot.users.get(tipper.id).send('<@' + message.author.id + '> received your tip (' + amount.toString() + ' ZEN)!');
+    bot.users.cache.get(tipper.id).send('<@' + message.author.id + '> received your tip (' + amount.toString() + ' ZEN)!');
     message.author.send('<@' + tipper.id + '> sent you a **' + amount.toString() + ' ZEN** tip !');
 
     debugLog('open message.author.id ' + message.author.id);
@@ -1171,7 +1172,7 @@ function doPayout(message, tipper, words, bot) {
     return doHelp(message, words);
   }
 
-  getValidatedPayoutAmount(message, words[3], function (err, amount) {
+  getValidatedPayoutAmount(tipper, message, words[3], function (err, amount) {
     if (err) return;
 
     debugLog(amount);
@@ -1259,7 +1260,7 @@ function sendToBotLogChannel(bot, msgtext) {
     const channel = bot.channels.cache.get(mod.logchannel);
     channel.send(msgtext);
   } catch (error) {
-    return debugLog(err.data ? err.data : err);
+    return debugLog(error.data ? error.data : error);
   }
 }
 

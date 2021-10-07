@@ -17,12 +17,16 @@
     "precommit": "prettier --write '{bot,.}/**/*.{js,json}' --single-quote --print-width 240"
   },
   "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-node": "^11.1.0",
     "prettier": "^2.4.1"
   },
   "name": "zen-tipbot",
   "version": "0.0.1",
   "description": "ZenCash tipbot for Discord",
   "main": "app.js",
+  "type": "commonjs",
   "original-repository": "https://github.com/lbryio/lbry-tipbot",
   "original-author": "filipnyquist <filip@lbry.io>",
   "repository": "https://github.com/HorizenOfficial/zen-tipbot",

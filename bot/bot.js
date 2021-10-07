@@ -10,6 +10,7 @@ let guild;
 let aliases;
 
 try {
+  // eslint-disable-next-line node/no-missing-require
   aliases = require('./alias.json');
 } catch (e) {
   // No aliases defined
@@ -34,25 +35,22 @@ bot.on('ready', function () {
 bot.on('disconnected', function () {
   console.log('Disconnected!');
   // exit node.js with an error
-  process.exit(1);
+  process.exitCode = 1;
 });
 
 /**
  * @param msg
- * @param isEdit
+ * 
  */
-function checkMessageForCommand(msg, isEdit) {
+function checkMessageForCommand(msg) {
   // check if message is a command
   let txt = msg.content.split(' ')[0];
   if (msg.author.id !== bot.user.id && txt === config.prefix + 'tip') {
     console.log('treating ' + msg.content + ' from ' + msg.author + ' as command');
     let cmdTxt = msg.content.split(' ')[0].substring(config.prefix.length);
-    // add one for the ! and one for the space
-    let suffix = msg.content.substring(cmdTxt.length + config.prefix.length + 1);
     if (msg.mentions.has(bot.user)) {
       try {
         cmdTxt = msg.content.split(' ')[1];
-        suffix = msg.content.substring(bot.user.mention().length + cmdTxt.length + config.prefix.length + 1);
       } catch (e) {
         // no command
         msg.channel.send('Yes, how can I help you? DM me with !tip help');
@@ -102,7 +100,7 @@ function checkMessageForCommand(msg, isEdit) {
   }
 }
 
-bot.on('message', (msg) => checkMessageForCommand(msg, false));
+bot.on('message', (msg) => checkMessageForCommand(msg));
 
 exports.addCommand = function (commandName, commandObject) {
   try {
