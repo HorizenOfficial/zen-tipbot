@@ -7,7 +7,7 @@
     "config": "^3.1.0",
     "discord.js": "^12.5.3",
     "mongoose": "^6.0.9",
-    "zencashjs": "^1.2.7"
+    "zencashjs": "^2.0.1-rc1"
   },
   "scripts": {
     "prettier": "prettier * --write",
