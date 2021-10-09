@@ -10,10 +10,10 @@ const botcfg = config.get('bot');
 const zencfg = config.get('zen');
 const mod = config.get('moderation');
 
-const sweepInterval = botcfg.sweepIntervalMs || 60 * 20 * 1000;
+const sweepInterval = botcfg.sweepIntervalMs || 60 * 60 * 24 * 1000;
 let sweepSuspend = botcfg.sweepSuspendMs || 60 * 60 * 1000;
 let lastSuspend = new Date();
-// adjust initial sweep time back one hour
+// adjust so initial sweep runs on start
 lastSuspend = new Date(lastSuspend - sweepSuspend);
 // validation for 1-100
 const regSuspend = /^[1-9]$|^[1-9][0-9]$|^(100)$/;
@@ -188,7 +188,8 @@ function doHelp(message, tipper, words) {
       '`Warning:` Mining directly into your `tip-bot-address` is ' +
       "prohibited (You won't be able to use these ZEN)! And no support " +
       'for retrieving these ZEN will be provided!\n\n' +
-      '**!tip balance** : get your balance.\n\n' +
+      '**!tip balance** : get your balance. If the balance is incorrect and you recently made a deposit, ' +
+      'please wait a few minutes for the transaction to complete and check again\n\n' +
       '**!tip balance <currency_ticker>** : get your balance in another currency. To list supported currencies: !tip help currency\n\n' +
       '**!tip withdraw <amount> <address>** : withdraw <amount> ZEN from ' +
       'your balance to your `T` <address> (Only `T` addresses are ' +
