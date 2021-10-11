@@ -1,14 +1,14 @@
 'use strict';
 
-const config = require('config');
+// eslint-disable-next-line node/no-unpublished-require
+const { Config } = require('../../config/default');
+
 const zencashjs = require('zencashjs');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const axios = require('axios');
 
-const botcfg = config.get('bot');
-const zencfg = config.get('zen');
-const mod = config.get('moderation');
+const { moderation, mongodb, admins, zencfg, botcfg } = Config
 
 const sweepInterval = botcfg.sweepIntervalMs || 60 * 60 * 24 * 1000;
 let sweepSuspend = botcfg.sweepSuspendMs || 60 * 60 * 1000;
@@ -26,14 +26,19 @@ let axiosApi = axios.create({
   baseURL: INSIGHT_API,
   timeout: 10000,
 });
+let db;
 
-const mongodb = config.get('mongodb');
-mongoose.connect(mongodb.url, mongodb.options);
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error: '));
-db.once('open', function () {
-  console.log("Mongodb: connected to '" + this.host + '/' + this.name + "'!");
-});
+try {
+  mongoose.connect(mongodb.url, mongodb.options);
+  db = mongoose.connection;
+  db.on('error', console.error.bind(console, 'connection error: '));
+  db.once('open', function () {
+    console.log("Mongodb: connected to '" + this.host + '/' + this.name + "'!");
+  });
+} catch (error) {
+  console.error(error);
+  process.exitCode = 1;
+}
 
 const userSchema = mongoose.Schema({
   id: String,
@@ -44,8 +49,9 @@ const userSchema = mongoose.Schema({
 });
 const User = db.model('User', userSchema);
 
-const admins = config.get('admins');
+
 function isAdmin(discordId) {
+  if (!admins) return false;
   return admins.includes(discordId);
 }
 
@@ -1206,7 +1212,7 @@ function doPayout(message, tipper, words, bot) {
           const msgtotarget = words.length > 4 ? words.slice(4).join(' ') : '';
           const text = `<@${tipper.id}> sent you a **${amount} ZEN** tip! ${msgtotarget}`;
           target.send(text);
-          if (mod.logchannel) sendToBotLogChannel(bot, `payout of ${amount} sent to <@${receiver.id}> ${msgtotarget}`);
+          if (moderation.logchannel) sendToBotLogChannel(bot, `payout of ${amount} sent to <@${receiver.id}> ${msgtotarget}`);
         });
       }
     } catch (error) {
@@ -1258,7 +1264,7 @@ function debugLog(log) {
 
 function sendToBotLogChannel(bot, msgtext) {
   try {
-    const channel = bot.channels.cache.get(mod.logchannel);
+    const channel = bot.channels.cache.get(moderation.logchannel);
     channel.send(msgtext);
   } catch (error) {
     return debugLog(error.data ? error.data : error);
@@ -1275,7 +1281,7 @@ function suspend(msg, tipper, words, bot) {
     if (!regSuspend.test(words[2])) return msg.reply('Minutes must be between 1 and 100. Suspend failed.');
     sweepSuspend = Number(words[2]) * 60 * 1000;
   }
-  if (mod.logchannel) sendToBotLogChannel(bot, `Scheduled background task suspended for ${sweepSuspend / 1000 / 60} minutes.`);
+  if (moderation.logchannel) sendToBotLogChannel(bot, `Scheduled background task suspended for ${sweepSuspend / 1000 / 60} minutes.`);
 
   return msg.reply(`Scheduled background task suspended for ${sweepSuspend / 1000 / 60} minutes.`);
 }

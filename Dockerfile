@@ -1,4 +1,4 @@
-FROM node:erbium-alpine
+FROM node:fermium-alpine
 
 MAINTAINER cronic@zensystem.io
 
@@ -12,8 +12,7 @@ WORKDIR /home/node
 
 COPY . .
 
-RUN npm ci \
-    && npm run build
+RUN npm ci
 
 CMD ["npm","run","prod"]
 

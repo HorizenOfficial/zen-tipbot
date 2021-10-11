@@ -1,9 +1,11 @@
 'use strict';
 
+// eslint-disable-next-line node/no-unpublished-require
+const { Config } = require('../config/default');
 const Discord = require('discord.js');
-const Config = require('config');
-const moderation = Config.get('moderation');
-const config = Config.get('bot');
+
+const moderation = Config.moderation;
+const config = Config.botcfg;
 const commands = {};
 const bot = new Discord.Client();
 let guild;
