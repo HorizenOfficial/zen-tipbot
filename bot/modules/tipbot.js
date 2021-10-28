@@ -321,7 +321,7 @@ function doBalance(message, tipper, words) {
       debugLog(err);
       return message.reply('error getting balance!');
     }
-    if (words.length > 2 && allowedFiatCurrencySymbols.includes(words[2])) {
+    if (words.length > 2 && allowedFiatCurrencySymbols.includes(words[2].toLowerCase())) {
       getFiatToZenEquivalent(balance, words[2], true, function (err, value) {
         if (err) {
           message.reply(`Error getting currency rate for ${words[2]}`);
