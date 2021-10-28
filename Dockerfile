@@ -2,7 +2,7 @@ FROM node:fermium-alpine
 
 MAINTAINER cronic@zensystem.io
 
-RUN apk add --no-cache git python build-base bash
+RUN apk add --no-cache git python build-base bash tini
 
 USER node
 
@@ -14,5 +14,7 @@ COPY . .
 
 RUN npm ci
 
-CMD ["npm","run","prod"]
+ENTRYPOINT ["/sbin/tini", "-e 143", "--"]
+
+CMD ["npm", "run", "prod"]
 
