@@ -888,7 +888,7 @@ function doOpenTip(message, receiver, words, bot) {
 
     sendZen(tipper, receiver, amount);
     bot.users.cache.get(tipper.id).send('<@' + message.author.id + '> received your tip (' + amount.toString() + ' ZEN)!');
-    message.author.send('<@' + tipper.id + '> sent you a **' + amount.toString() + ' ZEN** tip !');
+    message.author.send(`${bot.users.cache.get(tipper.id).tag} sent you a **${amount} ZEN** tip!`);
 
     debugLog('open message.author.id ' + message.author.id);
 
