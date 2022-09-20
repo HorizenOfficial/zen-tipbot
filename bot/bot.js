@@ -2,12 +2,16 @@
 
 // eslint-disable-next-line node/no-unpublished-require
 const { Config } = require('../config/default');
-const Discord = require('discord.js');
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
+
 
 const moderation = Config.moderation;
 const config = Config.botcfg;
 const commands = {};
-const bot = new Discord.Client();
+const bot = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages],
+   partials: [Partials.Message, Partials.Channel, Partials.Reaction] 
+});
 let guild;
 let aliases;
 
@@ -45,6 +49,10 @@ bot.on('disconnected', function () {
  * 
  */
 function checkMessageForCommand(msg) {
+  // don't process replies
+  // https://discord.com/developers/docs/resources/channel#message-object-message-types
+  if (msg.type === 19 ) return null;
+
   // check if message is a command
   let txt = msg.content.split(' ')[0];
   if (msg.author.id !== bot.user.id && txt === config.prefix + 'tip') {
@@ -69,7 +77,7 @@ function checkMessageForCommand(msg) {
 
     if (cmd) {
       try {
-        const target = guild.member(msg.author.id) || guild.member(guild.owner);
+        const target = guild.members.cache.has(msg.author.id) || guild.members.cache.has(guild.owner);
         // permission check
         if (target && moderation.role && !target.roles.cache.has(moderation.role)) {
           console.log('member ' + msg.author.id + ' not allowed to use the bot');
@@ -102,7 +110,10 @@ function checkMessageForCommand(msg) {
   }
 }
 
-bot.on('message', (msg) => checkMessageForCommand(msg));
+bot.on('messageCreate', (msg) => {
+  checkMessageForCommand(msg);
+}
+);
 
 exports.addCommand = function (commandName, commandObject) {
   try {

@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "axios": "^0.22.0",
-    "discord.js": "^12.5.3",
+    "discord.js": "^14.3.0",
     "mongoose": "^6.0.10",
     "zencashjs": "^2.0.1-rc1"
   },
