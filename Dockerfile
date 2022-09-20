@@ -2,7 +2,7 @@ FROM node:gallium-alpine
 
 MAINTAINER cronic@zensystem.io
 
-RUN apk add --no-cache git python build-base bash tini
+RUN apk add --no-cache git python3 build-base bash tini
 
 USER node
 
