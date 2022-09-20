@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "axios": "^0.22.0",
-    "discord.js": "^12.5.3",
-    "mongoose": "^6.0.10",
-    "zencashjs": "^2.0.1-rc1"
+    "axios": "^0.27.2",
+    "discord.js": "^14.3.0",
+    "mongoose": "^6.6.1",
+    "zencashjs": "^2.0.2"
   },
   "scripts": {
     "prettier": "prettier * --write",
@@ -12,10 +12,10 @@
     "precommit": "prettier --write '{bot,.}/**/*.{js,json}' --single-quote --print-width 240"
   },
   "devDependencies": {
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint": "^8.23.1",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-node": "^11.1.0",
-    "prettier": "^2.4.1"
+    "prettier": "^2.7.1"
   },
   "name": "zen-tipbot",
   "version": "0.0.1",

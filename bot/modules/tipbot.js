@@ -182,8 +182,8 @@ let allowedFiatCurrencySymbols = [
  * @param message
  */
 function doHelp(message, tipper, words) {
-  if (message.channel.type !== 'dm') {
-    return message.reply('send me this command in direct message!');
+  if (message.channel.type !== 1) {
+    return message.reply('send me this command in a direct message!');
   }
   if (!words || words.length < 3) {
     message.author.send(
@@ -312,7 +312,7 @@ function getBalance(tipper, cb) {
  * @param tipper
  */
 function doBalance(message, tipper, words) {
-  if (message.channel.type !== 'dm') {
+  if (message.channel.type !== 1) {
     return message.reply('send me this command in a direct message!');
   }
 
@@ -341,7 +341,7 @@ function doBalance(message, tipper, words) {
  * @param tipper
  */
 function doDeposit(message, tipper) {
-  if (message.channel.type !== 'dm') {
+  if (message.channel.type !== 1) {
     return message.reply('send me this command in a direct message!');
   }
 
@@ -759,7 +759,7 @@ async function createTx(fromAddress, privateKey, toAddress, fee, amount, message
  * @param words
  */
 function doWithdraw(message, tipper, words) {
-  if (message.channel.type !== 'dm') {
+  if (message.channel.type !== 1) {
     return message.reply('send me this command in a direct message!');
   }
 
@@ -833,7 +833,7 @@ function retreiveChannelTipObjIdx(set, channel_id) {
  * @param bot
  */
 function doOpenTip(message, receiver, words, bot) {
-  if (message.channel.type === 'dm') {
+  if (message.channel.type === 1) {
     return message.reply("you can't send me this command in a DM");
   }
 
@@ -982,7 +982,7 @@ function shuffle(array) {
  * @param words
  */
 function createTipLuck(message, tipper, words) {
-  if (message.channel.type === 'dm') {
+  if (message.channel.type === 1) {
     return message.reply("you can't send me this command in a DM");
   }
 
@@ -1054,7 +1054,7 @@ function createTipLuck(message, tipper, words) {
  * @param words
  */
 function createTipEach(message, tipper, words) {
-  if (message.channel.type === 'dm') {
+  if (message.channel.type === 1) {
     return message.reply("you can't send me this command in a DM");
   }
 
@@ -1120,7 +1120,7 @@ function resolveMention(usertxt) {
  * @param bot
  */
 function doTip(message, tipper, words, bot) {
-  if (message.channel.type === 'dm') {
+  if (message.channel.type === 1) {
     return message.reply("you can't send me this command in a DM");
   }
 
@@ -1170,7 +1170,7 @@ function doTip(message, tipper, words, bot) {
 }
 
 function doPayout(message, tipper, words, bot) {
-  if (message.channel.type === 'dm') {
+  if (message.channel.type === 1) {
     return message.reply("you can't send me this command in a DM");
   }
 

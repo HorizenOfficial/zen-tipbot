@@ -1,5 +1,5 @@
 # Bot for ZEN's Discord
-(This README will be updated along with bot updates)
+This bot allows users to send tips (ZEN) to other users after funding their tip account. 
 
 Features:
 
@@ -9,8 +9,7 @@ Features:
 
 ## Requirements
 
-- node > 8.0.0
-- npm > 0.12.x
+- node > 16.9.0
 - mongod > 3.6.0
 
 
@@ -39,6 +38,9 @@ npm run prod
 Based on the original work https://github.com/lbryio/lbry-tipbot from filipnyquist <filip@lbry.io>
 
 ## Changes
+2022-09:
+ - Updated discord.js to v14 (required some code changes)
+ - Updated other dependencies
 2021-09: 
 - The method to check all users for new deposits each time any user makes any call to tipbot has been changed to run every 20 minutes (configurable).  The check also runs when a user checks their balance, but only for that user.
  - A user may be designated an admin by adding their discord id to the configuration.  The admin has two extra !tip commands: suspend and payout.
