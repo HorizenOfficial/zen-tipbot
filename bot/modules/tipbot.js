@@ -77,62 +77,61 @@ exports.tip = {
     ' the ZEN packet. Leave an optional [message] with the ZEN packet.\n' +
     '**!tip open** : open the latest ZEN packet dropped into the channel.\n',
 
-  process: function (bot, msg) {
+  process: async function (bot, msg) {
     try {
-      getUser(msg.author.id, function (err, doc) {
-        if (err) return debugLog(err);
+      const { err, user } = await getUser(msg.author.id)
+      if (err) return debugLog(err);
 
-        const tipper = doc;
-        tipper.isAdmin = isAdmin(doc.id);
-        const words = msg.content
-          .trim()
-          .split(' ')
-          .filter(function (n) {
-            return n !== '';
-          });
-        const subcommand = words.length >= 2 ? words[1] : 'help';
+      const tipper = user;
+      tipper.isAdmin = isAdmin(user.id);
+      const words = msg.content
+        .trim()
+        .split(' ')
+        .filter(function (n) {
+          return n !== '';
+        });
+      const subcommand = words.length >= 2 ? words[1] : 'help';
 
-        switch (subcommand) {
-          case 'help':
-            doHelp(msg, tipper, words);
-            break;
+      switch (subcommand) {
+        case 'help':
+          doHelp(msg, tipper, words);
+          break;
 
-          case 'balance':
-            doBalance(msg, tipper, words);
-            break;
+        case 'balance':
+          doBalance(msg, tipper, words);
+          break;
 
-          case 'deposit':
-            doDeposit(msg, tipper);
-            break;
+        case 'deposit':
+          doDeposit(msg, tipper);
+          break;
 
-          case 'withdraw':
-            doWithdraw(msg, tipper, words);
-            break;
+        case 'withdraw':
+          doWithdraw(msg, tipper, words);
+          break;
 
-          case 'each':
-            createTipEach(msg, tipper, words);
-            break;
+        case 'each':
+          createTipEach(msg, tipper, words);
+          break;
 
-          case 'luck':
-            createTipLuck(msg, tipper, words);
-            break;
+        case 'luck':
+          createTipLuck(msg, tipper, words);
+          break;
 
-          case 'open':
-            doOpenTip(msg, tipper, words, bot);
-            break;
+        case 'open':
+          doOpenTip(msg, tipper, words, bot);
+          break;
 
-          case 'suspend':
-            suspend(msg, tipper, words, bot);
-            break;
+        case 'suspend':
+          suspend(msg, tipper, words, bot);
+          break;
 
-          case 'payout':
-            doPayout(msg, tipper, words, bot);
-            break;
+        case 'payout':
+          doPayout(msg, tipper, words, bot);
+          break;
 
-          default:
-            doTip(msg, tipper, words, bot);
-        }
-      });
+        default:
+          doTip(msg, tipper, words, bot);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -223,7 +222,7 @@ function doHelp(message, tipper, words) {
     );
   }
 
-  if (tipper.isAdmin && (words.length === 2 || words.length > 2 && words[2] === 'admin')){
+  if (tipper.isAdmin && (words.length === 2 || words.length > 2 && words[2] === 'admin')) {
     message.author.send(
       'These are the **admin commands** you can use:\n' +
       '**!tip suspend [30] ** : suspend scheduled background tasks for indicated minutes (default one hour) while doing payouts. ' +
@@ -248,7 +247,7 @@ function doHelp(message, tipper, words) {
  * @param id
  * @param cb
  */
-function getUser(id, cb) {
+async function getUser(id) {
   //  default user
   const user = new User({
     id: id,
@@ -259,28 +258,23 @@ function getUser(id, cb) {
   });
 
   // look for user in DB
-  User.findOne({ id: id }, function (err, doc) {
-    if (err) {
-      return cb(err, null);
-    }
+  const userDb = await User.findOne({ id: id }).exec();
 
-    if (doc) {
-      // Existing User
-      return cb(null, doc);
-    } else {
-      // New User
-      const seed = crypto.randomBytes(id % 65535 | 0);
-      user.priv = zencashjs.address.mkPrivKey(seed.toString('hex'));
-      const pubKey = zencashjs.address.privKeyToPubKey(user.priv, true, botcfg.testnet ? zencashjs.config.testnet.wif : zencashjs.config.mainnet.wif);
-      user.address = zencashjs.address.pubKeyToAddr(pubKey, botcfg.testnet ? zencashjs.config.testnet.pubKeyHash : zencashjs.config.mainnet.pubKeyHash);
-      user.save(function (err) {
-        if (err) {
-          return cb(err, null);
-        }
-        return cb(null, user);
-      });
+  if (userDb) {
+    // Existing User
+    return Promise.resolve({ err: null, user: userDb });
+  } else {
+    // New User
+    const seed = crypto.randomBytes(id % 65535 | 0);
+    user.priv = zencashjs.address.mkPrivKey(seed.toString('hex'));
+    const pubKey = zencashjs.address.privKeyToPubKey(user.priv, true, botcfg.testnet ? zencashjs.config.testnet.wif : zencashjs.config.mainnet.wif);
+    user.address = zencashjs.address.pubKeyToAddr(pubKey, botcfg.testnet ? zencashjs.config.testnet.pubKeyHash : zencashjs.config.mainnet.pubKeyHash);
+    const newUser = await user.save()
+    if (user != newUser) {
+      return Promise.resolve((new Error(`user with address ${user.address} was not added to the database`), null));
     }
-  });
+    return Promise.resolve({ err: null, user });
+  }
 }
 
 /**
@@ -533,17 +527,15 @@ function getValidatedMaxAmount(amount) {
 }
 
 function transferToBot(user, zenbal) {
-  createTx(user.address, user.priv, zencfg.address, TX_FEE, zenbal - TX_FEE, null, (err, res) => {
+  createTx(user.address, user.priv, zencfg.address, TX_FEE, zenbal - TX_FEE, null, async (err, res) => {
     if (err) return debugLog(err);
     debugLog(`transfer ${zenbal} for ${user.id}  txid:${res}`);
 
-    User.updateOne({ id: user.id }, { $inc: { spent: TX_FEE } }, function (err, raw) {
-      if (err) {
-        debugLog(err);
-      } else {
-        debugLog(raw);
-      }
-    });
+    const resp = await User.updateOne({ id: user.id }, { $inc: { spent: TX_FEE } });
+    if (resp.modifiedCount == 0) {
+      return debugLog(`Unable to update user record user.id ${user.id} in transfer to bot`);
+    }
+    debugLog(resp);
   });
 }
 
@@ -564,13 +556,15 @@ function checkFunds(user) {
  * Move all funds to the bot's address.
  *  called periodically from sweepfunds
  */
-function moveFunds() {
-  User.find({}, function (err, allUsers) {
-    if (err) return debugLog(err.data ? err.data : err);
+async function moveFunds() {
+  try {
+    const allUsers = await User.find({})
     allUsers.forEach((user) => {
       checkFunds(user);
     });
-  });
+  } catch (err) {
+    if (err) return debugLog(err.data ? err.data : err);
+  }
 }
 
 /**
@@ -783,33 +777,28 @@ function doWithdraw(message, tipper, words) {
       return message.reply('only `T` addresses are supported!');
     }
 
-    /*axios.get(
-            INSIGHT_API + "/utils/estimatefee"
-        ).then((res) => {*/
-    const fee = TX_FEE; //temporary
+    const fee = TX_FEE;
     let fromAddress = zencfg.address;
     let privateKey = zencfg.priv;
 
     if (!regHex.test(privateKey)) privateKey = zencashjs.address.WIFToPrivKey(privateKey);
-    createTx(fromAddress, privateKey, toAddress, fee, amount - fee, message, function (err, txId) {
+    createTx(fromAddress, privateKey, toAddress, fee, amount - fee, message, async function (err, txId) {
       if (err) {
         debugLog(err);
         return message.reply('error creating transaction object !');
       }
 
-      User.updateOne({ id: tipper.id }, { $inc: { spent: amount } }, function (err, raw) {
-        if (err) {
-          debugLog(err);
-        } else {
-          debugLog(raw);
-          return message.reply(`you withdrew **${amount.toString()} ZEN** (-${fee} fee) to **${toAddress}** (${txLink(txId)})!`);
-        }
-      });
+      const resp = await User.updateOne({ id: tipper.id }, { $inc: { spent: amount } });
+      if (resp.modifiedCount != 1) {
+        const msg = `Updating balance for withdawl failed for ${tipper.id}`
+        debugLog(msg)
+        message.reply(msg)
+        return;
+      }
+
+      debugLog(resp);
+      return message.reply(`You withdrew **${amount.toString()} ZEN** (-${fee} fee) to **${toAddress}** (${txLink(txId)})!`);
     });
-    /*}).catch((err) => {
-            debugLog(err.data);
-            return message.reply("error getting estimatefee!");
-        });*/
   });
 }
 
@@ -851,7 +840,7 @@ function doOpenTip(message, receiver, words, bot) {
   let tipper = tipAllChannels[idx].tipper;
   debugLog('open tipper.id' + tipper.id);
 
-  getBalance(tipper, function (err, balance) {
+  getBalance(tipper, async function (err, balance) {
     if (err) {
       return message.reply('error getting balance!');
     }
@@ -886,7 +875,11 @@ function doOpenTip(message, receiver, words, bot) {
       }
     }
 
-    sendZen(tipper, receiver, amount);
+    const sendError = await sendZen(tipper, receiver, amount);
+    if (sendError) {
+      debugLog(sendError);
+      return message.reply(sendError)
+    }
     bot.users.cache.get(tipper.id).send('<@' + message.author.id + '> received your tip (' + amount.toString() + ' ZEN)!');
     message.author.send(`${bot.users.cache.get(tipper.id).tag} sent you a **${amount} ZEN** tip!`);
 
@@ -1129,7 +1122,7 @@ function doTip(message, tipper, words, bot) {
     return doHelp(message, words);
   }
 
-  getValidatedAmount(tipper, message, words[2], function (err, amount) {
+  getValidatedAmount(tipper, message, words[2], async function (err, amount) {
     if (err) return;
 
     debugLog(amount);
@@ -1151,17 +1144,19 @@ function doTip(message, tipper, words, bot) {
           return message.reply("you can't tip yourself ...");
         }
 
-        getUser(target.id, function (err, receiver) {
-          if (err) {
-            return message.reply(err.message);
-          }
-
-          sendZen(tipper, receiver, amount);
-          message.author.send(`${bot.users.cache.get(receiver.id).tag} received your tip (${amount} ZEN)!`);
-          const msgtotarget = words.length > 3 ? words.slice(3).join(' ') : '';
-          const text = `${bot.users.cache.get(tipper.id).tag} sent you a **${amount} ZEN** tip! ${msgtotarget}`;
-          target.send(text);
-        });
+        const { err, user } = await getUser(target.id);
+        if (err) {
+          return message.reply(err.message);
+        }
+        const sendError = await sendZen(tipper, user, amount);
+        if (sendError) {
+          debugLog(sendError);
+          return message.reply(sendError)
+        }
+        message.author.send(`${bot.users.cache.get(user.id).tag} received your tip (${amount} ZEN)!`);
+        const msgtotarget = words.length > 3 ? words.slice(3).join(' ') : '';
+        const text = `${bot.users.cache.get(tipper.id).tag} sent you a **${amount} ZEN** tip! ${msgtotarget}`;
+        target.send(text);
       }
     } catch (error) {
       debugLog('Failed to fetch user or process tip: ', error);
@@ -1183,7 +1178,7 @@ function doPayout(message, tipper, words, bot) {
     return doHelp(message, words);
   }
 
-  getValidatedPayoutAmount(tipper, message, words[3], function (err, amount) {
+  getValidatedPayoutAmount(tipper, message, words[3], async function (err, amount) {
     if (err) return;
 
     debugLog(amount);
@@ -1206,18 +1201,21 @@ function doPayout(message, tipper, words, bot) {
           return message.reply("you can't pay yourself ...");
         }
 
-        getUser(target.id, function (err, receiver) {
-          if (err) {
-            return message.reply(err.message);
-          }
+        const { err, user } = await getUser(target.id)
+        if (err) {
+          return message.reply(err.message);
+        }
 
-          sendZen(tipper, receiver, amount);
-          message.author.send(`${bot.users.cache.get(receiver.id).tag} received your tip (${amount} ZEN)!`);
-          const msgtotarget = words.length > 4 ? words.slice(4).join(' ') : '';
-          const text = `${bot.users.cache.get(tipper.id).tag} sent you a **${amount} ZEN** tip! ${msgtotarget}`;
-          target.send(text);
-          if (moderation.logchannel) sendToBotLogChannel(bot, `payout of ${amount} sent to <@${receiver.id}> ${msgtotarget}`);
-        });
+        const sendError = await sendZen(tipper, user, amount);
+        if (sendError) {
+          debugLog(sendError);
+          return message.reply(sendError)
+        }
+        message.author.send(`${bot.users.cache.get(user.id).tag} received your tip (${amount} ZEN)!`);
+        const msgtotarget = words.length > 4 ? words.slice(4).join(' ') : '';
+        const text = `${bot.users.cache.get(tipper.id).tag} sent you a **${amount} ZEN** tip! ${msgtotarget}`;
+        target.send(text);
+        if (moderation.logchannel) sendToBotLogChannel(bot, `payout of ${amount} sent to <@${user.id}> ${msgtotarget}`);
       }
     } catch (error) {
       debugLog('Failed to fetch user or process tip: ', error);
@@ -1230,24 +1228,26 @@ function doPayout(message, tipper, words, bot) {
  * @param receiver
  * @param amount
  */
-function sendZen(tipper, receiver, amount) {
+async function sendZen(tipper, receiver, amount) {
   // update tipper's spent amount
-  User.updateOne({ id: tipper.id }, { $inc: { spent: amount } }, function (err, raw) {
-    if (err) {
-      debugLog(err);
-    } else {
-      debugLog(raw);
-    }
-  });
+
+  let resp = await User.updateOne({ id: tipper.id }, { $inc: { spent: amount } });
+  if (resp.modifiedCount != 1) {
+    const msg = `Sending failed. Unable to update sent amount for ${tipper.id}`
+    return Promise.resolve(msg)
+  }
+  debugLog(`SendZen: added ${amount} to spent for user ${tipper.id}`);
 
   // and receiver's received amount
-  User.updateOne({ id: receiver.id }, { $inc: { received: amount } }, function (err, raw) {
-    if (err) {
-      debugLog(err);
-    } else {
-      debugLog(raw);
-    }
-  });
+  resp = await User.updateOne({ id: receiver.id }, { $inc: { received: amount } });
+  if (resp.modifiedCount != 1) {
+    const msg = `Sending failed. Unable to update received amount for ${receiver.id}`
+    // revert the tipper Update.
+    resp = await User.updateOne({ id: tipper.id }, { spent: tipper.spent }).exec();
+    return Promise.resolve(msg)
+  }
+  debugLog(`SendZen: added ${amount} to received for user ${receiver.id}`);
+  return Promise.resolve('')
 }
 
 /**
