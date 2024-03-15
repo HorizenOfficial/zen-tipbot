@@ -10,7 +10,7 @@ const config = Config.botcfg;
 const commands = {};
 const bot = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages],
-   partials: [Partials.Message, Partials.Channel, Partials.Reaction] 
+  partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 let guild;
 let aliases;
@@ -51,7 +51,12 @@ bot.on('disconnected', function () {
 function checkMessageForCommand(msg) {
   // don't process replies
   // https://discord.com/developers/docs/resources/channel#message-object-message-types
-  if (msg.type === 19 ) return null;
+  if (msg.type === 19) return null;
+
+  if (msg.mentions.everyone) {
+    console.log('skipping message to everyone')
+    return
+  }
 
   // check if message is a command
   let txt = msg.content.split(' ')[0];
