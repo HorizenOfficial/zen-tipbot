@@ -1,29 +1,27 @@
 {
   "dependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
-    "axios": "^0.19.0",
-    "config": "^3.1.0",
-    "crypto-browserify": "^3.12.0",
-    "discord.js": "^11.4.2",
-    "mongoose": "^5.6.0",
-    "zencashjs": "^1.2.0"
+    "axios": "^1.6.7",
+    "discord.js": "^14.3.0",
+    "mongoose": "^8.2.1",
+    "zencashjs": "^2.0.2"
   },
   "scripts": {
     "prettier": "prettier * --write",
-    "build": "babel bot -d dist",
-    "prod": "babel bot -d dist & node dist/bot.js",
+    "prod": "node ./bot/bot.js",
     "lint": "prettier --write '{bot,.}/**/*.{js,json}' --single-quote --print-width 240",
     "precommit": "prettier --write '{bot,.}/**/*.{js,json}' --single-quote --print-width 240"
   },
   "devDependencies": {
-    "prettier": "^1.18.2"
+    "eslint": "^8.23.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^3.2.5"
   },
   "name": "zen-tipbot",
   "version": "0.0.1",
   "description": "ZenCash tipbot for Discord",
   "main": "app.js",
+  "type": "commonjs",
   "original-repository": "https://github.com/lbryio/lbry-tipbot",
   "original-author": "filipnyquist <filip@lbry.io>",
   "repository": "https://github.com/HorizenOfficial/zen-tipbot",

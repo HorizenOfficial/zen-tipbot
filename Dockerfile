@@ -1,8 +1,8 @@
-FROM node:erbium-alpine
+FROM node:gallium-alpine
 
 MAINTAINER cronic@zensystem.io
 
-RUN apk add --no-cache git python build-base bash
+RUN apk add --no-cache git python3 build-base bash tini
 
 USER node
 
@@ -12,8 +12,9 @@ WORKDIR /home/node
 
 COPY . .
 
-RUN npm ci \
-    && npm run build
+RUN npm ci
 
-CMD ["npm","run","prod"]
+ENTRYPOINT ["/sbin/tini", "-e 143", "--"]
+
+CMD ["npm", "run", "prod"]
 
